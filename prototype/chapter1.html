@@ -1,0 +1,785 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>《雾窑》第一章互动试玩原型</title>
+  <style>
+    :root {
+      --bg: #f4f1ec;
+      --paper: #fffdf8;
+      --ink: #1f2528;
+      --muted: #667174;
+      --line: #d7d0c5;
+      --accent: #8a3b1d;
+      --accent-2: #1f5f64;
+      --soft: #e8ded1;
+      --danger: #9b2f20;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+
+    main {
+      width: min(1180px, calc(100% - 28px));
+      margin: 24px auto 150px;
+    }
+
+    header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 26px;
+      line-height: 1.2;
+    }
+
+    .sub {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .scene-head {
+      display: grid;
+      grid-template-columns: 84px minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: var(--ink);
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    h2, h3 {
+      margin: 0 0 8px;
+      line-height: 1.25;
+    }
+
+    h2 {
+      font-size: 24px;
+    }
+
+    h3 {
+      margin-top: 18px;
+      font-size: 17px;
+      color: var(--accent);
+    }
+
+    p {
+      margin: 0 0 10px;
+    }
+
+    .description {
+      background: #f9f6ef;
+      border-left: 4px solid var(--accent);
+      padding: 12px 14px;
+      border-radius: 6px;
+    }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fff;
+      color: var(--ink);
+      padding: 10px 12px;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    button:hover:not(:disabled) {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(138, 59, 29, 0.12);
+    }
+
+    button:disabled {
+      color: #9aa0a3;
+      background: #f1eee8;
+      cursor: default;
+    }
+
+    .choice {
+      display: block;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .choice strong {
+      display: block;
+      color: var(--accent-2);
+      margin-bottom: 4px;
+    }
+
+    .dialogue {
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fbfaf6;
+    }
+
+    .dialogue p {
+      margin-bottom: 8px;
+    }
+
+    .feedback {
+      min-height: 74px;
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 7px;
+      background: #f2ebe2;
+      border: 1px solid var(--line);
+    }
+
+    .feedback strong {
+      color: var(--accent);
+    }
+
+    .next-row {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .secondary {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+      text-align: center;
+    }
+
+    .side h3:first-child {
+      margin-top: 0;
+    }
+
+    .npc, .evidence-list, .log-list {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .evidence-list li, .log-list li, .npc li {
+      margin-bottom: 6px;
+    }
+
+    .meter {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      padding: 6px 0;
+      border-bottom: 1px dashed var(--line);
+      font-size: 14px;
+    }
+
+    .meter span:last-child {
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .vars {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(31, 37, 40, 0.96);
+      color: #fff;
+      border-top: 3px solid var(--accent);
+      padding: 10px 16px;
+      z-index: 5;
+    }
+
+    .vars-inner {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+    }
+
+    .vars-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px 14px;
+      font-size: 13px;
+    }
+
+    .vars-grid div {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.14);
+      padding-bottom: 2px;
+    }
+
+    .vars-grid b {
+      color: #f4c7a9;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .ending {
+      border-color: var(--accent);
+      background: #fff8ef;
+    }
+
+    @media (max-width: 880px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .button-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .vars-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>《雾窑》第一章：抵达青瓷庄</h1>
+        <p class="sub">纯文本互动试玩原型。用于验证第一章点击物、对话选择、变量变化和场景推进。</p>
+      </div>
+      <button class="secondary" id="restartBtn">重新开始</button>
+    </header>
+
+    <div class="layout">
+      <section class="card" id="scenePanel"></section>
+      <aside class="card side">
+        <h3>出场 NPC</h3>
+        <ul class="npc" id="npcList"></ul>
+
+        <h3>证物 / 线索入库</h3>
+        <ul class="evidence-list" id="inventoryList"></ul>
+
+        <h3>最近记录</h3>
+        <ul class="log-list" id="logList"></ul>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="vars">
+    <div class="vars-inner">
+      <div class="vars-grid" id="varsGrid"></div>
+    </div>
+  </footer>
+
+  <script>
+    const variables = {
+      EvidenceScore: 0,
+      ShenSuspicion: 0,
+      LuTrust: 0,
+      VillageSilence: 0,
+      FatherClue: 0,
+      RevengeTimer: 0,
+      SelfDoubt: 0,
+      OutsiderTrust: 0
+    };
+
+    const variableNames = {
+      EvidenceScore: "旧案证据完整度",
+      ShenSuspicion: "沈月娥嫌疑值",
+      LuTrust: "陆景川信任值",
+      VillageSilence: "村庄沉默压力",
+      FatherClue: "父亲线索完整度",
+      RevengeTimer: "复仇倒计时",
+      SelfDoubt: "林知夏自我怀疑值",
+      OutsiderTrust: "外来者信任度"
+    };
+
+    const scenes = [
+      {
+        id: "CH1_S01",
+        no: "1-1",
+        title: "山路入村",
+        next: "CH1_S02",
+        description: "山路窄得只能容一辆车通过。车窗外是连成灰幕的暴雨，山体渗出的黄泥水顺着坡面往下流。远处吊桥被雾遮住一半，只能看见断开的铁索在风里晃。车灯扫过“青瓷庄文旅改造项目”的临时牌，牌子下面压着旧告示，边角露出“窑火事故旧址，禁止靠近”的字样。",
+        goal: "确认自己为什么来青瓷庄，判断当前道路是否还能离开，初步观察陆景川是否可信。",
+        npcs: ["陆景川：温和、主动、熟悉山路。表现为可靠接待者，但对塌方路线过于熟。"],
+        clickables: [
+          { id: "CH1_S01_WINDOW_CLICK", name: "车窗雨痕", text: "雨水把山路抹成一片灰。你看不清来路，只能看见车灯照到的几米路面。" },
+          { id: "CH1_S01_WARNING_CLICK", name: "塌方警示牌", text: "牌子是新的，字却被雨水冲得发虚。下面压着旧牌：窑火事故旧址，禁止靠近。", item: "INV_CH1_OLD_KILN_FORBIDDEN_SIGN：旧窑禁区提示" },
+          { id: "CH1_S01_PROJECT_SIGN_CLICK", name: "文旅项目临时牌", text: "青瓷庄非遗民宿一期改造。牌面崭新，背后的木桩像是从旧宅拆下来的。", item: "INV_CH1_TOURISM_PROJECT_SIGN：文旅项目临时牌印象" },
+          { id: "CH1_S01_BAG_CLICK", name: "林知夏背包", text: "背包夹层露出父亲旧采访笔记第一页，页角写着：青瓷庄，别只问火。", effects: { FatherClue: 1 }, item: "INV_CH1_FATHER_NOTE_P1：父亲旧采访笔记第一页" },
+          { id: "CH1_S01_BRIDGE_CLICK", name: "远处断桥", text: "雾里能看见吊桥一侧已经垮下去，铁索撞在山壁上，声音像敲门。", item: "INV_CH1_BROKEN_BRIDGE：断桥封闭信息" }
+        ],
+        dialogue: [
+          "陆景川：“这雨下起来就不讲理。外头的人说是景区，其实进了山，路还是老路。”",
+          "林知夏：“你经常走这条路？”",
+          "陆景川：“小时候在这边长大，闭着眼也知道哪里会积水。林老师别担心，到了老宅就安全了。”"
+        ],
+        choices: [
+          { id: "CH1_S01_CHOICE_A", label: "A", text: "你对这条老路很熟。", effects: { LuTrust: -1, EvidenceScore: 1 }, item: "CLUE_CH1_LUJINGCHUAN_OLD_ROAD：陆景川熟悉旧路", short: "陆景川短暂停顿，解释说项目勘测走过很多次。", long: "第五章可回扣废窑暗道。" },
+          { id: "CH1_S01_CHOICE_B", label: "B", text: "那就麻烦你带路了。", effects: { LuTrust: 1 }, short: "陆景川语气放松，后续主动提供探索建议。", long: "玩家更容易被他引导，部分证物出现顺序被调整。" },
+          { id: "CH1_S01_CHOICE_C", label: "C", text: "塌方这么严重，项目还要继续？", effects: { EvidenceScore: 1 }, item: "CLUE_CH1_PROJECT_PRESSURE：文旅项目风险", short: "陆景川说这是周启明决定的，他只负责本地接待。", long: "开启文旅项目风险和周启明商业压力线。" },
+          { id: "CH1_S01_CHOICE_D", label: "D", text: "我父亲以前也走过这条路吗？", effects: { FatherClue: 1, RevengeTimer: 1 }, item: "CLUE_CH1_LU_NOTICES_FATHER：陆景川注意父亲线", short: "陆景川反问：“您父亲？”随后避开话题。", long: "陆景川提前知道林知夏带着父亲线索而来。" }
+        ],
+        jumpText: "来路已经断了。青瓷庄不是今天想走就能走的地方。"
+      },
+      {
+        id: "CH1_S02",
+        no: "1-2",
+        title: "老宅堂屋",
+        next: "CH1_S03",
+        description: "老宅堂屋很深，屋檐下的雨水像帘子一样挡住门口。八仙桌、长条凳和“青瓷庄非遗民宿示范点”横幅挤在同一个空间里。供桌上摆着六只青瓷杯，族谱匾额被宣传板遮住，备用灯忽明忽暗。",
+        goal: "完成入住接待，听取陆怀民的官方村史，调查堂屋内不协调的摆设。",
+        npcs: ["陆怀民：稳、慢、控制话语。强调村庄名声，不希望旧事被写得太阴。", "陆景川：在旁协助接待，观察林知夏对青瓷杯的反应。"],
+        clickables: [
+          { id: "CH1_S02_CUP_CLICK", name: "六只青瓷杯", text: "杯底刻着：火不是天灾，账本没有烧完，尸检报告说谎，有人抱走了孩子，活人替死人闭嘴，窑门还会再开。", effects: { EvidenceScore: 1 }, item: "INV_CH1_SIX_CELADON_CUPS：六只青瓷杯" },
+          { id: "CH1_S02_BANNER_CLICK", name: "非遗民宿横幅", text: "横幅很新，背后墙面有烟熏旧痕，像是特意被遮住。", item: "CLUE_CH1_BANNER_COVERS_SMOKE：横幅遮盖烟熏旧痕" },
+          { id: "CH1_S02_GENEALOGY_CLICK", name: "族谱匾额", text: "匾额下半截被宣传板遮住，只露出陆氏两个字。", item: "CLUE_CH1_GENEALOGY_COVERED：族谱匾额被遮挡" },
+          { id: "CH1_S02_SEATS_CLICK", name: "八仙桌座位", text: "主位空着，旁边座位已经摆好茶，像提前知道人都会到齐。", item: "CLUE_CH1_REUNION_PREPARED：重聚被安排" },
+          { id: "CH1_S02_ASH_CLICK", name: "供桌香灰", text: "香灰被清理过，但桌角还留着一小撮湿灰。", item: "CLUE_CH1_WET_INCENSE_ASH：供桌湿灰" }
+        ],
+        dialogue: [
+          "陆怀民：“林小姐，青瓷庄以前穷，现在好不容易有人愿意来看看。你写的时候，别把旧事写得太阴。”",
+          "陆景川：“村里人不太会说话，有些事您要是不明白，可以先问我。”"
+        ],
+        choices: [
+          { id: "CH1_S02_CHOICE_A", label: "A", text: "旧事如果是真的，就不算阴。", effects: { VillageSilence: 1, FatherClue: 1 }, item: "CLUE_CH1_LUHUAI_MIN_GUARD：陆怀民警惕旧事", short: "陆怀民警惕，祠堂区域暂时不开放。", long: "较早进入旧案线，但村庄沉默压力上升。" },
+          { id: "CH1_S02_CHOICE_B", label: "B", text: "我只是来写文旅故事，不会碰敏感的事。", effects: { OutsiderTrust: 1, SelfDoubt: 1 }, item: "CLUE_CH1_OFFICIAL_HISTORY_ACCEPTED：接受官方村史口径", short: "陆怀民放松，允许参观部分老宅。", long: "前期调查更顺，但容易被官方村史误导。" },
+          { id: "CH1_S02_CHOICE_C", label: "C", text: "哪些旧事不能写？", effects: { FatherClue: 1 }, item: "CLUE_CH1_FORBIDDEN_OLD_STORY：村庄避谈旧案", short: "陆怀民沉默，转移话题。", long: "解锁“村庄避谈旧案”提示。" },
+          { id: "CH1_S02_CHOICE_D", label: "D", text: "这些杯子是接待摆设吗？", effects: { EvidenceScore: 1 }, item: "CLUE_CH1_LU_REACTS_TO_CUPS：陆景川想收走杯子", short: "陆怀民说是旧窑留下的东西，陆景川主动要收走杯子。", long: "记录陆景川对青瓷杯反应异常。" }
+        ],
+        jumpText: "陆景川提醒先办入住，杯子晚点再看也不迟。"
+      },
+      {
+        id: "CH1_S03",
+        no: "1-3",
+        title: "文旅接待处",
+        next: "CH1_S04",
+        description: "文旅接待处由老宅偏厅改出来。招商手册受潮，墙上贴着非遗体验动线图，图里把旧窑棚标成“沉浸式烧窑互动区”。周启明用手指压住一叠合同，合同夹层里缺了一页。",
+        goal: "了解文旅项目，获取项目资料，判断周启明是否在回避某类信息。",
+        npcs: ["周启明：圆滑、急躁、商业包装意识强。刻意回避旧案和账目。", "陆景川：在旁协助递资料，熟悉文件位置。"],
+        clickables: [
+          { id: "CH1_S03_BROCHURE_CLICK", name: "招商手册", text: "文案写着让沉睡的古村重新开口，但事故、死亡、旧窑纠纷被删得很干净。", item: "CLUE_CH1_OVERPACKAGED_BROCHURE：招商手册过度包装" },
+          { id: "CH1_S03_RENOVATION_DOC_CLICK", name: "民宿改造资料", text: "旧窑区域缺少详细页，页码从 7 直接跳到 9。", effects: { EvidenceScore: 1 }, item: "INV_CH1_RENOVATION_DOCS：民宿改造资料；CLUE_CH1_PROJECT_MISSING_PAGE：项目资料缺页提示" },
+          { id: "CH1_S03_CONTRACT_CLICK", name: "项目合同", text: "合同金额被周启明压住，只露出追加投入和老窑址权益。", item: "CLUE_CH1_OLD_KILN_RIGHTS：老窑址权益字样" },
+          { id: "CH1_S03_ROUTE_MAP_CLICK", name: "墙上动线图", text: "动线避开祠堂，却把废窑画成游客体验点。", item: "CLUE_CH1_TOUR_ROUTE_AVOIDS_HALL：动线避开祠堂" },
+          { id: "CH1_S03_ASH_TRAY_CLICK", name: "烟灰缸", text: "烟灰缸里有半截没抽完的烟，滤嘴被咬得很深。", item: "CLUE_CH1_ZHOU_ANXIETY：周启明焦虑" }
+        ],
+        dialogue: [
+          "周启明：“林老师，你就把这里写成一个有烟火气的非遗古村。什么塌方、旧案、死人，那些都不是游客想看的。”",
+          "林知夏：“如果游客走到旧窑前呢？”",
+          "周启明：“旧窑可以写成体验点。故事嘛，换个说法就好听了。”"
+        ],
+        choices: [
+          { id: "CH1_S03_CHOICE_A", label: "A", text: "游客不想看，还是你不想让我写？", effects: { EvidenceScore: 1, VillageSilence: 1 }, item: "CLUE_CH1_ZHOU_AVOIDS_ACCOUNTING：周启明回避账目", short: "周启明不悦，拒绝继续谈项目账目。", long: "开启文旅利益线，但他对玩家警惕。" },
+          { id: "CH1_S03_CHOICE_B", label: "B", text: "你这么急着改造，是因为项目催得紧？", effects: { EvidenceScore: 1 }, item: "CLUE_CH1_INVESTMENT_DEADLINE：投资期限压力", short: "周启明敷衍，提到投资期限。", long: "后续更容易理解汇款单和账本。" },
+          { id: "CH1_S03_CHOICE_C", label: "C", text: "我可以先看项目资料。", effects: { EvidenceScore: 1 }, item: "INV_CH1_RENOVATION_DOCS：民宿改造资料", short: "获得民宿改造资料。", long: "后续可用资料缺页反问陆景川。" },
+          { id: "CH1_S03_CHOICE_D", label: "D", text: "旧窑如果做体验点，谁来负责安全？", effects: { EvidenceScore: 1, LuTrust: -1 }, item: "CLUE_CH1_LU_KNOWS_KILN_RENOVATION：陆景川熟悉旧窑改造细节", short: "陆景川代周启明回答。", long: "记录他比负责人更熟悉旧窑。" }
+        ],
+        jumpText: "周启明说雨太大，今天先别谈工作，明天再说。"
+      },
+      {
+        id: "CH1_S04",
+        no: "1-4",
+        title: "老宅走廊",
+        next: "CH1_S05",
+        description: "老宅走廊狭长，屋顶漏水，地上放着接水的搪瓷盆。走廊尽头的窗户被木板钉住，陈伯远站在半暗处，手里拎着旧药箱，目光停在林知夏背包露出的旧笔记上。",
+        goal: "探索老宅走廊，判断陈伯远为什么认识林知夏父亲，找到父亲线索与旧案死因的联系。",
+        npcs: ["陈伯远：疲惫、戒备、带有愧疚感。知道林父来过青瓷庄，但不愿说透。"],
+        clickables: [
+          { id: "CH1_S04_MEDKIT_CLICK", name: "旧药箱", text: "药箱内侧贴着旧标签：县医院尸检组。", effects: { EvidenceScore: 1 }, item: "INV_CH1_AUTOPSY_MEDKIT_LABEL：旧药箱标签" },
+          { id: "CH1_S04_BASIN_CLICK", name: "接水搪瓷盆", text: "盆底有几片灰黑色碎屑，像被水泡开的纸灰。", item: "CLUE_CH1_BURNED_PAPER_ASH：老宅近期烧纸灰" },
+          { id: "CH1_S04_WINDOW_CLICK", name: "钉死的窗户", text: "木板钉得很新，钉帽还没有生锈。", item: "CLUE_CH1_NAILED_WINDOW：老宅通行受控" },
+          { id: "CH1_S04_PHOTO_FRAME_CLICK", name: "走廊旧照片框", text: "相框里缺了一张照片，只剩背板印痕。", item: "CLUE_CH1_MISSING_OLD_PHOTO：旧照片被取走" },
+          { id: "CH1_S04_NOTE_CLICK", name: "父亲笔记第一页", text: "页脚写着：陈医生避谈死因，但看过伤口。", effects: { FatherClue: 1 }, item: "INV_CH1_FATHER_NOTE_DOCTOR_REMARK：父亲笔记中的陈医生备注" }
+        ],
+        dialogue: [
+          "陈伯远：“你父亲当年来过这里。问得太多，走得也不体面。”",
+          "林知夏：“你知道他问了什么？”",
+          "陈伯远：“人走了，问题就该停。可你们父女俩，好像都不懂这个道理。”"
+        ],
+        choices: [
+          { id: "CH1_S04_CHOICE_A", label: "A", text: "你认识我父亲？", effects: { FatherClue: 1 }, item: "CLUE_CH1_CHEN_KNEW_FATHER：陈伯远承认见过林父", short: "陈伯远回避，但承认见过林父。", long: "开启林父调查线。" },
+          { id: "CH1_S04_CHOICE_B", label: "B", text: "他问过何青山的死因？", effects: { FatherClue: 1, EvidenceScore: 1 }, item: "CLUE_CH1_AUTOPSY_DOUBT：尸检报告疑点", short: "陈伯远明显紧张。", long: "开启尸检报告疑点。" },
+          { id: "CH1_S04_CHOICE_C", label: "C", text: "你是不是替谁隐瞒过什么？", effects: { VillageSilence: 1 }, item: "CLUE_CH1_CHEN_BREAKS_OFF：陈伯远中断对话", short: "陈伯远中断对话。", long: "后续获得他信任难度上升，但更早怀疑尸检造假。" },
+          { id: "CH1_S04_CHOICE_D", label: "D", text: "如果你不想说，我先记下来。", effects: { OutsiderTrust: 1, FatherClue: 1 }, item: "CLUE_CH1_CHEN_WARN_NOTE：陈伯远提醒别把笔记给别人看", short: "陈伯远没有阻止，只提醒她别把笔记给别人看。", long: "父亲线推进更稳，陆景川若看见笔记会提高警觉。" }
+        ],
+        jumpText: "陈伯远合上药箱：这东西不是给活人看的。"
+      },
+      {
+        id: "CH1_S05",
+        no: "1-5",
+        title: "旧窑棚外",
+        next: "CH1_S06",
+        description: "旧窑棚在老宅后方，被雨和荒草围住。棚门半开，门内黑得像一口冷掉的炉。外墙新刷的白灰盖不住下方烟熏痕，沈月娥站在棚外，手里拿着一块旧窑砖。",
+        goal: "查看旧窑棚，判断沈月娥为什么反感文旅项目，获取何青山和旧窑禁忌的第一层信息。",
+        npcs: ["沈月娥：冷淡、疲惫、防备。对写故事的人有敌意。", "陆景川：试图缓和气氛，同时解释沈月娥脾气怪。"],
+        clickables: [
+          { id: "CH1_S05_DOOR_CLICK", name: "旧窑棚门", text: "门缝里有潮湿土腥和烟灰味。门锁是新的，门板却很旧。", item: "INV_CH1_OLD_KILN_NEW_LOCK：旧窑棚新锁" },
+          { id: "CH1_S05_BRICK_CLICK", name: "旧窑砖", text: "窑砖背面刻着一个很浅的何字，被泥盖住大半。", effects: { FatherClue: 1 }, item: "INV_CH1_HE_BRICK_MARK：旧窑砖何字痕" },
+          { id: "CH1_S05_WARNING_CLICK", name: "施工警示牌", text: "非遗体验区改造中。下面小字被刮掉，只剩事故两个字残痕。", item: "CLUE_CH1_CONSTRUCTION_SIGN_ACCIDENT：施工牌遮盖事故字样" },
+          { id: "CH1_S05_WHITEWASH_CLICK", name: "白灰墙面", text: "新白灰下面透出烟熏痕，像怎么刷都盖不住。", item: "CLUE_CH1_KILN_SMOKE_UNDER_WHITEWASH：白灰下烟熏痕" },
+          { id: "CH1_S05_SHEN_HAND_CLICK", name: "沈月娥手上的灰", text: "她的指缝里都是黑灰，更像常年翻找旧物。", item: "CLUE_CH1_SHEN_GUARDS_OLD_OBJECTS：沈月娥守着旧案旧物" }
+        ],
+        dialogue: [
+          "沈月娥：“你们写故事的人，总喜欢给死人安排一个好结局。”",
+          "林知夏：“死人？”",
+          "沈月娥：“写民宿就写民宿，别碰窑。窑里没有能给游客看的东西。”",
+          "陆景川：“沈师傅不太喜欢项目，她以前管过窑料。林老师别介意。”"
+        ],
+        choices: [
+          { id: "CH1_S05_CHOICE_A", label: "A", text: "死人需要的不是好结局，是事实。", effects: { ShenSuspicion: -1, OutsiderTrust: 1 }, item: "CLUE_CH1_SHEN_REACTS_TO_TRUTH：沈月娥对事实动摇", short: "沈月娥动摇，但没有说明原因。", long: "后续更可能获得沈月娥提示。" },
+          { id: "CH1_S05_CHOICE_B", label: "B", text: "你很讨厌文旅项目？", effects: { ShenSuspicion: 1 }, item: "CLUE_CH1_SHEN_HATES_TOURISM_PROJECT：沈月娥反感改造", short: "她承认反感改造。", long: "表面嫌疑增加，但引出旧窑不能被包装的主题。" },
+          { id: "CH1_S05_CHOICE_C", label: "C", text: "你认识何青山吗？", effects: { FatherClue: 1, ShenSuspicion: 1 }, item: "CLUE_CH1_HE_QINGSHAN_TABOO：何青山是禁忌名", short: "沈月娥直接离开。", long: "玩家知道何青山是禁忌名。" },
+          { id: "CH1_S05_CHOICE_D", label: "D", text: "陆景川说你以前管过窑料，他怎么知道？", effects: { LuTrust: -1, EvidenceScore: 1 }, item: "CLUE_CH1_LU_KNOWS_SHEN_KILN_MATERIALS：陆景川熟悉沈月娥和窑料", short: "陆景川接话解释，沈月娥看他的眼神变冷。", long: "记录陆景川对旧窑和沈月娥过于熟悉。" }
+        ],
+        jumpText: "沈月娥离开旧窑棚，陆景川提醒雨要大了，先回屋。"
+      },
+      {
+        id: "CH1_S06",
+        no: "1-6",
+        title: "林知夏房间",
+        next: "CH1_S07",
+        description: "林知夏的房间在二楼尽头，窗户对着旧窑棚。房间被布置成民宿样板间，床头放着青瓷台灯，墙上挂着“住进非遗”的宣传海报。桌上摆着背包、电脑、父亲旧采访笔记和民宿改造资料。",
+        goal: "整理第一章前半段获得的线索，检查父亲旧采访笔记，判断是否把父亲线索告诉他人。",
+        npcs: ["无主要 NPC：这是林知夏独处整理场景。"],
+        clickables: [
+          { id: "CH1_S06_NOTE_CLICK", name: "父亲旧采访笔记第一页", text: "页脚写着“青瓷庄，别只问火”。页码是 1，后面直接接到 4。", effects: { FatherClue: 1 }, item: "INV_CH1_FATHER_NOTE_MISSING_PAGES：笔记缺页提示" },
+          { id: "CH1_S06_DOC_CLICK", name: "民宿改造资料", text: "旧窑区域缺少第 8 页，附图中废窑动线被人为剪掉。", effects: { EvidenceScore: 1 }, item: "CLUE_CH1_RENOVATION_PAGE_8_MISSING：项目资料缺页提示" },
+          { id: "CH1_S06_WINDOW_CLICK", name: "窗外旧窑棚", text: "雨里只看见旧窑棚的轮廓，像一只盖住的炉口。灯光闪了一下，似乎有人从棚边经过。", item: "CLUE_CH1_NIGHT_KILN_SHADOW：夜间旧窑棚人影提示" },
+          { id: "CH1_S06_LAMP_CLICK", name: "青瓷台灯", text: "台灯底部刻着“青山窑制”，字迹被磨掉一半。", effects: { FatherClue: 1 }, item: "INV_CH1_QINGSHAN_LAMP_MARK：青瓷台灯青山窑制" },
+          { id: "CH1_S06_POSTER_CLICK", name: "宣传海报", text: "海报上写着“把旧村写成新故事”。背后墙面却有烟熏印。", item: "CLUE_CH1_POSTER_COVERS_SMOKE：宣传海报遮住烟痕" }
+        ],
+        dialogue: [
+          "内心提示：“父亲不是只来过这里。他查到过什么。”",
+          "内心提示：“文旅资料缺页，父亲笔记也缺页。两个缺口会不会指向同一个地方？”",
+          "内心提示：“如果我只是来写故事，为什么所有人都怕我问旧事？”"
+        ],
+        choices: [
+          { id: "CH1_S06_CHOICE_A", label: "A", text: "先把父亲笔记收好，谁都不能看。", effects: { FatherClue: 1, LuTrust: -1 }, item: "CLUE_CH1_FATHER_NOTE_PROTECTED：父亲线索暂时安全", short: "父亲线索暂时安全。", long: "陆景川后续无法提前掌握笔记内容，有利于 E。" },
+          { id: "CH1_S06_CHOICE_B", label: "B", text: "明天问陆景川，他熟悉村里，也许知道缺页在哪。", effects: { LuTrust: 1, RevengeTimer: 1 }, item: "CLUE_CH1_PLAN_TO_ASK_LU：计划询问陆景川缺页", short: "第二章陆景川会主动提供路线。", long: "他可能提前转移与父亲线相关的证物。" },
+          { id: "CH1_S06_CHOICE_C", label: "C", text: "先按文旅稿写，别把自己卷太深。", effects: { SelfDoubt: 1, OutsiderTrust: 1 }, item: "CLUE_CH1_OFFICIAL_DRAFT：官方稿草稿", short: "玩家获得一段官方稿草稿。", long: "容易被官方叙事误导，第二章初始提示减少。" },
+          { id: "CH1_S06_CHOICE_D", label: "D", text: "资料缺页不是巧合，先标记旧窑和祠堂。", effects: { EvidenceScore: 1, FatherClue: 1 }, item: "CLUE_CH1_MAP_MARK_KILN_HALL：地图标记旧窑棚和祠堂", short: "地图标记旧窑棚和祠堂。", long: "后续可更早发现族谱墙和废窑暗格线。" }
+        ],
+        jumpText: "窗外雷声响起，房间灯开始闪烁。"
+      },
+      {
+        id: "CH1_S07",
+        no: "1-7",
+        title: "夜晚停电",
+        next: null,
+        description: "灯先闪三下，随后整座老宅沉入黑暗。雨声变得很近，像贴在窗外。手电光扫过湿墙、空茶杯、被风吹动的门帘。堂屋里传来陆怀民压低的声音，周启明在偏厅找信号，沈月娥的影子从旧窑方向一闪而过。",
+        goal: "确认停电原因，判断谁在停电后最异常，选择跟谁行动或留在原地整理证物。",
+        npcs: ["陆怀民：试图维持秩序，要求大家别乱走。", "陆景川：主动拿手电协助林知夏，注意她手里的笔记。", "沈月娥：从旧窑方向出现，拒绝解释自己去了哪里。", "周启明：在偏厅或账房附近焦躁，试图联系外界。", "陈伯远：沉默站在走廊，像想说话又忍住。"],
+        clickables: [
+          { id: "CH1_S07_LAMP_CLICK", name: "熄灭的青瓷台灯", text: "灯灭后，底部“青山窑制”的字反而更清楚。", effects: { FatherClue: 1 }, item: "INV_CH1_QINGSHAN_LAMP_MARK：青瓷台灯青山窑制" },
+          { id: "CH1_S07_FOOTPRINT_CLICK", name: "走廊湿脚印", text: "脚印从楼梯口延伸向偏厅，鞋底纹路很深，不像普通布鞋。", item: "CLUE_CH1_WET_FOOTPRINTS_TO_SIDEHALL：走廊湿脚印" },
+          { id: "CH1_S07_ZHOU_DOOR_CLICK", name: "周启明房门方向", text: "门缝里有一线手电光，随后很快灭掉。", item: "CLUE_CH1_ZHOU_ROOM_LIGHT：周启明房门方向异常" },
+          { id: "CH1_S07_LU_FLASHLIGHT_CLICK", name: "陆景川手电", text: "手电外壳有红土痕迹，和旧窑棚外的泥色相近。", effects: { EvidenceScore: 1 }, item: "INV_CH1_LU_FLASHLIGHT_RED_SOIL：陆景川手电红土痕迹" },
+          { id: "CH1_S07_CUP_POSITION_CLICK", name: "堂屋青瓷杯", text: "黑暗里看不清杯底刻字，只能摸到杯口很凉。杯子少了一只，或位置变了。", item: "CLUE_CH1_CUP_POSITION_CHANGED：青瓷杯位置变化" }
+        ],
+        dialogue: [
+          "陆怀民：“都别乱走。老宅一停电，摔着碰着，谁都说不清。”",
+          "周启明：“信号呢？不是说有备用线路吗？”",
+          "沈月娥：“这地方本来就不该亮那么多灯。”",
+          "陆景川：“林老师，您先跟我走。黑灯瞎火的，这里有些路不好走。”",
+          "陈伯远：“二十年前，也是先停的灯。”"
+        ],
+        choices: [
+          { id: "CH1_S07_CHOICE_A", label: "A", text: "陆景川，你带我去看看电闸。", effects: { LuTrust: 1, RevengeTimer: 1 }, item: "CLUE_CH1_LU_CONTROLS_NIGHT_ROUTE：陆景川掌握玩家行动", short: "陆景川带路，玩家更快看到偏厅外动静。", long: "玩家可能错过堂屋青瓷杯位置变化；陆景川掌握玩家行动。" },
+          { id: "CH1_S07_CHOICE_B", label: "B", text: "我先回堂屋，所有人最好都在那里。", effects: { OutsiderTrust: 1, VillageSilence: -1 }, item: "CLUE_CH1_GROUP_IN_MAIN_HALL：众人短暂聚集", short: "陆怀民表面赞同，众人短暂聚集。", long: "有利于后续村庄沉默线，但会错过部分私密线索。" },
+          { id: "CH1_S07_CHOICE_C", label: "C", text: "沈月娥，你刚才从旧窑那边回来？", effects: { ShenSuspicion: 1, EvidenceScore: 1 }, item: "CLUE_CH1_SHEN_FROM_KILN_AT_NIGHT：沈月娥夜间从旧窑方向回来", short: "沈月娥冷脸离开，陆景川顺势解释她脾气怪。", long: "第二章更容易误判沈月娥，但也记录旧窑夜间活动。" },
+          { id: "CH1_S07_CHOICE_D", label: "D", text: "陈医生，你刚才说二十年前也停过灯？", effects: { FatherClue: 1, EvidenceScore: 1 }, item: "CLUE_CH1_CHEN_BLACKOUT_MEMORY：陈伯远二十年前停灯提示", short: "陈伯远马上闭嘴，只说“我记错了”。", long: "开启第二章前的尸检疑点伏笔。" },
+          { id: "CH1_S07_CHOICE_E", label: "E", text: "我自己走，手电借我。", effects: { LuTrust: -1, SelfDoubt: 1, EvidenceScore: 1 }, item: "INV_CH1_LU_FLASHLIGHT_RED_SOIL：陆景川手电红土痕迹", short: "陆景川不情愿交出备用手电。", long: "玩家能发现手电红土痕迹；陆景川开始警觉。" }
+        ],
+        jumpText: "走廊尽头传来重物落地声。画面切黑：第一章结束，抵达青瓷庄。"
+      }
+    ];
+
+    let state;
+
+    function initialState() {
+      return {
+        sceneIndex: 0,
+        vars: { ...variables },
+        inventory: [],
+        logs: [],
+        clicked: {},
+        selected: false,
+        pendingNext: false,
+        latestFeedback: "点击场景中的物件调查。完成调查后，选择一条玩家台词推进剧情。"
+      };
+    }
+
+    function addLog(message) {
+      state.logs.unshift(message);
+      state.logs = state.logs.slice(0, 8);
+    }
+
+    function addInventory(item) {
+      if (!item || item === "无") return;
+      const parts = item.split("；").map(x => x.trim()).filter(Boolean);
+      for (const part of parts) {
+        if (!state.inventory.includes(part)) {
+          state.inventory.push(part);
+        }
+      }
+    }
+
+    function applyEffects(effects = {}) {
+      const changes = [];
+      for (const key of Object.keys(effects)) {
+        const value = effects[key];
+        state.vars[key] = (state.vars[key] || 0) + value;
+        changes.push(`${variableNames[key] || key} ${value > 0 ? "+" : ""}${value}`);
+      }
+      return changes;
+    }
+
+    function currentScene() {
+      return scenes[state.sceneIndex];
+    }
+
+    function render() {
+      renderScene();
+      renderSide();
+      renderVars();
+    }
+
+    function renderScene() {
+      const scene = currentScene();
+      const panel = document.getElementById("scenePanel");
+      const clickedCount = scene.clickables.filter(item => state.clicked[item.id]).length;
+      const canChoose = clickedCount >= Math.min(3, scene.clickables.length) || state.selected;
+
+      panel.innerHTML = `
+        <div class="scene-head">
+          <div class="tag">${scene.no}</div>
+          <div>
+            <h2>${scene.title}</h2>
+            <p class="small">NodeID: ${scene.id}_START</p>
+          </div>
+        </div>
+        <h3>画面描述</h3>
+        <div class="description">${scene.description}</div>
+        <h3>玩家初始目标</h3>
+        <p>${scene.goal}</p>
+        <h3>可点击物 <span class="small">已调查 ${clickedCount}/${scene.clickables.length}</span></h3>
+        <div class="button-grid">
+          ${scene.clickables.map(item => `<button ${state.clicked[item.id] ? "disabled" : ""} data-clickable="${item.id}">${item.name}</button>`).join("")}
+        </div>
+        <h3>NPC 对话</h3>
+        <div class="dialogue">${scene.dialogue.map(line => `<p>${line}</p>`).join("")}</div>
+        <h3>玩家可选台词</h3>
+        ${!canChoose ? `<p class="small">至少调查 3 个可点击物后开放选择。</p>` : ""}
+        <div>
+          ${scene.choices.map(choice => `
+            <button class="choice" ${!canChoose || state.selected ? "disabled" : ""} data-choice="${choice.id}">
+              <strong>${choice.label}. ${choice.text}</strong>
+              <span class="small">变量：${formatEffects(choice.effects)}</span>
+            </button>
+          `).join("")}
+        </div>
+        <div class="feedback" id="feedbackBox">${state.latestFeedback}</div>
+        <div class="next-row">
+          ${state.pendingNext ? `<button class="primary" id="nextBtn">${scene.next ? "进入下一场景" : "查看第一章结算"}</button>` : ""}
+        </div>
+      `;
+
+      panel.querySelectorAll("[data-clickable]").forEach(button => {
+        button.addEventListener("click", () => handleClickable(button.dataset.clickable));
+      });
+      panel.querySelectorAll("[data-choice]").forEach(button => {
+        button.addEventListener("click", () => handleChoice(button.dataset.choice));
+      });
+      const nextBtn = panel.querySelector("#nextBtn");
+      if (nextBtn) nextBtn.addEventListener("click", goNext);
+    }
+
+    function renderSide() {
+      const scene = currentScene();
+      document.getElementById("npcList").innerHTML = scene.npcs.map(x => `<li>${x}</li>`).join("");
+      document.getElementById("inventoryList").innerHTML = state.inventory.length
+        ? state.inventory.map(x => `<li>${x}</li>`).join("")
+        : `<li class="small">暂无证物。</li>`;
+      document.getElementById("logList").innerHTML = state.logs.length
+        ? state.logs.map(x => `<li>${x}</li>`).join("")
+        : `<li class="small">暂无记录。</li>`;
+    }
+
+    function renderVars() {
+      document.getElementById("varsGrid").innerHTML = Object.keys(state.vars).map(key => `
+        <div><span>${variableNames[key]}</span><b>${state.vars[key]}</b></div>
+      `).join("");
+    }
+
+    function formatEffects(effects = {}) {
+      const keys = Object.keys(effects);
+      if (!keys.length) return "无";
+      return keys.map(key => `${variableNames[key] || key}${effects[key] > 0 ? "+" : ""}${effects[key]}`).join("；");
+    }
+
+    function handleClickable(id) {
+      const scene = currentScene();
+      const item = scene.clickables.find(x => x.id === id);
+      if (!item || state.clicked[id]) return;
+      state.clicked[id] = true;
+      const changes = applyEffects(item.effects);
+      addInventory(item.item);
+      const parts = [`<strong>${item.name}</strong>：${item.text}`];
+      if (changes.length) parts.push(`变量变化：${changes.join("；")}`);
+      if (item.item) parts.push(`入库：${item.item}`);
+      state.latestFeedback = parts.join("<br>");
+      addLog(`${scene.no} 调查：${item.name}`);
+      render();
+    }
+
+    function handleChoice(id) {
+      const scene = currentScene();
+      const choice = scene.choices.find(x => x.id === id);
+      if (!choice || state.selected) return;
+      state.selected = true;
+      const changes = applyEffects(choice.effects);
+      addInventory(choice.item);
+      state.pendingNext = true;
+      const nextLabel = scene.next ? scenes.find(s => s.id === scene.next).title : "第一章结束";
+      state.latestFeedback = [
+        `<strong>${choice.label}. ${choice.text}</strong>`,
+        changes.length ? `变量变化：${changes.join("；")}` : "变量变化：无",
+        choice.item ? `入库：${choice.item}` : "入库：无",
+        `短期后果：${choice.short}`,
+        `长期埋点：${choice.long}`,
+        `下一节点：${scene.next || "CH2_S01_START"}`
+      ].join("<br>");
+      addLog(`${scene.no} 选择 ${choice.label}：${choice.text}`);
+      render();
+    }
+
+    function goNext() {
+      const scene = currentScene();
+      if (!scene.next) {
+        showEnding();
+        return;
+      }
+      const nextIndex = scenes.findIndex(item => item.id === scene.next);
+      state.sceneIndex = nextIndex;
+      state.selected = false;
+      state.pendingNext = false;
+      state.latestFeedback = scene.jumpText;
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function showEnding() {
+      const panel = document.getElementById("scenePanel");
+      const stateType = getStateType();
+      panel.classList.add("ending");
+      panel.innerHTML = `
+        <div class="scene-head">
+          <div class="tag">END</div>
+          <div>
+            <h2>第一章结束：抵达青瓷庄</h2>
+            <p class="small">下一节点：CH2_S01_START 账房尸体</p>
+          </div>
+        </div>
+        <div class="description">${currentScene().jumpText}</div>
+        <h3>当前玩家状态</h3>
+        <p><strong>${stateType.title}</strong></p>
+        <p>${stateType.desc}</p>
+        <h3>第二章承接钩子</h3>
+        <ul>
+          <li>周启明所在方向出现异常手电光。</li>
+          <li>走廊湿脚印延伸向偏厅或旧账房。</li>
+          <li>陆景川手电上有红土痕迹，但他可解释为去看电闸。</li>
+          <li>沈月娥从旧窑方向回来，容易被误读为心虚。</li>
+          <li>陈伯远说出“二十年前，也是先停的灯”，随后拒绝解释。</li>
+        </ul>
+        <div class="next-row"><button class="secondary" id="restartEndBtn">重新开始</button></div>
+      `;
+      document.getElementById("restartEndBtn").addEventListener("click", restart);
+      renderSide();
+      renderVars();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function getStateType() {
+      const v = state.vars;
+      if (v.OutsiderTrust >= 3 && v.SelfDoubt >= 2 && v.EvidenceScore <= 5) {
+        return {
+          title: "状态一：文旅顺从型",
+          desc: "行动阻力小，NPC 对玩家更客气；但第二章更容易把釉料粉末当成沈月娥作案证据，B 结局风险上升。"
+        };
+      }
+      if (v.FatherClue >= 5 && v.VillageSilence >= 2) {
+        return {
+          title: "状态二：旧案敏感型",
+          desc: "较早拿到旧案线索；但村庄沉默压力上升，部分 NPC 闭口，E 隐藏结局难度增加。"
+        };
+      }
+      return {
+        title: "状态三：谨慎调查型",
+        desc: "没有明显突破，但证据、沈月娥嫌疑和陆景川信任保持较平衡；第二章更容易识破釉料粉末是栽赃。"
+      };
+    }
+
+    function restart() {
+      state = initialState();
+      document.getElementById("scenePanel").classList.remove("ending");
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    document.getElementById("restartBtn").addEventListener("click", restart);
+    restart();
+  </script>
+</body>
+</html>

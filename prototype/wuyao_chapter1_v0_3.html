@@ -1,0 +1,2520 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>《雾窑》第一章重制原型 · v0.3.3</title>
+  <style>
+    :root {
+      --bg: #121313;
+      --panel: #1d1f1f;
+      --panel-2: #252827;
+      --text: #f1eee6;
+      --muted: #aaa399;
+      --line: #3b3f3d;
+      --accent: #d2a45f;
+      --accent-2: #87b7a5;
+      --danger: #c97062;
+      --ok: #82b88b;
+      --shadow: rgba(0, 0, 0, .35);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.65;
+      padding-bottom: 104px;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 22px;
+      background: rgba(18, 19, 19, .94);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(10px);
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 20px; margin-bottom: 2px; }
+    h2 { font-size: 24px; margin-bottom: 4px; }
+    h3 { font-size: 15px; color: var(--accent); margin: 18px 0 8px; }
+    ul { padding-left: 20px; }
+
+    main {
+      width: min(1380px, calc(100% - 32px));
+      margin: 18px auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px 340px;
+      gap: 16px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 12px 32px var(--shadow);
+      padding: 18px;
+    }
+
+    .scene-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+    }
+
+    .tag {
+      flex: 0 0 auto;
+      padding: 4px 10px;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .small { color: var(--muted); font-size: 13px; }
+
+    .header-stack {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .header-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      margin-top: 6px;
+      padding-top: 6px;
+    }
+
+    .header-meta button {
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: var(--accent);
+      font-size: inherit;
+      text-align: left;
+    }
+
+    .header-progress-wrap {
+      margin-top: 8px;
+      padding-top: 2px;
+    }
+
+    .header-progress-track {
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .header-progress-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(212,168,90,.72), rgba(235,197,116,.98));
+      box-shadow: 0 0 10px rgba(212,168,90,.28);
+      transition: width .55s ease;
+    }
+
+    .header-progress-label {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .description,
+    .dialogue,
+    .feedback,
+    .status-card,
+    .ending-box,
+    .deduction-box {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .dialogue p { margin: 0 0 10px; }
+    .dialogue p:last-child { margin-bottom: 0; }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .clickable-card {
+      min-width: 0;
+      display: grid;
+      grid-template-rows: 58px 1fr;
+      min-height: 202px;
+    }
+
+    .clickable-card button {
+      width: 100%;
+      min-height: 58px;
+      overflow: hidden;
+    }
+
+    .clickable-card.is-clicked button {
+      opacity: .82;
+      border-color: rgba(210, 164, 95, .58);
+      background: #262a28;
+    }
+
+    .item-hint {
+      margin-top: 7px;
+      padding: 9px 10px;
+      border: 1px solid rgba(135, 183, 165, .28);
+      border-left: 3px solid var(--accent-2);
+      border-radius: 7px;
+      background: rgba(32, 35, 34, .86);
+      min-height: 136px;
+      max-height: 136px;
+      overflow: auto;
+    }
+
+    .item-hint b {
+      display: block;
+      color: var(--accent);
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .item-hint p {
+      margin: 0 0 6px;
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.58;
+    }
+
+    .item-hint .hint-meta {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #303331;
+      color: var(--text);
+      padding: 10px 12px;
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    button:hover:not(:disabled) {
+      border-color: var(--accent);
+      background: #3a3c39;
+    }
+
+    button:disabled {
+      opacity: .48;
+      cursor: not-allowed;
+    }
+
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #191511;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    button.secondary { text-align: center; }
+    button.choice { display: block; width: 100%; margin: 8px 0; }
+    button.choice strong { display: block; margin-bottom: 4px; }
+
+    .top-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .feedback {
+      margin-top: 14px;
+      min-height: 54px;
+      border-left: 3px solid var(--accent-2);
+    }
+
+    .next-row {
+      margin-top: 16px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .side {
+      position: sticky;
+      top: 92px;
+      align-self: start;
+      max-height: calc(100vh - 120px);
+      overflow: auto;
+    }
+
+    .progress {
+      height: 9px;
+      background: #333734;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: var(--accent);
+    }
+
+    .evidence-group {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin: 10px 0;
+      overflow: hidden;
+    }
+
+    .evidence-group summary {
+      padding: 9px 10px;
+      cursor: pointer;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .evidence-item {
+      padding: 8px 10px;
+      border-top: 1px solid var(--line);
+    }
+
+    .evidence-item b { display: block; }
+    .evidence-item p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+
+    .evidence-stats {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .evidence-filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .evidence-filter {
+      font-size: 12px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      text-align: center;
+    }
+
+    .evidence-filter.is-active {
+      border-color: var(--accent);
+      color: #181511;
+      background: var(--accent);
+      font-weight: 700;
+    }
+
+    .evidence-pool {
+      display: grid;
+      gap: 8px;
+    }
+
+    .evidence-card {
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 10px;
+      background: rgba(255,255,255,.035);
+      padding: 9px 10px;
+    }
+
+    .evidence-card summary {
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .evidence-card summary::-webkit-details-marker { display: none; }
+
+    .evidence-type {
+      display: inline-block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-right: 6px;
+    }
+
+    .evidence-name {
+      font-weight: 700;
+    }
+
+    .evidence-brief,
+    .evidence-detail {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .right-stack {
+      position: sticky;
+      top: 92px;
+      align-self: start;
+      display: grid;
+      gap: 16px;
+      max-height: calc(100vh - 120px);
+      overflow: auto;
+    }
+
+    .deduction-panel,
+    .record-panel {
+      min-width: 0;
+    }
+
+    .deduction-panel {
+      max-height: 42vh;
+      overflow: auto;
+    }
+
+    .record-panel {
+      max-height: 38vh;
+      overflow: auto;
+    }
+
+    .deduction-stage {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .deduction-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .deduction-card {
+      border-left: 2px solid rgba(210, 164, 95, .55);
+      padding: 9px 0 9px 12px;
+      color: #d8d0c3;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .deduction-locked {
+      margin-top: 12px;
+      padding: 10px;
+      border: 1px dashed rgba(255,255,255,.18);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .record-item {
+      width: 100%;
+      margin-bottom: 8px;
+      padding: 8px 9px;
+      border-radius: 8px;
+      background: rgba(255,255,255,.035);
+      font-size: 12px;
+    }
+
+    .record-item strong { display: block; color: var(--text); font-size: 12px; }
+
+    .record-item span {
+      display: block;
+      color: var(--muted);
+      line-height: 1.4;
+      margin-top: 2px;
+    }
+
+    .review-banner {
+      border: 1px solid rgba(135, 183, 165, .32);
+      border-left: 3px solid var(--accent-2);
+      background: rgba(135, 183, 165, .08);
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .review-banner button { padding: 7px 10px; }
+
+    .log-list {
+      max-height: 180px;
+      overflow: auto;
+    }
+
+    .vars-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 6;
+      background: rgba(18, 19, 19, .96);
+      border-top: 1px solid var(--line);
+      padding: 10px 14px;
+      backdrop-filter: blur(10px);
+    }
+
+    .vars-grid {
+      width: min(1200px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(8, minmax(88px, 1fr));
+      gap: 8px;
+    }
+
+    .var-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 7px 8px;
+      min-width: 0;
+      position: relative;
+    }
+
+    .var-card span { display: block; color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .var-card b { font-size: 20px; }
+
+    .var-card:hover::after {
+      content: attr(data-hint);
+      position: absolute;
+      left: 0;
+      bottom: calc(100% + 8px);
+      z-index: 20;
+      width: 230px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #252827;
+      color: var(--text);
+      font-size: 12px;
+      line-height: 1.5;
+      box-shadow: 0 12px 24px var(--shadow);
+      white-space: normal;
+    }
+
+    .intro-panel {
+      min-height: 520px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .intro-kicker {
+      color: var(--accent);
+      font-size: 13px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .intro-text {
+      font-size: 24px;
+      line-height: 1.75;
+      white-space: pre-line;
+    }
+
+    .intro-hint {
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .hub-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 10px;
+    }
+
+    .hub-card {
+      min-height: 132px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .summary-list li { margin-bottom: 9px; }
+
+    textarea {
+      width: 100%;
+      min-height: 210px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #171918;
+      color: var(--text);
+      padding: 12px;
+      font: inherit;
+      line-height: 1.6;
+    }
+
+    .version-footer { display: none; }
+
+    .version-badge {
+      position: fixed;
+      right: 18px;
+      bottom: 126px;
+      z-index: 5;
+      color: rgba(241,238,230,.32);
+      font-size: 12px;
+      letter-spacing: .08em;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .version-badge::before {
+      content: "测试版本 ";
+    }
+
+    .start-screen {
+      min-height: 100vh;
+      background: #000;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+    }
+
+    .start-card {
+      text-align: center;
+      max-width: 520px;
+    }
+
+    .start-title {
+      font-size: 46px;
+      letter-spacing: .28em;
+      margin-bottom: 18px;
+    }
+
+    .start-subtitle {
+      color: var(--muted);
+      margin-bottom: 34px;
+    }
+
+    .start-button {
+      text-align: center;
+      padding: 14px 28px;
+      border-radius: 999px;
+      border-color: rgba(255,255,255,.58);
+      background: rgba(255,255,255,.06);
+    }
+
+    .start-button:hover {
+      background: rgba(255,255,255,.12);
+      border-color: rgba(255,255,255,.82);
+    }
+
+    .start-note {
+      margin-top: 20px;
+      color: rgba(241,238,230,.45);
+      font-size: 13px;
+    }
+
+    body.is-start-screen {
+      background: #000;
+      padding-bottom: 0;
+    }
+
+    body.is-start-screen main {
+      display: block;
+      width: 100%;
+      margin: 0;
+    }
+
+    body.is-start-screen #scenePanel {
+      border: none;
+      box-shadow: none;
+      padding: 0;
+      background: #000;
+    }
+
+    body.is-start-screen .evidence-side,
+    body.is-start-screen .right-stack,
+    body.is-start-screen header,
+    body.is-start-screen .vars-bar,
+    body.is-start-screen .version-footer,
+    body.is-start-screen .version-badge {
+      display: none;
+    }
+
+    body.is-start-screen .header-progress-wrap {
+      display: none;
+    }
+
+    body.is-page-hidden header,
+    body.is-page-hidden main,
+    body.is-page-hidden .version-badge,
+    body.is-page-hidden .vars-bar {
+      opacity: 0;
+    }
+
+    body.is-page-revealing header,
+    body.is-page-revealing main,
+    body.is-page-revealing .version-badge,
+    body.is-page-revealing .vars-bar {
+      opacity: 1;
+      transition: opacity .9s ease;
+    }
+
+    .particle-transition {
+      position: fixed;
+      inset: 0;
+      z-index: 9990;
+      pointer-events: none;
+      background: rgba(0,0,0,0);
+      opacity: 0;
+      transition: opacity .25s ease;
+    }
+
+    .particle-transition.active {
+      opacity: 1;
+      background: #000;
+    }
+
+    #particleCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .esc-hint {
+      position: fixed;
+      top: 18px;
+      right: 22px;
+      z-index: 9999;
+      color: rgba(255,255,255,.72);
+      border: 1px solid rgba(255,255,255,.28);
+      background: rgba(0,0,0,.38);
+      backdrop-filter: blur(8px);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 12px;
+      letter-spacing: .12em;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .8s ease;
+    }
+
+    .esc-hint.show { opacity: 1; }
+    .esc-hint.fade { opacity: 0; }
+
+    body.is-cinematic {
+      background: #050505;
+    }
+
+    body.is-cinematic main {
+      display: block;
+      width: min(980px, calc(100% - 28px));
+    }
+
+    body.is-cinematic .evidence-side,
+    body.is-cinematic .right-stack,
+    body.is-cinematic .thought-panel {
+      display: none;
+    }
+
+    body.is-cinematic .vars-bar {
+      opacity: .18;
+      transform: translateY(70%);
+      transition: .3s ease;
+    }
+
+    body.is-cinematic .version-badge {
+      right: 18px;
+      opacity: .18;
+    }
+
+    body.is-cinematic .vars-bar:hover {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .cinematic-page {
+      min-height: calc(100vh - 120px);
+      background: #050505;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 14px;
+      padding: 0;
+      overflow: hidden;
+      box-shadow: 0 20px 80px rgba(0,0,0,.55);
+    }
+
+    .cinematic-inner {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 56px 28px 44px;
+    }
+
+    .cinematic-kicker {
+      color: rgba(255,255,255,.62);
+      font-size: 13px;
+      letter-spacing: .18em;
+      margin-bottom: 18px;
+    }
+
+    .cinematic-title {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .cinematic-subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 34px;
+    }
+
+    .cinematic-story {
+      font-size: 19px;
+      line-height: 2;
+      white-space: pre-line;
+      color: #f4f0e8;
+      margin-bottom: 28px;
+    }
+
+    .cinematic-dialogue {
+      border-left: 2px solid rgba(255,255,255,.38);
+      padding-left: 16px;
+      color: #d8d0c3;
+      font-size: 16px;
+      line-height: 1.9;
+      white-space: pre-line;
+      margin: 24px 0;
+    }
+
+    .cinematic-options {
+      margin-top: 32px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .cinematic-option {
+      background: rgba(255,255,255,.035);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 12px;
+      padding: 16px 18px;
+      color: #f1eee6;
+    }
+
+    .cinematic-option:hover:not(:disabled) {
+      background: rgba(255,255,255,.09);
+      border-color: rgba(255,255,255,.58);
+    }
+
+    .cinematic-result {
+      margin-top: 34px;
+      padding: 20px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.16);
+    }
+
+    .cinematic-player-line {
+      color: rgba(255,255,255,.9);
+      margin-bottom: 14px;
+    }
+
+    .cinematic-npc-reaction {
+      white-space: pre-line;
+      font-size: 17px;
+      line-height: 1.9;
+    }
+
+    .read-level-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 4px 10px;
+      border: 1px solid rgba(255,255,255,.32);
+      color: rgba(255,255,255,.72);
+      border-radius: 999px;
+      font-size: 13px;
+    }
+
+    .cinematic-unlocked {
+      margin-top: 34px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,.12);
+    }
+
+    .cinematic-video-slot {
+      display: none;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      margin-bottom: 28px;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .cinematic-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 8000;
+      background: rgba(0,0,0,.56);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-backdrop.show {
+      display: flex;
+    }
+
+    .chapter-modal {
+      width: min(760px, calc(100% - 32px));
+      max-height: 82vh;
+      overflow: auto;
+      background: rgba(10,10,10,.94);
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 28px 90px rgba(0,0,0,.65);
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .modal-group {
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding-top: 12px;
+      margin-top: 14px;
+    }
+
+    .directory-item {
+      width: 100%;
+      margin: 6px 0;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      text-align: left;
+    }
+
+    .directory-item span:last-child {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    body.modal-open #scenePanel,
+    body.modal-open header,
+    body.modal-open .vars-bar,
+    body.modal-open .evidence-side,
+    body.modal-open .right-stack,
+    body.modal-open .thought-panel {
+      filter: blur(5px);
+    }
+
+    @media (max-width: 920px) {
+      main {
+        width: min(100% - 28px, 720px);
+        grid-template-columns: 1fr;
+      }
+      .side, .right-stack, .thought-panel, .evidence-side {
+        position: static;
+        max-height: none;
+        overflow: visible;
+      }
+      .deduction-panel,
+      .record-panel {
+        max-height: none;
+      }
+      .version-badge {
+        right: 14px;
+        bottom: 226px;
+      }
+      .header-progress-track { height: 5px; }
+      .header-progress-label { font-size: 11px; }
+      .vars-grid { grid-template-columns: repeat(2, 1fr); }
+      body { padding-bottom: 230px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-stack">
+      <h1>《雾窑》第一章重制原型 · v0.3.3</h1>
+      <div class="header-meta" id="headerMeta">测试版本：v0.3.3</div>
+      <div class="header-progress-wrap">
+        <div class="header-progress-track">
+          <div id="headerProgressBar" class="header-progress-bar"></div>
+        </div>
+        <div id="headerProgressLabel" class="header-progress-label"></div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="secondary" id="directoryBtn">目录</button>
+      <button class="secondary" id="resetBtn">清空存档</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel" id="scenePanel"></section>
+    <aside class="panel side evidence-side">
+      <h3>证据池</h3>
+      <p class="small">关键证物和重要线索默认显示；观察记录可通过筛选展开。</p>
+      <div id="evidenceBox"></div>
+    </aside>
+    <aside class="side right-stack">
+      <section class="panel deduction-panel">
+        <h3>推理台</h3>
+        <p class="small">当前阶段：林知夏的判断。后续将开放玩家组合证据、推理真凶。</p>
+        <div id="thoughtBox"></div>
+      </section>
+      <section class="panel record-panel">
+        <h3>活动记录</h3>
+        <p class="small">点击记录可回溯查看当时节点，不会改变已做选择。</p>
+        <div id="logList"></div>
+      </section>
+    </aside>
+  </main>
+
+  <div class="version-badge">v0.3.3</div>
+
+  <div class="vars-bar">
+    <div class="vars-grid" id="varsGrid"></div>
+  </div>
+
+  <div id="modalBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="chapter-modal" role="dialog" aria-modal="true" aria-labelledby="chapterModalTitle">
+      <div class="modal-head">
+        <div>
+          <h2 id="chapterModalTitle">第一章目录</h2>
+          <p class="small">已到达节点可回溯查看，不会改变当前选择和证据。</p>
+        </div>
+        <button class="secondary" id="closeModalBtn">关闭</button>
+      </div>
+      <div id="directoryContent"></div>
+    </div>
+  </div>
+
+  <div id="particleTransition" class="particle-transition">
+    <canvas id="particleCanvas"></canvas>
+  </div>
+
+  <div id="escHint" class="esc-hint">ESC</div>
+
+  <script>
+    const STORAGE_KEY = "wuyao_chapter1_v0_3_explore";
+    const MAX_VISITS = 3;
+
+    const variableNames = {
+      EvidenceScore: "旧案证据完整度",
+      ShenSuspicion: "沈月娥嫌疑值",
+      LuTrust: "陆景川信任值",
+      VillageSilence: "村庄沉默压力",
+      FatherClue: "父亲线索完整度",
+      RevengeTimer: "暗流临界",
+      SelfDoubt: "林知夏自我怀疑值",
+      OutsiderTrust: "外来者信任度"
+    };
+
+    const variableHints = {
+      EvidenceScore: "手里的碎片越多，火场里的旧话越不容易被吹散。",
+      ShenSuspicion: "她越像答案，越要小心是不是有人把答案摆得太顺。",
+      LuTrust: "有人替你撑伞，也可能顺手改了你要走的路。",
+      VillageSilence: "村里越安静，越说明每个人都在等别人先开口。",
+      FatherClue: "父亲当年没写完的那页纸，正在一点点回到你手里。",
+      RevengeTimer: "雨声越密，某些人越接近自己的最后一步。",
+      SelfDoubt: "怀疑自己不是坏事，只是别把别人的剧本当成自己的判断。",
+      OutsiderTrust: "外来者被允许靠近，不代表已经被允许知道。"
+    };
+
+    const evidenceTypes = {
+      core: "关键证物",
+      clue: "重要线索",
+      obs: "观察记录",
+      risk: "待验证/误导"
+    };
+
+    const baseVars = {
+      EvidenceScore: 0,
+      ShenSuspicion: 0,
+      LuTrust: 0,
+      VillageSilence: 0,
+      FatherClue: 0,
+      RevengeTimer: 0,
+      SelfDoubt: 0,
+      OutsiderTrust: 0
+    };
+
+    const introSteps = [
+      { tag: "前情提示", text: "南方山区，青瓷庄。\n\n暴雨封山，文旅项目把一座旧村重新推到人前。" },
+      { tag: "玩家身份", text: "林知夏是外来编剧，受邀为非遗民宿改造写故事脚本。" },
+      { tag: "旧笔记", text: "她答应前来的真正原因，是父亲留下的一本旧采访笔记。" },
+      { tag: "半句话", text: "笔记第一页只剩半句话：\n\n“青瓷庄的火，不是火先烧起来的。”" },
+      { tag: "进入第一章", text: "车灯照见青瓷庄牌楼，雨声把来路盖住。" }
+    ];
+
+    const scenes = [
+      {
+        id: "CH1_ROAD",
+        no: "1-1",
+        title: "山路入村",
+        description: "山路像被雨水从山腰上削出来的一道黑缝。车灯只能照亮前方几米，雨点砸在挡风玻璃上，像一把细碎的砂。文旅改造临时牌在路边晃了一下，崭新的蓝底字后面压着一块褪色旧牌。远处吊桥断在雾里，铁索一下下敲着山壁。",
+        goal: "建立封闭感，初见陆景川，并判断他对青瓷庄是否过于熟悉。",
+        dialogue: [
+          "陆景川把雨刷拨到最快：“山里的雨就这样，来了不打招呼，走也不告别。”",
+          "林知夏扶住背包：“你们项目接待，都要先练越野？”",
+          "陆景川没有减速：“这条路不难。难的是进村以后，大家都觉得你不该问路。”",
+          "车轮压过积水，他的手几乎没有犹豫，像每个弯都提前在掌心里转过。"
+        ],
+        clickables: [
+          { id: "road_warning", label: "塌方警示牌", text: "警示牌是新的，立得很匆忙，泥水已经漫到木桩一半。", evidence: { id: "landslide_warning", type: "obs", name: "塌方警示牌", detail: "暴雨和塌方让来路变得不可靠。" } },
+          { id: "road_father_note", label: "父亲旧采访笔记第一页", text: "页角写着：青瓷庄，别只问火。纸页边缘有被雨水泡过的痕迹。", effects: { FatherClue: 1 }, evidence: { id: "father_note_p1", type: "core", name: "父亲旧采访笔记第一页", detail: "林父二十年前曾调查青瓷庄旧案。" } },
+          { id: "road_broken_bridge", label: "远处断桥", text: "吊桥一侧垮在雾里，铁索撞着山壁。短时间内，很难有人从这里离开。", evidence: { id: "broken_bridge", type: "obs", name: "断桥封闭信息", detail: "暴雨、塌方和吊桥损毁形成封闭空间。" } },
+          { id: "road_lu_hand", label: "陆景川握方向盘的手", text: "过急弯时，他没有看路牌，也没有问导航，手指却提前压住了方向盘。", evidence: { id: "lu_drives_too_familiar", type: "clue", name: "陆景川熟悉山路", detail: "他对青瓷庄周边路况过于熟悉。" } },
+          { id: "road_tourism_sign", label: "文旅项目临时牌", text: "新牌压住旧牌一角，旧字只露出“窑”“事故”几个模糊笔画。", effects: { EvidenceScore: 1 }, evidence: { id: "new_sign_covers_old", type: "clue", name: "新牌压住旧事故牌", detail: "文旅包装正在覆盖旧事故记忆。" } }
+        ],
+        choices: [
+          { label: "A", text: "你对这条老路很熟。", effects: { LuTrust: -1, EvidenceScore: 1 }, evidence: { id: "lu_old_road", type: "clue", name: "陆景川熟悉旧路", detail: "林知夏开始注意陆景川对旧路的熟悉。" }, short: "陆景川解释是项目勘测走过很多次。" },
+          { label: "B", text: "那就麻烦你带路了。", effects: { LuTrust: 1 }, flag: "acceptedLuRoadHelp", evidence: { id: "accepted_lu_guidance_early", type: "risk", name: "接受陆景川早期引导", detail: "陆景川会更自然地介入林知夏的行动路线。" }, short: "陆景川后续会更主动替你安排路线。" },
+          { label: "C", text: "我父亲以前也走过这条路吗？", effects: { FatherClue: 1, RevengeTimer: 1 }, evidence: { id: "lu_notices_father", type: "clue", name: "陆景川注意父亲线", detail: "陆景川知道林知夏带着父亲线索而来。" }, short: "陆景川避开问题，只说很多外地人都来过。" }
+        ],
+        next: "CH1_HALL"
+      },
+      {
+        id: "CH1_HALL",
+        no: "1-2",
+        title: "老宅堂屋：所有人首次同框",
+        description: "老宅堂屋潮湿昏黄，像一口没烧透的旧窑。供桌上几只青瓷杯排得过分整齐。陆怀民坐在主位，周启明把宣传册摆到最显眼处，陈伯远靠在走廊阴影里，沈月娥没有入席，手上沾着釉灰。陆景川站在门边替林知夏收伞，水顺着伞尖滴进门槛。",
+        goal: "让五个主要人物同时出现，但只通过动作和位置理解他们。",
+        dialogue: [
+          "陆怀民先开口：“林小姐一路辛苦。青瓷庄地方小，话也少，写的时候别把旧事写得太阴。”",
+          "周启明把宣传册推到灯下：“先看项目亮点。旧村要活起来，不能总让游客盯着灰看。”",
+          "陈伯远看见林知夏背包里的旧本子，手指在药箱扣上停了一下，又移开眼。",
+          "沈月娥没有坐下，只把一只沾灰的手缩进袖口：“你们吃，我还有窑砖没收。”",
+          "陆景川替林知夏把伞靠好：“村长怕你第一天就听太多旧话。林老师别往心里去。”"
+        ],
+        clickables: [
+          { id: "hall_cups", label: "六只青瓷杯", text: "杯沿很薄，摆得过分齐整。杯底有浅刻痕，但釉色压住了字。", effects: { EvidenceScore: 1 }, evidence: { id: "six_cups_observed", type: "obs", name: "供桌上的青瓷杯", detail: "杯子被刻意摆得过于齐整，目前只能作为异常观察保存。" } },
+          { id: "hall_lu_seat", label: "陆怀民主位", text: "他的座位正对堂屋门，也正对所有人。谁先说话，似乎都要等他眼神放行。", evidence: { id: "lu_huai_min_main_seat", type: "clue", name: "陆怀民主位", detail: "陆怀民控制堂屋发言顺序。" } },
+          { id: "hall_zhou_brochure", label: "周启明手里的宣传册", text: "宣传册新得刺眼，刚好盖住桌上一块旧烟痕。", evidence: { id: "zhou_covers_old_marks", type: "clue", name: "宣传册盖住旧痕", detail: "周启明试图用文旅包装覆盖旧痕迹。" } },
+          { id: "hall_chen_medkit", label: "陈伯远的旧药箱", text: "药箱扣被磨得发亮，他看见旧笔记时，手停在扣子上。", effects: { FatherClue: 1 }, evidence: { id: "chen_sees_father_note", type: "clue", name: "陈伯远注意父亲笔记", detail: "陈伯远可能认识林父，也可能知道旧案尸检线。" } },
+          { id: "hall_shen_ash", label: "沈月娥手上的釉灰", text: "她没有擦掉手上的灰，也没有坐进这场接待。", evidence: { id: "shen_not_in_reception", type: "obs", name: "沈月娥不入席", detail: "沈月娥与文旅接待保持距离。" } },
+          { id: "hall_lu_umbrella", label: "陆景川收起的伞", text: "他把林知夏的伞和其他人的伞分开放好，动作体贴，也像在记谁从哪里进来。", evidence: { id: "lu_manages_entry", type: "clue", name: "陆景川整理众人动线", detail: "陆景川像协助者，也像过滤器。" } }
+        ],
+        choices: [
+          { label: "A", text: "晚饭后去祠堂门口找陆怀民。", immediateNext: "CH1_EXP_LUHUAI_MIN" },
+          { label: "B", text: "晚饭后去文旅接待处找周启明。", immediateNext: "CH1_EXP_ZHOU_QIMING" },
+          { label: "C", text: "晚饭后去老宅走廊找陈伯远。", immediateNext: "CH1_EXP_CHEN_BOYUAN" },
+          { label: "D", text: "晚饭后去旧窑棚外找沈月娥。", immediateNext: "CH1_EXP_SHEN_YUEE" },
+          { label: "E", text: "晚饭后留在院门雨棚观察陆景川。", immediateNext: "CH1_EXP_LU_JINGCHUAN" }
+        ]
+      },
+      {
+        id: "CH1_EXP_LUHUAI_MIN",
+        no: "1-3A",
+        title: "祠堂门口：陆怀民",
+        personKey: "visitedLuHuaiMin",
+        personName: "陆怀民",
+        readKey: "LuHuaiMin",
+        description: "祠堂门半开，里面只亮着一盏小灯。族谱墙在门缝里一闪而过。陆怀民把门合上，钥匙串碰到门环，声音很轻，却让林知夏停住脚步。他动作很慢，但钥匙握得很紧，听见脚步声后，先把钥匙收进袖口，再回头笑。",
+        goal: "理解陆怀民是村庄叙事和空间的控制者。",
+        dialogue: [
+          "陆怀民：“林小姐，晚饭刚吃完就到处走，城里人做功课都这么急？”",
+          "林知夏看着他袖口：“我只是想熟悉一下地方。”",
+          "陆怀民笑了一下：“地方不急。急的是人心。”"
+        ],
+        clickables: [
+          { id: "lu_hall_lock", label: "祠堂门锁", text: "锁孔新旧划痕叠在一起，说明这里并不是多年无人打开。", evidence: { id: "lu_controls_hall_entry", type: "clue", name: "陆怀民控制祠堂出入", detail: "祠堂是青瓷庄叙事入口之一。" } },
+          { id: "lu_sleeve_keys", label: "袖口里的钥匙", text: "钥匙被他收得很自然，像一个多年养成的动作。", evidence: { id: "lu_hides_keys", type: "clue", name: "陆怀民习惯收起关键物", detail: "他习惯把入口和证物都握在自己手里。" } },
+          { id: "lu_genealogy_gap", label: "门缝里的族谱墙", text: "门合上前，林知夏看见墙上几处名字像被刮浅。", effects: { EvidenceScore: 1 }, evidence: { id: "genealogy_scrape_hint", type: "clue", name: "族谱墙疑似有刮痕", detail: "身份线在第一章被轻微提示。" } },
+          { id: "lu_smile", label: "陆怀民脸上的笑", text: "他说话很慢，笑也慢，但每一句都像把路往旁边挪了一寸。", evidence: { id: "lu_blocks_questions", type: "obs", name: "陆怀民挡开问题", detail: "他不急着否认，只控制问题能走到哪里。" } }
+        ],
+        choices: [
+          { label: "A", text: "我只是想知道，祠堂在村里代表什么。", effects: { OutsiderTrust: 1 }, readLevel: "surface", npcReaction: "陆怀民笑得很慢：“祠堂嘛，放祖宗牌位的地方。外人看个门面就够了，里面都是家里的旧规矩，写出来也没人爱看。”", evidence: { id: "lu_calls_hall_family_matter", type: "obs", name: "陆怀民把祠堂说成家里的事", detail: "他用家事和旧规矩，把祠堂从外来叙事里轻轻推开。" } },
+          { label: "B", text: "文旅路线为什么绕开祠堂？", effects: { EvidenceScore: 1, VillageSilence: 1 }, flag: "luHuaiMinAvoidsGenealogy", readLevel: "crack", npcReaction: "陆怀民收钥匙的动作停了一下：“游客来住民宿，不是来翻族谱的。旧名字太多，翻出来，活人死人都不安生。”", evidence: { id: "lu_avoids_genealogy_names", type: "clue", name: "陆怀民回避族谱和旧名字", detail: "陆怀民不是怕外人参观，而是怕某些名字被重新看见。" } },
+          { label: "C", text: "你是在怕我看到祠堂里的某个名字吗？", effects: { VillageSilence: 2, RevengeTimer: 1 }, flag: "luHuaiMinDefensiveHall", readLevel: "defensive", npcReaction: "陆怀民的笑淡下去：“林小姐，写故事的人最容易犯一个毛病，听半句，就敢替别人定罪。”他把门锁扣死：“青瓷庄不欢迎这种写法。”", evidence: { id: "risk_hall_name_protected", type: "risk", name: "祠堂名字被刻意保护", detail: "陆怀民关上祠堂门的动作，比他说的话更像警告。" } }
+        ]
+      },
+      {
+        id: "CH1_EXP_ZHOU_QIMING",
+        no: "1-3B",
+        title: "文旅接待处：周启明",
+        personKey: "visitedZhouQiming",
+        personName: "周启明",
+        readKey: "ZhouQiming",
+        description: "偏厅里亮着白色应急灯，比堂屋更刺眼。墙上贴着“非遗民宿一期改造动线图”。周启明正在把几页合同塞进文件夹，见林知夏进来，立刻用招商手册盖住合同。他的手机一直亮，屏幕上压着好几个未接电话。",
+        goal: "理解周启明不是普通文旅商人，而是被账目和项目压力追着走的人。",
+        dialogue: [
+          "周启明：“林老师，故事别写太沉。游客花钱是来住民宿的，不是来给死人上香的。”",
+          "林知夏：“你怕故事沉，还是怕有些东西被写出来？”",
+          "周启明把手机扣在桌上：“我怕项目黄。你们写东西的人，黄了还能改稿，我们黄了是真赔钱。”"
+        ],
+        clickables: [
+          { id: "zhou_hidden_contract", label: "被招商手册盖住的合同", text: "合同只露出一角，能看见“老窑址权益”和涂改过的签名线。", effects: { EvidenceScore: 1 }, evidence: { id: "hidden_contract_corner", type: "clue", name: "项目合同被遮掩", detail: "周启明不想让林知夏直接看到合同内容。" } },
+          { id: "zhou_missed_calls", label: "未接电话", text: "手机屏幕一亮又暗，未接电话来自不同号码，时间都集中在今晚。", evidence: { id: "zhou_external_pressure", type: "obs", name: "周启明被外部压力催促", detail: "周启明正承受项目和资金压力。" } },
+          { id: "zhou_route_map", label: "旧窑体验区动线图", text: "旧窑被画成游客体验点，图上用暖色标注了“沉浸式烧窑”。", evidence: { id: "old_kiln_packaged", type: "clue", name: "旧窑被商业化包装", detail: "旧案现场正在被转化为项目卖点。" } },
+          { id: "zhou_missing_page", label: "文件夹缺页", text: "资料页码从 7 跳到 9，缺的正好是旧窑安全说明。", effects: { EvidenceScore: 1 }, evidence: { id: "renovation_missing_page", type: "core", name: "民宿改造资料缺页", detail: "旧窑资料缺页，可在后续关联账本和旧案。" } }
+        ],
+        choices: [
+          { label: "A", text: "这个项目对你压力很大吧？", effects: { OutsiderTrust: 1 }, readLevel: "surface", npcReaction: "周启明松了口气，像终于有人问了一个正常问题：“谁做项目没压力？山里修路、改房、招商，哪一样不要钱？你们写字的人只看故事，我们得看账。”", evidence: { id: "zhou_project_money_pressure", type: "obs", name: "周启明被项目资金压力困住", detail: "他把压力解释成普通项目账目，没有主动触碰旧案。" } },
+          { label: "B", text: "旧窑体验区的资料为什么缺页？", effects: { EvidenceScore: 1 }, flag: "zhouContactsOldLu", readLevel: "crack", npcReaction: "周启明把招商手册往前推了一寸：“资料多，版本乱，缺一页不稀奇。”他的手机亮起，又立刻被按灭，屏幕上只闪过两个字：“老陆”。", evidence: { id: "zhou_contacts_old_lu", type: "clue", name: "周启明与“老陆”联系频繁", detail: "旧窑资料缺页和老陆来电同时出现，项目线开始接近旧案权力线。" } },
+          { label: "C", text: "你藏起来的是合同，还是账？", effects: { EvidenceScore: 1, VillageSilence: 1 }, flag: "zhouDefensiveAboutAccounts", readLevel: "defensive", npcReaction: "周启明脸色沉下去：“林老师，项目方请你来，是写宣传脚本，不是查账。”他把文件夹合上：“别把自己写进不该写的故事里。”", evidence: { id: "risk_zhou_may_hide_accounts", type: "risk", name: "周启明可能藏账", detail: "周启明把账和故事分得太清楚，越清楚，越像在遮。" } }
+        ]
+      },
+      {
+        id: "CH1_EXP_CHEN_BOYUAN",
+        no: "1-3C",
+        title: "老宅走廊：陈伯远",
+        personKey: "visitedChenBoyuan",
+        personName: "陈伯远",
+        readKey: "ChenBoyuan",
+        description: "走廊漏水，搪瓷盆接着雨。陈伯远靠在阴影里，药箱放在膝上。他正在擦旧药箱，药箱并不脏，但他擦得很用力。看见林知夏背包里的旧采访笔记时，他的手停了一下。",
+        goal: "理解陈伯远的愧疚感和尸检线。",
+        dialogue: [
+          "陈伯远：“你父亲当年来过。问得太多，走得也不体面。”",
+          "林知夏：“您知道他问了什么？”",
+          "陈伯远低头继续擦箱扣：“医生最怕别人问已经写进纸里的东西。”"
+        ],
+        clickables: [
+          { id: "chen_medkit_label", label: "旧药箱尸检组标签", text: "药箱内侧贴着旧标签，县医院尸检组几个字已经褪色。", effects: { EvidenceScore: 1 }, evidence: { id: "autopsy_medkit_label", type: "clue", name: "旧药箱尸检组标签", detail: "陈伯远与尸检报告有关。" } },
+          { id: "chen_polished_latch", label: "被擦得发亮的药箱扣", text: "扣子被擦得很亮，像他反复碰过同一个地方。", evidence: { id: "chen_repeats_medkit_action", type: "obs", name: "陈伯远反复擦药箱扣", detail: "这个动作更像焦虑，不像整理。" } },
+          { id: "chen_basin_ash", label: "接水搪瓷盆里的纸灰", text: "盆底漂着一点纸灰，水纹一动，灰就散开。", evidence: { id: "paper_ash_in_basin", type: "clue", name: "搪瓷盆里有纸灰", detail: "有人在老宅走廊附近处理过纸张。" } },
+          { id: "chen_stopped_hand", label: "陈伯远停住的手", text: "他看到旧笔记时，手停住一瞬，随后擦得更用力。", effects: { FatherClue: 1 }, evidence: { id: "chen_reacts_to_note", type: "clue", name: "陈伯远看见林父笔记停手", detail: "林父调查线与陈伯远有关。" } }
+        ],
+        choices: [
+          { label: "A", text: "雨这么大，您还随身带药箱？", effects: { OutsiderTrust: 1 }, readLevel: "surface", npcReaction: "陈伯远低头看药箱：“人老了，习惯不好改。以前走到哪儿都带着，后来不用了，也舍不得放下。”", evidence: { id: "chen_cannot_put_down_medkit", type: "obs", name: "陈伯远放不下旧身份", detail: "药箱不是工具，更像他一直带着的旧身份。" } },
+          { label: "B", text: "我父亲当年是不是问过何青山的死因？", effects: { FatherClue: 1, EvidenceScore: 1 }, flag: "chenAdmitsFatherWasRight", readLevel: "crack", npcReaction: "药箱扣“啪”地合上。陈伯远说：“你父亲不该问那个。”停了一下，他又低声补了一句：“但他问得没错。”", evidence: { id: "chen_admits_father_was_right", type: "clue", name: "陈伯远承认林父追问方向正确", detail: "林父当年追问何青山死因，方向并没有错。" } },
+          { label: "C", text: "你当年是不是写了假报告？", effects: { EvidenceScore: 1, RevengeTimer: 1 }, flag: "chenDefensiveFakeReport", readLevel: "defensive", npcReaction: "陈伯远看了林知夏很久：“年轻人最残忍的地方，就是以为真相只要问出口，别人就能答。”他站起来：“你真想知道，就先活过今晚。”", evidence: { id: "danger_chen_knows_fake_report", type: "clue", name: "危险真话：陈伯远知道尸检报告有假", detail: "陈伯远没有否认假报告，只把回答推到了今晚之后。" } }
+        ]
+      },
+      {
+        id: "CH1_EXP_SHEN_YUEE",
+        no: "1-3D",
+        title: "旧窑棚外：沈月娥",
+        personKey: "visitedShenYuee",
+        personName: "沈月娥",
+        readKey: "ShenYuee",
+        description: "旧窑棚被雨和荒草围住，新白灰盖不住下方烟熏痕。沈月娥蹲在墙根，把裂开的窑砖一块块放回去。她不是在修墙，更像在给死人收拾遗物。她手上全是灰，旧窑砖上隐约有一个“何”字。",
+        goal: "理解沈月娥不是普通嫌疑人，而是旧案幸存者和守证人。",
+        dialogue: [
+          "沈月娥没有抬头：“你们写故事的人，总喜欢给死人安排一个好结局。”",
+          "林知夏：“好结局不一定是假的。”",
+          "沈月娥把一块砖放回墙根：“死人听不见好听。活人才爱听，听完就能睡。”"
+        ],
+        clickables: [
+          { id: "shen_he_brick", label: "旧窑砖何字痕", text: "砖背有一个很浅的“何”字，像被人用钝器刻过。", effects: { FatherClue: 1 }, evidence: { id: "he_brick_mark_v03", type: "core", name: "旧窑砖何字痕", detail: "何青山在旧窑留下过痕迹。" } },
+          { id: "shen_smoke_under_lime", label: "新白灰下烟熏痕", text: "白灰刷得很新，雨水一冲，下面的黑痕又露出来。", evidence: { id: "smoke_under_new_lime", type: "clue", name: "新白灰下有烟熏痕", detail: "旧窑旧痕并没有被真正遮住。" } },
+          { id: "shen_ash_hand", label: "沈月娥手上的灰", text: "她指缝里都是黑灰，更像常年翻找旧物，而不是临时沾上。", evidence: { id: "shen_guards_old_objects_v03", type: "clue", name: "沈月娥守着旧案旧物", detail: "她的沉默未必等于心虚。" } },
+          { id: "shen_new_lock", label: "旧窑棚新锁", text: "棚门旧得发黑，锁却是新的，钥匙不在沈月娥手里。", evidence: { id: "old_kiln_new_lock_v03", type: "obs", name: "旧窑棚新锁", detail: "旧窑仍被他人控制出入。" } }
+        ],
+        choices: [
+          { label: "A", text: "这些窑砖对你很重要？", effects: { ShenSuspicion: -1 }, readLevel: "surface", npcReaction: "沈月娥没有看林知夏，只把一块砖摆正：“砖烧坏了还能看出来，人烧坏了，就只剩别人说什么是什么。”", evidence: { id: "shen_keeps_kiln_bricks", type: "obs", name: "沈月娥守着旧窑砖", detail: "她把旧窑砖当成死者遗物一样收拾。" } },
+          { label: "B", text: "你认识何青山吗？", effects: { FatherClue: 1, ShenSuspicion: 1 }, flag: "shenReactsToHeQingshan", readLevel: "crack", npcReaction: "沈月娥手里的砖掉了一下。雨声里，她低声说：“别在这儿叫他的名字。”她抬头看向旧窑棚：“有些名字，被活人叫一次，就要再死一次。”", evidence: { id: "shen_reacts_he_qingshan", type: "clue", name: "何青山名字让沈月娥失态", detail: "何青山对沈月娥意义特殊，她与旧案的关系比嫌疑更深。" } },
+          { label: "C", text: "你讨厌文旅项目，是因为它动了你的秘密吗？", effects: { ShenSuspicion: 2, VillageSilence: 1 }, flag: "shenHatesProjectOpenly", readLevel: "defensive", npcReaction: "沈月娥终于看向林知夏：“秘密？”她把手上的灰抹在砖上：“你们城里人最会给别人的伤口起名字。”然后她转身离开。", evidence: { id: "risk_shen_hates_project", type: "risk", name: "沈月娥强烈反感文旅项目", detail: "被逼问后，沈月娥彻底封闭，玩家之后更容易误解她。" } }
+        ]
+      },
+      {
+        id: "CH1_EXP_LU_JINGCHUAN",
+        no: "1-3E",
+        title: "院门雨棚：陆景川",
+        personKey: "observedLuJingchuan",
+        personName: "陆景川",
+        readKey: "LuJingchuan",
+        description: "院门外雨水连成白线。陆景川站在雨棚下收伞，顺手把林知夏刚才放错的路线图摆正。他把几把伞按长短排好，动作有点过分整齐。林知夏还没开口，他已经随口说出她刚才去了哪个方向。",
+        goal: "理解陆景川是可靠协助者，也是潜在引导者。",
+        dialogue: [
+          "陆景川：“林老师刚才去了祠堂方向？那边晚上路滑，以后还是叫我带您。”",
+          "林知夏：“你一直在院门口？”",
+          "陆景川把伞扣好：“雨这么大，总得有人看门。不然谁摔了，项目也要担责。”"
+        ],
+        clickables: [
+          { id: "lu_route_map_aligned", label: "被摆正的路线图", text: "路线图原本歪着，现在被他摆回正中，旧窑和祠堂都被压在图边。", evidence: { id: "lu_corrects_route_map", type: "clue", name: "陆景川摆正路线图", detail: "他会主动管理林知夏看见的路线。" } },
+          { id: "lu_flashlight_red_soil", label: "陆景川手电上的红土", text: "手电外壳有一点红土，和旧窑棚外的泥色很接近。", effects: { EvidenceScore: 1 }, evidence: { id: "lu_flashlight_red_soil_v03", type: "clue", name: "陆景川手电红土痕迹", detail: "后续可关联旧窑和账房动线。" } },
+          { id: "lu_ordered_umbrellas", label: "排得过整齐的伞", text: "几把伞按长短排好，湿痕也被分开，像每个人的出入都被单独记住。", evidence: { id: "lu_sorts_umbrellas", type: "obs", name: "陆景川整理众人伞具", detail: "他对众人动线保持异常关注。" } },
+          { id: "lu_knows_player_route", label: "他对林知夏动线的掌握", text: "他准确说出林知夏刚才去过的方向，没有问，也没有猜。", effects: { EvidenceScore: 1 }, evidence: { id: "lu_tracks_player_route", type: "clue", name: "陆景川掌握林知夏动线", detail: "他像在帮助林知夏，也像在管理她能看到什么。" } }
+        ],
+        choices: [
+          { label: "A", text: "今天多亏你带路。", effects: { LuTrust: 1 }, flag: "acceptedLuGuidance", readLevel: "surface", npcReaction: "陆景川笑得很自然：“我应该的。你是客人，山里路不好走，别一个人乱跑。”他说得像关心，也像提醒。", evidence: { id: "lu_takes_guide_role", type: "obs", name: "陆景川主动承担引导者身份", detail: "陆景川是可靠带路人，但他的照顾也在限定路线。" } },
+          { label: "B", text: "你怎么知道我刚才去了祠堂方向？", effects: { LuTrust: -1, EvidenceScore: 1 }, flag: "noticedLuTracking", readLevel: "crack", npcReaction: "陆景川的手在伞柄上停了一下：“鞋底有香灰。祠堂门口那块地，雨再大也冲不干净。”他很快补了一句：“我只是熟悉村里。”", evidence: { id: "lu_reads_ash_on_shoes", type: "clue", name: "陆景川过度观察林知夏动线", detail: "他能从鞋底香灰判断林知夏去了哪里，观察得太细。" } },
+          { label: "C", text: "你是在帮我，还是在管我能看到什么？", effects: { LuTrust: -2, RevengeTimer: 1 }, flag: "luDefensiveControlsView", readLevel: "defensive", npcReaction: "陆景川慢慢把伞放回墙边：“林老师，您现在看到的，已经够多了。”他重新笑了一下：“再多，就不一定是您想看的了。”", evidence: { id: "danger_lu_controls_view", type: "clue", name: "危险真话：陆景川在控制玩家视野", detail: "“你看到的已经够多了”不是提醒，是边界。" } }
+        ]
+      },
+      {
+        id: "CH1_RETURN_HALL",
+        no: "1-4",
+        title: "返回堂屋：整理人物印象",
+        description: "晚饭后的堂屋比刚才更空。雨声压在屋顶，供桌上的杯影被灯拉得很长。林知夏把刚才走过的路线在脑中重新排了一遍：谁在门口，谁在阴影里，谁在收东西，谁在阻止她继续看。",
+        goal: "根据已拜访人物生成第一章人物理解总结。",
+        dynamicSummary: true,
+        clickables: [],
+        choices: [],
+        next: "CH1_ROOM_REFLECT"
+      },
+      {
+        id: "CH1_ROOM_REFLECT",
+        no: "1-5",
+        title: "林知夏房间：整理父亲笔记",
+        description: "房间被布置成民宿样板间：新床单、藤编灯、仿旧木桌，一切都努力显得温柔。窗外却正对旧窑棚，雨幕把棚顶压得像一块湿黑布。桌上的电脑屏幕映出父亲笔记的影子，纸页边缘翘起，像有人从里面轻轻掀了一下。",
+        goal: "整理父亲笔记，并根据已访问人物形成个人线判断。",
+        dynamicRoom: true,
+        dialogue: [
+          "内心：“他们希望我写一个能卖房间的故事。”",
+          "内心：“可父亲留下的纸，不像是为了让我写广告。”"
+        ],
+        clickables: [
+          { id: "room_note_missing", label: "父亲笔记缺页", text: "页码从 1 直接跳到 4，中间像被人干净地撕走。", effects: { FatherClue: 1 }, evidence: { id: "father_note_missing_v03", type: "core", name: "父亲旧采访笔记缺页", detail: "父亲线不完整，缺页可能仍在村内。" } },
+          { id: "room_doc_missing", label: "民宿改造资料缺页", text: "项目资料里旧窑区域缺第 8 页，废窑动线被剪掉。", effects: { EvidenceScore: 1 }, evidence: { id: "renovation_page8_missing_v03", type: "clue", name: "项目资料第 8 页缺失", detail: "文旅项目资料和旧案线可能重叠。" } },
+          { id: "room_lamp_qingshan", label: "青瓷台灯青山窑制", text: "台灯底部刻着“青山窑制”，字迹被磨掉一半。", effects: { FatherClue: 1 }, evidence: { id: "qingshan_lamp_v03", type: "core", name: "青瓷台灯青山窑制", detail: "何青山相关痕迹被放在民宿样板间里。" } },
+          { id: "room_writer_book", label: "林知夏的编剧工作本", text: "空白页上写着项目提纲：非遗、民宿、旧窑、传承。现在每个词都像少了一半。", evidence: { id: "writer_book_reflection", type: "obs", name: "林知夏工作本", detail: "林知夏开始从包装故事转向调查真相。" } }
+        ],
+        choices: [
+          { label: "A", text: "收好父亲笔记。", effects: { FatherClue: 1, LuTrust: -1 }, flag: "protectedFatherNote", evidence: { id: "protected_father_note", type: "clue", name: "父亲笔记被收好", detail: "陆景川暂时无法轻易看到笔记内容。" }, short: "父亲线索暂时留在林知夏自己手里。" },
+          { label: "B", text: "准备明天让陆景川带路。", effects: { LuTrust: 1, RevengeTimer: 1 }, flag: "luOfferedKilnTour", evidence: { id: "plan_lu_kiln_tour", type: "risk", name: "准备让陆景川带路", detail: "短期方便，但陆景川会掌握更多解释权。" }, short: "陆景川会更自然地介入下一步调查。" },
+          { label: "C", text: "在地图上标记旧窑和祠堂。", effects: { EvidenceScore: 1, FatherClue: 1 }, flag: "markedKilnAndHall", evidence: { id: "marked_kiln_and_hall", type: "clue", name: "地图标记旧窑和祠堂", detail: "林知夏把两个核心空间连在一起。" }, short: "旧窑和祠堂成为第二章前最重要的两个位置。" }
+        ],
+        next: "CH1_BLACKOUT"
+      },
+      {
+        id: "CH1_BLACKOUT",
+        no: "1-6",
+        title: "夜晚停电：第二章入口预告",
+        description: "灯闪三下后，老宅沉入黑暗。周启明没有回到堂屋。偏厅方向传来一声闷响，像有人撞倒旧柜，又像某扇门被人从里面推了一下。雨声把院外的路彻底盖住，只剩几束手电光在墙上乱晃。",
+        goal: "选择第二章入口路线。本版本只做预告，不开发第二章。",
+        dialogue: [
+          "陆怀民：“都别乱走。”",
+          "陈伯远：“二十年前，也是灯先不稳。”",
+          "陆景川很快靠近：“林老师，您先跟我走，别站门口。”"
+        ],
+        clickables: [
+          { id: "blackout_wet_tracks", label: "走廊湿脚印", text: "脚印从楼梯口延伸向偏厅，边缘被雨水冲散。", evidence: { id: "wet_footprints_to_sidehall_v03", type: "obs", name: "走廊湿脚印通向偏厅", detail: "第二章账房方向入口。" } },
+          { id: "blackout_lu_red_soil", label: "陆景川手电红土", text: "手电外壳有红土痕迹，和旧窑棚外泥色接近。", effects: { EvidenceScore: 1 }, evidence: { id: "blackout_lu_red_soil", type: "clue", name: "陆景川手电红土痕迹", detail: "后续可关联红土脚印。" } },
+          { id: "blackout_cup_changed", label: "堂屋青瓷杯位置变化", text: "黑暗里摸到杯口很凉，杯子似乎少了一只，或位置变了。", evidence: { id: "cup_position_changed_v03", type: "clue", name: "青瓷杯位置变化", detail: "第二章可与茶杯摆放感互相呼应。" } },
+          { id: "blackout_zhou_light", label: "周启明房门方向的手电光", text: "偏厅方向有手电光一闪，很快被门框吞掉。", evidence: { id: "zhou_room_flashlight", type: "clue", name: "周启明房门方向手电光", detail: "第一章结尾指向账房尸体。" } }
+        ],
+        choices: [
+          { label: "A", text: "跟陆景川去看电闸。", effects: { LuTrust: 1, RevengeTimer: 1 }, route: "陆景川带路", routeDesc: "推进最快，但他会掌握现场第一解释权。" },
+          { label: "B", text: "召集众人回堂屋。", effects: { OutsiderTrust: 1, VillageSilence: -1 }, route: "堂屋聚集", routeDesc: "推进较慢，但你能记录停电时众人站位。" },
+          { label: "C", text: "追问陈伯远：“二十年前也停过灯？”", effects: { FatherClue: 1, EvidenceScore: 1 }, route: "陈伯远警告", routeDesc: "你更早接触尸检线，但陆景川开始注意你和陈伯远的对话。" },
+          { label: "D", text: "借走手电独自调查。", effects: { LuTrust: -1, SelfDoubt: 1, EvidenceScore: 1 }, route: "独自调查", routeDesc: "你更早发现红土和门锁异常，但没有其他人为你作证。" }
+        ]
+      }
+    ];
+
+    const sceneById = Object.fromEntries(scenes.map(scene => [scene.id, scene]));
+
+    const people = [
+      { key: "visitedLuHuaiMin", readKey: "LuHuaiMin", name: "陆怀民", place: "祠堂门口", sceneId: "CH1_EXP_LUHUAI_MIN" },
+      { key: "visitedZhouQiming", readKey: "ZhouQiming", name: "周启明", place: "文旅接待处", sceneId: "CH1_EXP_ZHOU_QIMING" },
+      { key: "visitedChenBoyuan", readKey: "ChenBoyuan", name: "陈伯远", place: "老宅走廊", sceneId: "CH1_EXP_CHEN_BOYUAN" },
+      { key: "visitedShenYuee", readKey: "ShenYuee", name: "沈月娥", place: "旧窑棚外", sceneId: "CH1_EXP_SHEN_YUEE" },
+      { key: "observedLuJingchuan", readKey: "LuJingchuan", name: "陆景川", place: "院门雨棚", sceneId: "CH1_EXP_LU_JINGCHUAN" }
+    ];
+
+    const readLabels = {
+      unknown: "未知",
+      surface: "表层理解",
+      crack: "裂缝理解",
+      defensive: "防御理解"
+    };
+
+    const readSummaries = {
+      LuHuaiMin: {
+        unknown: "还没有真正接触陆怀民。",
+        surface: "陆怀民把祠堂说成家事，像一个保护村庄体面的老人。",
+        crack: "陆怀民回避族谱和旧名字，他不是怕外人参观，而是怕某个名字被重新看见。",
+        defensive: "陆怀民关上祠堂门的动作，比他说的话更像警告。"
+      },
+      ZhouQiming: {
+        unknown: "还没有真正接触周启明。",
+        surface: "周启明像一个被项目压力推着走的人。",
+        crack: "周启明的项目资料缺页，手机里又闪过“老陆”，他和旧案权力线可能连得很深。",
+        defensive: "周启明把账和故事分得太清楚，越清楚，越像在遮。"
+      },
+      ChenBoyuan: {
+        unknown: "还没有真正接触陈伯远。",
+        surface: "陈伯远放不下药箱，也放不下过去的身份。",
+        crack: "陈伯远承认父亲问对了方向，尸检报告很可能是旧案裂口。",
+        defensive: "陈伯远没有否认假报告，只说林知夏要先活过今晚。"
+      },
+      ShenYuee: {
+        unknown: "还没有真正接触沈月娥。",
+        surface: "沈月娥守着旧窑砖，像在替死人保存最后一点形状。",
+        crack: "何青山这个名字让沈月娥失态，她与旧案的关系比嫌疑更深。",
+        defensive: "沈月娥被逼问后彻底封闭，玩家之后更容易误解她。"
+      },
+      LuJingchuan: {
+        unknown: "还没有真正观察陆景川。",
+        surface: "陆景川是可靠带路人，但他的照顾也在限定路线。",
+        crack: "陆景川能从鞋底香灰判断林知夏去了哪里，他观察得太细。",
+        defensive: "陆景川说“你看到的已经够多了”，这不是提醒，是边界。"
+      }
+    };
+
+    function initialCharacterReads() {
+      return {
+        LuHuaiMin: "unknown",
+        ZhouQiming: "unknown",
+        ChenBoyuan: "unknown",
+        ShenYuee: "unknown",
+        LuJingchuan: "unknown"
+      };
+    }
+
+    let hasStartedSession = false;
+    let transitionTimer = null;
+    let animationFrameId = null;
+    let state = loadState() || initialState();
+
+    function initialState() {
+      return {
+        version: 1,
+        mode: "intro",
+        introIndex: 0,
+        sceneId: "CH1_ROAD",
+        viewMode: "play",
+        reviewSceneId: null,
+        evidenceFilter: "default",
+        reachedSceneIds: ["CH1_ROAD"],
+        vars: { ...baseVars },
+        clicked: {},
+        selectedByScene: {},
+        latestFeedback: "从前情开始。v0.3.3 只测试第一章小型探索。",
+        evidence: [],
+        logs: [],
+        flags: {},
+        characterReads: initialCharacterReads(),
+        visitCount: 0,
+        route: null,
+        ended: false
+      };
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed || parsed.version !== 1) return null;
+        parsed.characterReads = { ...initialCharacterReads(), ...(parsed.characterReads || {}) };
+        parsed.viewMode = "play";
+        parsed.reviewSceneId = null;
+        parsed.evidenceFilter = parsed.evidenceFilter || "default";
+        parsed.reachedSceneIds = Array.isArray(parsed.reachedSceneIds) ? parsed.reachedSceneIds : inferReachedScenes(parsed);
+        parsed.logs = Array.isArray(parsed.logs) ? parsed.logs : [];
+        return parsed;
+      } catch {
+        return null;
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function clearSave() {
+      localStorage.removeItem(STORAGE_KEY);
+      state = initialState();
+      render();
+    }
+
+    function currentScene() {
+      return sceneById[activeSceneId()] || sceneById[state.sceneId];
+    }
+
+    function activeSceneId() {
+      return state.viewMode === "review" && state.reviewSceneId ? state.reviewSceneId : state.sceneId;
+    }
+
+    function playScene() {
+      return sceneById[state.sceneId];
+    }
+
+    function sceneLabel(sceneId = state.sceneId) {
+      if (sceneId === "CH1_HUB_FREE_EXPLORE") return { no: "1-3", title: "晚饭后的青瓷庄" };
+      const scene = sceneById[sceneId] || {};
+      return { no: scene.no || "", title: scene.title || "未知节点" };
+    }
+
+    function addLog(entry) {
+      const label = sceneLabel(state.sceneId);
+      const item = typeof entry === "string"
+        ? {
+            id: `log_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+            sceneId: state.sceneId,
+            sceneTitle: label.title,
+            sceneNo: label.no,
+            message: entry,
+            createdAt: new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }),
+            type: "note"
+          }
+        : {
+            id: entry.id || `log_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+            sceneId: entry.sceneId || state.sceneId,
+            sceneTitle: entry.sceneTitle || label.title,
+            sceneNo: entry.sceneNo || label.no,
+            message: entry.message || "",
+            createdAt: entry.createdAt || new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }),
+            type: entry.type || "note"
+          };
+      state.logs.unshift(item);
+      state.logs = state.logs.slice(0, 18);
+    }
+
+    function normalizeLog(log, index = 0) {
+      if (typeof log === "string") {
+        return { id: `legacy_${index}`, sceneId: null, sceneTitle: "", sceneNo: "", message: log, createdAt: "", type: "legacy" };
+      }
+      return log;
+    }
+
+    function inferReachedScenes(saved) {
+      const reached = new Set(["CH1_ROAD"]);
+      if (saved.mode === "game" || saved.ended || saved.sceneId !== "CH1_ROAD") reached.add("CH1_HALL");
+      if (saved.sceneId) reached.add(saved.sceneId);
+      Object.keys(saved.selectedByScene || {}).forEach(id => reached.add(id));
+      people.forEach(person => {
+        if (saved.flags?.[person.key]) reached.add(person.sceneId);
+      });
+      if (saved.visitCount >= MAX_VISITS || ["CH1_HUB_FREE_EXPLORE", "CH1_RETURN_HALL", "CH1_ROOM_REFLECT", "CH1_BLACKOUT"].includes(saved.sceneId) || saved.ended) {
+        reached.add("CH1_HUB_FREE_EXPLORE");
+      }
+      if (["CH1_RETURN_HALL", "CH1_ROOM_REFLECT", "CH1_BLACKOUT"].includes(saved.sceneId) || saved.ended) reached.add("CH1_RETURN_HALL");
+      if (["CH1_ROOM_REFLECT", "CH1_BLACKOUT"].includes(saved.sceneId) || saved.ended) reached.add("CH1_ROOM_REFLECT");
+      if (saved.sceneId === "CH1_BLACKOUT" || saved.ended) reached.add("CH1_BLACKOUT");
+      return [...reached];
+    }
+
+    function markSceneReached(sceneId) {
+      if (!sceneId) return;
+      if (!Array.isArray(state.reachedSceneIds)) state.reachedSceneIds = [];
+      if (!state.reachedSceneIds.includes(sceneId)) state.reachedSceneIds.push(sceneId);
+    }
+
+    function isSceneReached(sceneId) {
+      return state.sceneId === sceneId || (state.reachedSceneIds || []).includes(sceneId);
+    }
+
+    function scrollToTop() {
+      try {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch {
+        window.scrollTo(0, 0);
+      }
+    }
+
+    function addEvidence(item) {
+      if (!item) return "";
+      if (!state.evidence.some(existing => existing.id === item.id)) {
+        state.evidence.push(item);
+        return `${evidenceTypes[item.type] || "线索"}已加入证据池`;
+      }
+      return "";
+    }
+
+    function collectEvidence(source = {}) {
+      const items = [];
+      if (source.evidence) items.push(source.evidence);
+      if (Array.isArray(source.evidenceList)) items.push(...source.evidenceList);
+      return items.map(addEvidence).filter(Boolean).join("；");
+    }
+
+    function applyEffects(effects = {}) {
+      const changes = [];
+      Object.keys(effects).forEach(key => {
+        const value = effects[key];
+        state.vars[key] = (state.vars[key] || 0) + value;
+        changes.push(`${variableNames[key] || key} ${value > 0 ? "+" : ""}${value}`);
+      });
+      return changes;
+    }
+
+    function formatEffects(effects = {}) {
+      const keys = Object.keys(effects);
+      if (!keys.length) return "无";
+      return keys.map(key => `${variableNames[key] || key}${effects[key] > 0 ? "+" : ""}${effects[key]}`).join("；");
+    }
+
+    function updateBodyMode() {
+      const scene = currentScene();
+      const isStart = !hasStartedSession;
+      const isCinematic = hasStartedSession && scene && state.mode !== "intro" && (scene.cinematic || scene.personKey);
+      document.body.classList.toggle("is-start-screen", isStart);
+      document.body.classList.toggle("is-cinematic", Boolean(isCinematic));
+    }
+
+    function render() {
+      updateBodyMode();
+      if (!hasStartedSession) {
+        renderStartScreen();
+        return;
+      }
+
+      markSceneReached(state.sceneId);
+      renderHeaderMeta();
+
+      if (state.viewMode !== "review" && state.mode === "intro") renderIntro();
+      else if (state.viewMode !== "review" && state.ended) renderEnding();
+      else if (activeSceneId() === "CH1_HUB_FREE_EXPLORE") renderHub();
+      else {
+        const scene = currentScene();
+        if (scene && (scene.cinematic || scene.personKey)) renderCinematicScene(scene);
+        else renderScene();
+      }
+
+      bindReviewControls();
+      renderEvidencePool();
+      renderThoughtPanel();
+      renderRecordRail();
+      renderVars();
+      saveState();
+    }
+
+    function renderStartScreen() {
+      document.getElementById("scenePanel").innerHTML = `
+        <div class="start-screen">
+          <div class="start-card">
+            <div class="start-title">雾窑</div>
+            <div class="start-subtitle">第一章 · 青瓷庄</div>
+            <button class="start-button" id="startGameBtn">进入雾窑</button>
+            <div class="start-note">建议使用 Chrome / Edge / Safari。按 ESC 可退出全屏。</div>
+          </div>
+        </div>
+      `;
+      document.getElementById("startGameBtn").addEventListener("click", enterImmersiveStart);
+    }
+
+    async function enterImmersiveStart() {
+      hasStartedSession = true;
+      updateBodyMode();
+      try {
+        const el = document.documentElement;
+        if (el.requestFullscreen) await el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen();
+      } catch (error) {
+        console.warn("Fullscreen request failed:", error);
+      }
+
+      showEscHint();
+      startWhiteParticleTransition(() => {
+        render();
+        scrollToTop();
+        fadeEscHint(2600);
+      });
+    }
+
+    function showEscHint() {
+      const el = document.getElementById("escHint");
+      if (!el) return;
+      el.classList.add("show");
+      el.classList.remove("fade");
+    }
+
+    function fadeEscHint(delay = 1600) {
+      const el = document.getElementById("escHint");
+      if (!el) return;
+      window.setTimeout(() => {
+        el.classList.add("fade");
+        el.classList.remove("show");
+      }, delay);
+    }
+
+    function handleFullscreenChange() {
+      const isFullscreen = document.fullscreenElement || document.webkitFullscreenElement;
+      if (!isFullscreen) {
+        const el = document.getElementById("escHint");
+        if (el) {
+          el.classList.remove("show");
+          el.classList.add("fade");
+        }
+      }
+    }
+
+    function startWhiteParticleTransition(callback) {
+      const layer = document.getElementById("particleTransition");
+      const canvas = document.getElementById("particleCanvas");
+      if (!layer || !canvas || !canvas.getContext) {
+        callback();
+        return;
+      }
+
+      if (transitionTimer) clearTimeout(transitionTimer);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      document.body.classList.add("is-page-hidden");
+      document.body.classList.remove("is-page-revealing");
+
+      const ctx = canvas.getContext("2d");
+      const dpr = window.devicePixelRatio || 1;
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const duration = 2700;
+      const switchAt = 1250;
+      const isMobile = width < 768;
+      const count = isMobile
+        ? 180 + Math.floor(Math.random() * 80)
+        : 420 + Math.floor(Math.random() * 140);
+      const centerX = width * .5;
+      const centerY = height * .52;
+      const particles = Array.from({ length: count }, () => {
+        const angle = Math.random() * Math.PI * 2;
+        const radius = 20 + Math.random() * 110;
+        const speed = .12 + Math.random() * .38;
+        let x = centerX + (Math.random() - .5) * width * .42;
+        let y = centerY + (Math.random() - .5) * height * .42;
+        if (Math.random() < .25) {
+          x = Math.random() * width;
+          y = Math.random() * height;
+        }
+        return {
+          x: x + Math.cos(angle) * radius * .12,
+          y: y + Math.sin(angle) * radius * .08,
+          vx: Math.cos(angle) * speed + (Math.random() - .5) * .08,
+          vy: Math.sin(angle) * speed * .32 - Math.random() * .08,
+          size: .9 + Math.random() * 2.2,
+          alpha: .32 + Math.random() * .48,
+          life: 0,
+          maxLife: duration * (.72 + Math.random() * .28)
+        };
+      });
+
+      let callbackCalled = false;
+      const startedAt = performance.now();
+      layer.classList.add("active");
+
+      function frame(now) {
+        const elapsed = now - startedAt;
+        ctx.clearRect(0, 0, width, height);
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        particles.forEach(particle => {
+          particle.life += 16;
+          particle.x += particle.vx;
+          particle.y += particle.vy;
+          particle.vx += (Math.random() - .5) * .004;
+          particle.vy += (Math.random() - .5) * .004;
+          particle.vx *= .995;
+          particle.vy += .003;
+          const progress = Math.min(1, particle.life / particle.maxLife);
+          const alpha = particle.alpha * (1 - progress);
+          if (alpha <= 0) return;
+          ctx.beginPath();
+          ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+          ctx.shadowColor = "rgba(255,255,255,.45)";
+          ctx.shadowBlur = 8;
+          ctx.arc(particle.x, particle.y, particle.size * (1 - progress * .35), 0, Math.PI * 2);
+          ctx.fill();
+        });
+        ctx.restore();
+
+        if (!callbackCalled && elapsed >= switchAt) {
+          callbackCalled = true;
+          callback();
+          requestAnimationFrame(() => {
+            document.body.classList.add("is-page-revealing");
+            document.body.classList.remove("is-page-hidden");
+          });
+        }
+
+        if (elapsed < duration) {
+          animationFrameId = requestAnimationFrame(frame);
+        } else {
+          if (!callbackCalled) {
+            callback();
+            requestAnimationFrame(() => {
+              document.body.classList.add("is-page-revealing");
+              document.body.classList.remove("is-page-hidden");
+            });
+          }
+          layer.classList.remove("active");
+          transitionTimer = window.setTimeout(() => {
+            ctx.clearRect(0, 0, width, height);
+            document.body.classList.remove("is-page-revealing");
+          }, 900);
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(frame);
+    }
+
+    function renderHeaderMeta() {
+      const label = state.mode === "intro"
+        ? `前情提示 ${state.introIndex + 1}/${introSteps.length}`
+        : state.ended
+          ? "第一章结尾总结"
+          : sceneLabel(activeSceneId()).title;
+      const node = state.mode === "intro" ? "前情" : state.ended ? "结尾" : `${sceneLabel(activeSceneId()).no} ${label}`;
+      const progress = getProgressInfo();
+      const visitInfo = `拜访 ${state.visitCount}/${MAX_VISITS}`;
+      document.getElementById("headerMeta").innerHTML = `
+        <span>测试版本：v0.3.3</span>
+        <button id="headerNodeBtn" title="打开目录">当前节点：${node}</button>
+        <span>进度 ${progress.current}/${progress.total}</span>
+        <span>${visitInfo}</span>
+      `;
+      const progressBar = document.getElementById("headerProgressBar");
+      const progressLabel = document.getElementById("headerProgressLabel");
+      if (progressBar) {
+        const pct = Math.max(0, Math.min(100, progress.ratio * 100));
+        progressBar.style.width = `${pct}%`;
+      }
+      if (progressLabel) {
+        progressLabel.textContent = `章节进度 ${progress.current}/${progress.total}`;
+      }
+      const btn = document.getElementById("headerNodeBtn");
+      if (btn) btn.addEventListener("click", openDirectoryModal);
+    }
+
+    function getProgressInfo() {
+      const total = 8;
+      const indexMap = {
+        CH1_ROAD: 2,
+        CH1_HALL: 3,
+        CH1_HUB_FREE_EXPLORE: 4,
+        CH1_EXP_LUHUAI_MIN: 4,
+        CH1_EXP_ZHOU_QIMING: 4,
+        CH1_EXP_CHEN_BOYUAN: 4,
+        CH1_EXP_SHEN_YUEE: 4,
+        CH1_EXP_LU_JINGCHUAN: 4,
+        CH1_RETURN_HALL: 5,
+        CH1_ROOM_REFLECT: 6,
+        CH1_BLACKOUT: 7
+      };
+      const current = state.mode === "intro" ? 1 : state.ended ? 8 : (indexMap[state.sceneId] || 1);
+      return { current, total, ratio: current / total };
+    }
+
+    function renderIntro() {
+      const step = introSteps[state.introIndex] || introSteps[0];
+      const last = state.introIndex >= introSteps.length - 1;
+      document.getElementById("scenePanel").innerHTML = `
+        <div class="intro-panel" id="introPanel">
+          <div class="intro-kicker">${step.tag}</div>
+          <div class="intro-text">${step.text}</div>
+          <div class="intro-hint">${last ? "点击空白处进入第一章" : "点击空白处继续"} · ${state.introIndex + 1}/${introSteps.length}</div>
+        </div>
+      `;
+      document.getElementById("introPanel").addEventListener("click", advanceIntro);
+    }
+
+    function advanceIntro() {
+      if (state.introIndex < introSteps.length - 1) {
+        state.introIndex += 1;
+      } else {
+        state.mode = "game";
+        state.latestFeedback = "第一章开始。你可以通过调查物件和选择路线，形成不同的人物理解。";
+        addLog("前情提示结束，进入第一章");
+      }
+      render();
+      scrollToTop();
+    }
+
+    function renderScene() {
+      const scene = currentScene();
+      const review = state.viewMode === "review";
+      const selected = state.selectedByScene[scene.id];
+      const hasChoices = Array.isArray(scene.choices) && scene.choices.length > 0;
+      const isExploration = Boolean(scene.personKey);
+      const ready = !review && scene.next ? (!hasChoices || selected !== undefined) : false;
+      const nextText = isExploration ? "回到行动选择" : scene.next ? "进入下一场景" : "继续";
+      const dynamicBlocks = [
+        scene.dynamicSummary ? renderReturnSummary() : "",
+        scene.dynamicRoom ? renderRoomReflection() : ""
+      ].join("");
+
+      document.getElementById("scenePanel").innerHTML = `
+        ${review ? renderReviewBanner() : ""}
+        <div class="scene-head">
+          <div class="tag">${scene.no}</div>
+          <div>
+            <h2>${scene.title}</h2>
+            <p class="small">第一章 · NodeID: ${scene.id}</p>
+          </div>
+        </div>
+        <h3>画面描述</h3>
+        <div class="description">${scene.description}</div>
+        ${scene.dialogue && scene.dialogue.length ? `<h3>NPC / 内心文本</h3><div class="dialogue">${scene.dialogue.map(line => `<p>${line}</p>`).join("")}</div>` : ""}
+        ${dynamicBlocks}
+        ${scene.clickables && scene.clickables.length ? `<h3>可观察细节 <span class="small">已观察 ${sceneClickedCount(scene)}/${scene.clickables.length}</span></h3><div class="button-grid">${scene.clickables.map(item => renderClickableCard(item, review)).join("")}</div>` : ""}
+        ${hasChoices ? renderChoices(scene, selected, review) : ""}
+        <div class="feedback">${review ? "这是回溯查看，不会改变林知夏当前判断。" : state.latestFeedback}</div>
+        <div class="next-row">
+          ${review ? "" : scene.next ? `<button class="primary" id="nextBtn" ${ready ? "" : "disabled"}>${nextText}</button>` : ""}
+        </div>
+      `;
+
+      document.querySelectorAll("[data-clickable]").forEach(button => {
+        button.addEventListener("click", () => handleClickable(button.dataset.clickable));
+      });
+      document.querySelectorAll("[data-choice]").forEach(button => {
+        button.addEventListener("click", () => handleChoice(Number(button.dataset.choice)));
+      });
+      const nextBtn = document.getElementById("nextBtn");
+      if (nextBtn) nextBtn.addEventListener("click", goNext);
+    }
+
+    function renderChoices(scene, selected, readOnly = false) {
+      return `
+        <h3>${scene.id === "CH1_HALL" ? "晚饭后先去找谁" : "玩家选择"}</h3>
+        ${scene.choices.map((choice, index) => `
+          <button class="choice" ${readOnly || selected !== undefined ? "disabled" : ""} data-choice="${index}">
+            <strong>${choice.label}. ${choice.text}</strong>
+            <span class="small">变量：${formatEffects(choice.effects || {})}</span>
+          </button>
+        `).join("")}
+      `;
+    }
+
+    function renderClickableCard(item, readOnly = false) {
+      const clicked = Boolean(state.clicked[item.id]);
+      const meta = [
+        `变量：${formatEffects(item.effects || {})}`,
+        item.evidence || item.evidenceList ? "记录：已加入证据池" : "记录：无新增证据"
+      ];
+      return `
+        <div class="clickable-card ${clicked ? "is-clicked" : ""}">
+          <button ${readOnly || clicked ? "disabled" : ""} data-clickable="${item.id}">${item.label}</button>
+          ${clicked ? `
+            <div class="item-hint">
+              <b>观察</b>
+              <p>${item.text}</p>
+              ${meta.map(line => `<span class="hint-meta">${line}</span>`).join("")}
+            </div>
+          ` : ""}
+        </div>
+      `;
+    }
+
+    function renderCinematicScene(scene) {
+      const review = state.viewMode === "review";
+      const selectedIndex = state.selectedByScene[scene.id];
+      const selected = selectedIndex !== undefined ? scene.choices[selectedIndex] : null;
+      const story = scene.videoSrc
+        ? `<div class="cinematic-video-slot" style="display:block"><video class="cinematic-video" src="${scene.videoSrc}" controls playsinline></video></div>`
+        : `<div class="cinematic-story">${scene.introText || scene.description}</div>`;
+      const openingLine = scene.openingLine || (scene.dialogue || []).join("\n");
+
+      document.getElementById("scenePanel").innerHTML = `
+        ${review ? renderReviewBanner() : ""}
+        <div class="cinematic-page">
+          <div class="cinematic-inner">
+            <div class="cinematic-kicker">人物支线 · 晚饭后的青瓷庄</div>
+            <h2 class="cinematic-title">${scene.title}</h2>
+            <div class="cinematic-subtitle">你正在单独接触：${scene.personName || "未知人物"} · NodeID: ${scene.id}</div>
+            ${story}
+            ${openingLine ? `<div class="cinematic-dialogue">${openingLine}</div>` : ""}
+            <div class="cinematic-options">
+              ${(scene.choices || []).map((choice, index) => `
+                <button class="cinematic-option" ${review || selectedIndex !== undefined ? "disabled" : ""} data-cinematic-choice="${index}">
+                  <strong>${choice.label}. ${choice.text}</strong>
+                  <span class="small">变量：${formatEffects(choice.effects || {})}</span>
+                </button>
+              `).join("")}
+            </div>
+            ${selected ? renderCinematicResult(scene, selected) : ""}
+            ${selected ? `
+              <div class="cinematic-unlocked">
+                <h3>可观察细节</h3>
+                ${renderObservationGrid(scene, review)}
+                ${review ? "" : `<div class="next-row"><button class="primary" id="returnHubBtn">回到晚饭后的青瓷庄</button></div>`}
+              </div>
+            ` : ""}
+          </div>
+        </div>
+      `;
+
+      document.querySelectorAll("[data-cinematic-choice]").forEach(button => {
+        button.addEventListener("click", () => handleCinematicChoice(Number(button.dataset.cinematicChoice)));
+      });
+      document.querySelectorAll("[data-clickable]").forEach(button => {
+        button.addEventListener("click", () => handleClickable(button.dataset.clickable));
+      });
+      const returnBtn = document.getElementById("returnHubBtn");
+      if (returnBtn) returnBtn.addEventListener("click", returnFromCinematicScene);
+    }
+
+    function renderCinematicResult(scene, choice) {
+      const evidenceNames = [];
+      if (choice.evidence) evidenceNames.push(choice.evidence.name);
+      if (Array.isArray(choice.evidenceList)) evidenceNames.push(...choice.evidenceList.map(item => item.name));
+      return `
+        <div class="cinematic-result">
+          <div class="cinematic-player-line">林知夏：“${choice.text}”</div>
+          <div class="cinematic-npc-reaction">${choice.npcReaction || "对方没有立刻回答。"}</div>
+          ${choice.readLevel ? `<div class="read-level-badge">人物理解：${readLabels[choice.readLevel]}</div>` : ""}
+          <p class="small">变量变化：${formatEffects(choice.effects || {})}</p>
+          <p class="small">获得：${evidenceNames.length ? evidenceNames.join("、") : "无新增线索"}</p>
+          ${scene.readKey ? `<p class="small">林知夏判断：${getUnderstanding(scene.readKey)}</p>` : ""}
+        </div>
+      `;
+    }
+
+    function renderObservationGrid(scene, readOnly = false) {
+      if (!scene.clickables || !scene.clickables.length) return `<p class="small">暂无可观察细节。</p>`;
+      return `<div class="button-grid">${scene.clickables.map(item => renderClickableCard(item, readOnly)).join("")}</div>`;
+    }
+
+    function handleCinematicChoice(index) {
+      if (state.viewMode === "review") return;
+      const scene = currentScene();
+      const choice = scene.choices[index];
+      if (!choice || state.selectedByScene[scene.id] !== undefined) return;
+
+      state.selectedByScene[scene.id] = index;
+      const changes = applyEffects(choice.effects);
+      const evidenceLine = collectEvidence(choice);
+      if (choice.flag) state.flags[choice.flag] = true;
+      if (scene.readKey && choice.readLevel) state.characterReads[scene.readKey] = choice.readLevel;
+
+      state.latestFeedback = [
+        `<strong>${choice.label}. ${choice.text}</strong>`,
+        choice.npcReaction ? `NPC反应：${choice.npcReaction}` : "",
+        changes.length ? `变量变化：${changes.join("；")}` : "变量变化：无",
+        evidenceLine ? `记录：${evidenceLine}` : "记录：无新增线索",
+        scene.readKey && choice.readLevel ? `人物理解层级：${readLabels[choice.readLevel]}` : "",
+        scene.personKey ? `人物理解：${getUnderstanding(scene.personKey)}` : ""
+      ].filter(Boolean).join("<br>");
+      addLog({ message: `对话：${scene.personName} / ${choice.label}`, type: "choice" });
+      render();
+      scrollToTop();
+    }
+
+    function returnFromCinematicScene() {
+      if (state.viewMode === "review") return;
+      const scene = currentScene();
+      if (scene.personKey && !state.flags[scene.personKey]) {
+        state.flags[scene.personKey] = true;
+        state.visitCount += 1;
+      }
+      state.sceneId = "CH1_HUB_FREE_EXPLORE";
+      markSceneReached(state.sceneId);
+      state.latestFeedback = "回到晚饭后的自由行动。已拜访人物不能重复拜访。";
+      addLog({ message: `回到自由行动：已接触${scene.personName}`, type: "move" });
+      render();
+      scrollToTop();
+    }
+
+    function enterCharacterScene(sceneId) {
+      if (state.viewMode === "review") return;
+      showEscHint();
+      startWhiteParticleTransition(() => {
+        state.sceneId = sceneId;
+        markSceneReached(sceneId);
+        state.latestFeedback = "进入人物支线。";
+        addLog({ message: `进入人物支线：${sceneLabel(sceneId).title}`, sceneId, sceneTitle: sceneLabel(sceneId).title, sceneNo: sceneLabel(sceneId).no, type: "move" });
+        render();
+        scrollToTop();
+        fadeEscHint(2400);
+      });
+    }
+
+    function handleClickable(id) {
+      if (state.viewMode === "review") return;
+      const scene = currentScene();
+      const item = (scene.clickables || []).find(entry => entry.id === id);
+      if (!item || state.clicked[id]) return;
+      state.clicked[id] = true;
+      const changes = applyEffects(item.effects);
+      const evidenceLine = collectEvidence(item);
+      state.latestFeedback = [
+        `<strong>已观察：${item.label}</strong>`,
+        "观察内容已显示在对应物件下方。",
+        changes.length ? `变量变化：${changes.join("；")}` : "变量变化：无",
+        evidenceLine ? `记录：${evidenceLine}` : "记录：已记录或无新增线索"
+      ].join("<br>");
+      addLog({ message: `观察了：${item.label}`, type: "observe" });
+      render();
+    }
+
+    function handleChoice(index) {
+      if (state.viewMode === "review") return;
+      const scene = currentScene();
+      const choice = scene.choices[index];
+      if (!choice || state.selectedByScene[scene.id] !== undefined) return;
+
+      if (choice.immediateNext) {
+        state.selectedByScene[scene.id] = index;
+        state.latestFeedback = `晚饭后前往：${choice.text.replace(/^.*去/, "去")}`;
+        addLog({ message: `前往人物探索：${choice.text}`, type: "move" });
+        if (sceneById[choice.immediateNext]?.personKey) {
+          enterCharacterScene(choice.immediateNext);
+        } else {
+          state.sceneId = choice.immediateNext;
+          markSceneReached(state.sceneId);
+          render();
+          scrollToTop();
+        }
+        return;
+      }
+
+      state.selectedByScene[scene.id] = index;
+      const changes = applyEffects(choice.effects);
+      const evidenceLine = collectEvidence(choice);
+      if (choice.flag) state.flags[choice.flag] = true;
+      if (scene.readKey && choice.readLevel) {
+        state.characterReads[scene.readKey] = choice.readLevel;
+      }
+      if (choice.understanding) {
+        state.flags[`${scene.personKey}Understanding`] = choice.understanding;
+      }
+      if (scene.personKey && !state.flags[scene.personKey]) {
+        state.flags[scene.personKey] = true;
+        state.visitCount += 1;
+      }
+      if (choice.route) {
+        state.route = { name: choice.route, desc: choice.routeDesc };
+        state.ended = true;
+      }
+      state.latestFeedback = [
+        `<strong>${choice.label}. ${choice.text}</strong>`,
+        choice.npcReaction ? `NPC反应：${choice.npcReaction}` : "",
+        changes.length ? `变量变化：${changes.join("；")}` : "变量变化：无",
+        evidenceLine ? `记录：${evidenceLine}` : "记录：无新增线索",
+        scene.readKey && choice.readLevel ? `人物理解层级：${readLabels[choice.readLevel]}` : "",
+        scene.personKey ? `人物理解：${getUnderstanding(scene.personKey)}` : "",
+        choice.short ? `结果：${choice.short}` : ""
+      ].filter(Boolean).join("<br>");
+      addLog({ message: `选择：${choice.label}. ${choice.text}`, type: "choice" });
+      render();
+      scrollToTop();
+    }
+
+    function goNext() {
+      if (state.viewMode === "review") return;
+      const scene = currentScene();
+      if (scene.personKey) {
+        state.sceneId = "CH1_HUB_FREE_EXPLORE";
+      } else if (scene.next) {
+        state.sceneId = scene.next;
+      }
+      state.latestFeedback = scene.personKey ? "回到晚饭后的自由行动。已拜访人物不能重复拜访。" : "进入下一场景。";
+      markSceneReached(state.sceneId);
+      render();
+      scrollToTop();
+    }
+
+    function renderHub() {
+      const review = state.viewMode === "review";
+      const canReturn = state.visitCount >= MAX_VISITS;
+      document.getElementById("scenePanel").innerHTML = `
+        ${review ? renderReviewBanner() : ""}
+        <div class="scene-head">
+          <div class="tag">1-3</div>
+          <div>
+            <h2>晚饭后的青瓷庄</h2>
+            <p class="small">第一章 · NodeID: CH1_HUB_FREE_EXPLORE</p>
+          </div>
+        </div>
+        <h3>画面描述</h3>
+        <div class="description">晚饭散后，青瓷庄没有真正安静。祠堂门口有钥匙声，偏厅里有白色应急灯，老宅走廊漏水，旧窑棚外有人还没回屋，院门雨棚下陆景川正在收伞。林知夏可以先选择靠近谁，但雨夜不会等她把每个人都问完。</div>
+        <h3>自由行动规则</h3>
+        <p>最多拜访 ${MAX_VISITS} 名人物。已拜访 ${state.visitCount}/${MAX_VISITS}。拜访过的人物不能重复拜访。</p>
+        <div class="hub-grid">
+          ${people.map(person => renderHubPerson(person, review)).join("")}
+        </div>
+        <div class="feedback">${review ? "这是回溯查看，不会改变林知夏当前判断。" : state.latestFeedback}</div>
+        <div class="next-row">
+          ${review ? "" : canReturn ? `<button class="primary" id="returnHallBtn">回到堂屋</button>` : `<button class="primary" disabled>拜访满 ${MAX_VISITS} 人后回到堂屋</button>`}
+        </div>
+      `;
+      document.querySelectorAll("[data-explore]").forEach(button => {
+        button.addEventListener("click", () => {
+          enterCharacterScene(button.dataset.explore);
+        });
+      });
+      const returnBtn = document.getElementById("returnHallBtn");
+      if (returnBtn) {
+        returnBtn.addEventListener("click", () => {
+          state.sceneId = "CH1_RETURN_HALL";
+          markSceneReached(state.sceneId);
+          state.latestFeedback = "回到堂屋，整理刚才拜访过的人物印象。";
+          render();
+          scrollToTop();
+        });
+      }
+    }
+
+    function renderHubPerson(person, readOnly = false) {
+      const visited = Boolean(state.flags[person.key]);
+      const locked = state.visitCount >= MAX_VISITS && !visited;
+      const level = getReadLevel(person);
+      return `
+        <button class="hub-card" ${readOnly || visited || locked ? "disabled" : ""} data-explore="${person.sceneId}" data-place="${person.place}">
+          <strong>${visited ? "已拜访：" : ""}${person.name}</strong>
+          <span class="small">${person.place} · ${readLabels[level]}</span>
+          <span>${visited ? getUnderstanding(person.key) : locked ? "本轮拜访名额已满" : "前往观察"}</span>
+        </button>
+      `;
+    }
+
+    function renderReturnSummary() {
+      const visited = people.filter(person => state.flags[person.key]);
+      const unvisited = people.filter(person => !state.flags[person.key]);
+      return `
+        <h3>人物理解总结</h3>
+        <div class="status-card">
+          <ul class="summary-list">
+            ${visited.map(person => `<li><strong>${person.name}</strong>（${readLabels[getReadLevel(person)]}）：${getUnderstanding(person.key)}</li>`).join("")}
+            ${unvisited.length ? `<li>还有人没有真正开口：${unvisited.map(person => person.name).join("、")}。</li>` : ""}
+          </ul>
+        </div>
+      `;
+    }
+
+    function renderRoomReflection() {
+      const lines = [];
+      if (state.flags.visitedChenBoyuan) lines.push("陈伯远看见父亲笔记时，像看见一件没烧干净的证物。");
+      if (state.flags.visitedShenYuee) lines.push("沈月娥说死人不需要好结局。那她需要的是什么？");
+      if (state.flags.visitedZhouQiming) lines.push("周启明说游客不想看死人，可他藏起来的合同比死人更怕见光。");
+      if (state.flags.observedLuJingchuan) lines.push("陆景川帮了她太多次，太多次本身就是一种异常。");
+      if (state.flags.visitedLuHuaiMin) lines.push("陆怀民把钥匙收进袖口时，像把整座村子的入口也收了进去。");
+      return lines.length ? `<h3>内心整理</h3><div class="dialogue">${lines.map(line => `<p>内心：“${line}”</p>`).join("")}</div>` : "";
+    }
+
+    function personFromKey(keyOrPerson) {
+      if (typeof keyOrPerson === "object") return keyOrPerson;
+      return people.find(person => person.key === keyOrPerson || person.readKey === keyOrPerson);
+    }
+
+    function getReadLevel(keyOrPerson) {
+      const person = personFromKey(keyOrPerson);
+      if (!person) return "unknown";
+      return (state.characterReads && state.characterReads[person.readKey]) || "unknown";
+    }
+
+    function getUnderstanding(keyOrPerson) {
+      const person = personFromKey(keyOrPerson);
+      if (!person) return "这个人还没有真正开口。";
+      const level = getReadLevel(person);
+      return readSummaries[person.readKey]?.[level] || "这个人还没有真正开口。";
+    }
+
+    function sceneClickedCount(scene) {
+      return (scene.clickables || []).filter(item => state.clicked[item.id]).length;
+    }
+
+    function visitedPeople() {
+      return people.filter(person => state.flags[person.key]);
+    }
+
+    function unvisitedPeople() {
+      return people.filter(person => !state.flags[person.key]);
+    }
+
+    function renderEnding() {
+      const route = state.route || { name: "未选择", desc: "尚未形成第二章入口路线。" };
+      const coreCount = state.evidence.filter(item => item.type === "core").length;
+      const clueCount = state.evidence.filter(item => item.type === "clue").length;
+      const obsCount = state.evidence.filter(item => item.type === "obs").length;
+      const riskCount = state.evidence.filter(item => item.type === "risk").length;
+      const flags = Object.keys(state.flags).filter(key => state.flags[key] === true);
+      document.getElementById("scenePanel").innerHTML = `
+        <div class="scene-head">
+          <div class="tag">结束</div>
+          <div>
+            <h2>第一章 v0.3.3 结束</h2>
+            <p class="small">第二章入口预告，不开发第二章正文</p>
+          </div>
+        </div>
+        <div class="ending-box">
+          <h3>当前第二章入口路线</h3>
+          <p><strong>${route.name}</strong></p>
+          <p>${route.desc}</p>
+
+          <h3>已访问人物</h3>
+          <p>${visitedPeople().map(person => person.name).join("、") || "暂无"}</p>
+
+          <h3>未访问人物</h3>
+          <p>${unvisitedPeople().map(person => person.name).join("、") || "无"}</p>
+
+          <h3>当前人物理解总结</h3>
+          <ul class="summary-list">
+            ${people.map(person => `<li><strong>${person.name}</strong>（${readLabels[getReadLevel(person)]}）：${getUnderstanding(person.key)}</li>`).join("")}
+            ${unvisitedPeople().length ? `<li>还有人没有真正开口。</li>` : ""}
+          </ul>
+
+          <h3>证据池数量</h3>
+          <p>关键证物 ${coreCount} · 重要线索 ${clueCount} · 观察记录 ${obsCount} · 待验证/误导 ${riskCount}</p>
+
+          <h3>已触发 flags</h3>
+          <p>${flags.join("、") || "暂无"}</p>
+
+          <h3>测试反馈文本框</h3>
+          <textarea>${feedbackTemplate()}</textarea>
+        </div>
+      `;
+    }
+
+    function feedbackTemplate() {
+      return `《雾窑》v0.3.3 第一章测试反馈
+我拜访的人物：${visitedPeople().map(person => person.name).join("、")}
+我对每个人物的理解：
+陆怀民：${readLabels[getReadLevel("LuHuaiMin")]}，${getUnderstanding("LuHuaiMin")}
+周启明：${readLabels[getReadLevel("ZhouQiming")]}，${getUnderstanding("ZhouQiming")}
+陈伯远：${readLabels[getReadLevel("ChenBoyuan")]}，${getUnderstanding("ChenBoyuan")}
+沈月娥：${readLabels[getReadLevel("ShenYuee")]}，${getUnderstanding("ShenYuee")}
+陆景川：${readLabels[getReadLevel("LuJingchuan")]}，${getUnderstanding("LuJingchuan")}
+我最怀疑的人：
+我最想继续了解的人：
+我觉得最像活人的角色：
+我觉得最 NPC 的角色：
+哪个对话最像真人：
+哪个对话最像 NPC：
+哪个人物我还想多问一句：
+哪个人物我暂时误会了：
+我看不懂的地方：
+我选择的第二章入口路线：${state.route ? state.route.name : ""}`;
+    }
+
+    function renderEvidencePool() {
+      const box = document.getElementById("evidenceBox");
+      if (!box) return;
+      const counts = Object.fromEntries(Object.keys(evidenceTypes).map(type => [type, state.evidence.filter(item => item.type === type).length]));
+      const active = state.evidenceFilter || "default";
+      const filters = [
+        ["default", "默认"],
+        ["all", "全部"],
+        ["core", "关键证物"],
+        ["clue", "重要线索"],
+        ["obs", "观察记录"],
+        ["risk", "待验证"]
+      ];
+      const visible = state.evidence.filter(item => {
+        if (active === "default") return item.type === "core" || item.type === "clue";
+        if (active === "all") return true;
+        return item.type === active;
+      });
+      box.innerHTML = `
+        <div class="evidence-stats">关键证物 ${counts.core || 0} · 重要线索 ${counts.clue || 0} · 观察记录 ${counts.obs || 0} · 待验证 ${counts.risk || 0}</div>
+        <div class="evidence-filter-row">
+          ${filters.map(([key, label]) => `<button class="evidence-filter ${active === key ? "is-active" : ""}" data-evidence-filter="${key}">${label}</button>`).join("")}
+        </div>
+        <div class="evidence-pool">
+          ${visible.length ? visible.map(item => `
+            <details class="evidence-card">
+              <summary>
+                <span class="evidence-type">${evidenceTypes[item.type] || "线索"}</span>
+                <span class="evidence-name">${item.name}</span>
+                <div class="evidence-brief">${briefEvidence(item.detail)}</div>
+              </summary>
+              <div class="evidence-detail">${item.detail}</div>
+            </details>
+          `).join("") : `<p class="small">暂无。</p>`}
+        </div>
+      `;
+      document.querySelectorAll("[data-evidence-filter]").forEach(button => {
+        button.addEventListener("click", () => {
+          state.evidenceFilter = button.dataset.evidenceFilter;
+          render();
+        });
+      });
+    }
+
+    function briefEvidence(detail = "") {
+      return detail.length > 34 ? `${detail.slice(0, 34)}…` : detail;
+    }
+
+    function renderThoughtPanel() {
+      const box = document.getElementById("thoughtBox");
+      if (!box) return;
+      const thoughts = generateLinThoughts();
+      box.innerHTML = `
+        <div class="deduction-stage">当前阶段：林知夏的判断</div>
+        <div class="deduction-list">${thoughts.map(text => `<div class="deduction-card">${text}</div>`).join("")}</div>
+        <div class="deduction-locked">玩家推理功能将在后续章节开放。</div>
+      `;
+    }
+
+    function generateLinThoughts() {
+      const weighted = [
+        [1, "我来到这里，是为了写故事。但青瓷庄给我的每一句话，都像被人提前改过。"]
+      ];
+      if (state.vars.FatherClue > 0) weighted.push([6 + state.vars.FatherClue, "父亲当年问过这里。问题没有留下，只有缺页留下了。"]);
+      if (state.vars.EvidenceScore >= 2) weighted.push([7 + state.vars.EvidenceScore, "旧窑、祠堂、项目资料缺页开始互相靠近。它们不像三件事。"]);
+      if (state.vars.ShenSuspicion >= 2) weighted.push([8, "沈月娥太像嫌疑人了。正因为太像，我反而不能立刻相信。"]);
+      if (state.vars.ShenSuspicion <= -1) weighted.push([8, "沈月娥守着旧物，不像在毁证，更像在等有人看懂。"]);
+      if (state.vars.LuTrust >= 2) weighted.push([7, "陆景川太好用了。有人一直替我带路，我就会少看见路本身。"]);
+      if (state.vars.LuTrust <= -1) weighted.push([8, "陆景川的帮助里有边界。他似乎更在乎我不要走错地方。"]);
+      if (state.vars.VillageSilence >= 2) weighted.push([8, "我问得越直接，青瓷庄越安静。安静本身就是回答。"]);
+      if (["crack", "defensive"].includes(getReadLevel("LuHuaiMin"))) weighted.push([9, "陆怀民守的不是祠堂，是名字。"]);
+      if (["crack", "defensive"].includes(getReadLevel("ZhouQiming"))) weighted.push([9, "周启明怕的不是文旅失败，是账被人翻到火以前。"]);
+      if (["crack", "defensive"].includes(getReadLevel("ChenBoyuan"))) weighted.push([9, "陈伯远没否认父亲问对了。尸检报告可能不是纸，是封口。"]);
+      if (["crack", "defensive"].includes(getReadLevel("ShenYuee"))) weighted.push([9, "何青山这个名字，让沈月娥的沉默裂了一下。"]);
+      if (["crack", "defensive"].includes(getReadLevel("LuJingchuan"))) weighted.push([9, "陆景川观察我，也观察所有人。他不像一个项目接待。"]);
+      return weighted.sort((a, b) => b[0] - a[0]).slice(0, 5).map(item => item[1]);
+    }
+
+    function renderRecordRail() {
+      const box = document.getElementById("logList");
+      if (!box) return;
+      const logs = (state.logs || []).map(normalizeLog);
+      box.innerHTML = logs.length
+        ? logs.map((log, index) => `
+          <button class="record-item" ${log.sceneId ? "" : "disabled"} data-log-index="${index}">
+            <strong>${log.sceneNo || "记录"} ${log.sceneTitle || ""}</strong>
+            <span>${log.message}</span>
+            <span>${log.createdAt || ""}</span>
+          </button>
+        `).join("")
+        : `<p class="small">暂无记录。</p>`;
+      document.querySelectorAll("[data-log-index]").forEach(button => {
+        button.addEventListener("click", () => openLogReview(logs[Number(button.dataset.logIndex)]));
+      });
+    }
+
+    function renderReviewBanner() {
+      return `
+        <div class="review-banner">
+          <div><strong>回溯查看</strong> · 不会改变当前进度、变量和证据。</div>
+          <button class="secondary" id="returnPlayBtn">返回当前进度</button>
+        </div>
+      `;
+    }
+
+    function openLogReview(log) {
+      if (!log || !log.sceneId) return;
+      openSceneReview(log.sceneId);
+    }
+
+    function openSceneReview(sceneId) {
+      if (!sceneId || !isSceneReached(sceneId)) return;
+      state.viewMode = "review";
+      state.reviewSceneId = sceneId;
+      closeDirectoryModal();
+      render();
+      scrollToTop();
+    }
+
+    function returnToPlay() {
+      state.viewMode = "play";
+      state.reviewSceneId = null;
+      render();
+      scrollToTop();
+    }
+
+    function renderChapterDirectoryModal() {
+      const groups = [
+        ["前情", [{ label: "前情提示", sceneId: null, status: state.mode === "intro" ? "当前" : "已到达" }]],
+        ["主线节点", [
+          { label: "1-1 山路入村", sceneId: "CH1_ROAD" },
+          { label: "1-2 老宅堂屋：所有人首次同框", sceneId: "CH1_HALL" },
+          { label: "1-3 晚饭后的青瓷庄 / 自由行动", sceneId: "CH1_HUB_FREE_EXPLORE" },
+          { label: "1-4 返回堂屋：整理人物印象", sceneId: "CH1_RETURN_HALL" },
+          { label: "1-5 林知夏房间：整理父亲笔记", sceneId: "CH1_ROOM_REFLECT" },
+          { label: "1-6 夜晚停电：第二章入口预告", sceneId: "CH1_BLACKOUT" }
+        ]],
+        ["人物支线", people.map(person => ({ label: `${person.place}：${person.name}`, sceneId: person.sceneId, person }))],
+        ["结尾", [{ label: "第一章结尾总结", sceneId: null, status: state.ended ? "当前" : "未到达" }]]
+      ];
+      document.getElementById("directoryContent").innerHTML = groups.map(([title, items]) => `
+        <div class="modal-group">
+          <h3>${title}</h3>
+          ${items.map(item => renderDirectoryItem(item)).join("")}
+        </div>
+      `).join("");
+      document.querySelectorAll("[data-directory-scene]").forEach(button => {
+        button.addEventListener("click", () => openSceneReview(button.dataset.directoryScene));
+      });
+    }
+
+    function renderDirectoryItem(item) {
+      const reached = item.sceneId ? isSceneReached(item.sceneId) : item.status === "已到达" || item.status === "当前";
+      const current = item.sceneId && activeSceneId() === item.sceneId && state.viewMode !== "review";
+      const visited = item.person ? Boolean(state.flags[item.person.key]) : false;
+      const status = item.status || (current ? "当前" : item.person ? (visited ? "已拜访" : reached ? "已到达" : "未拜访") : reached ? "已到达" : "未到达");
+      return `
+        <button class="directory-item" ${item.sceneId && reached ? "" : "disabled"} ${item.sceneId ? `data-directory-scene="${item.sceneId}"` : ""}>
+          <span>${item.label}</span>
+          <span>${status}</span>
+        </button>
+      `;
+    }
+
+    function openDirectoryModal() {
+      renderChapterDirectoryModal();
+      document.body.classList.add("modal-open");
+      const backdrop = document.getElementById("modalBackdrop");
+      backdrop.classList.add("show");
+      backdrop.setAttribute("aria-hidden", "false");
+    }
+
+    function closeDirectoryModal() {
+      document.body.classList.remove("modal-open");
+      const backdrop = document.getElementById("modalBackdrop");
+      if (!backdrop) return;
+      backdrop.classList.remove("show");
+      backdrop.setAttribute("aria-hidden", "true");
+    }
+
+    function bindReviewControls() {
+      const btn = document.getElementById("returnPlayBtn");
+      if (btn) btn.addEventListener("click", returnToPlay);
+    }
+
+    function renderVars() {
+      document.getElementById("varsGrid").innerHTML = Object.keys(variableNames).map(key => `
+        <div class="var-card" data-hint="${variableHints[key] || ""}" title="${variableHints[key] || ""}">
+          <span>${variableNames[key]}</span>
+          <b>${state.vars[key]}</b>
+        </div>
+      `).join("");
+    }
+
+    document.getElementById("resetBtn").addEventListener("click", clearSave);
+    document.getElementById("directoryBtn").addEventListener("click", openDirectoryModal);
+    document.getElementById("closeModalBtn").addEventListener("click", closeDirectoryModal);
+    document.getElementById("modalBackdrop").addEventListener("click", event => {
+      if (event.target.id === "modalBackdrop") closeDirectoryModal();
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeDirectoryModal();
+    });
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+    render();
+  </script>
+</body>
+</html>
