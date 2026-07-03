@@ -1,0 +1,105 @@
+flowchart TD
+    START(["林知夏抵达青瓷庄<br/>外来编剧进入暴雨封村"])
+
+    C1["第一章：抵达青瓷庄<br/>确认封闭环境，接触六名主要人物"]
+    C1A["追问陆怀民旧事<br/>FatherClue+1<br/>VillageSilence+1"]
+    C1B["顺从官方村史<br/>OutsiderTrust+1<br/>SelfDoubt+1"]
+    C1C["相信陆景川带路<br/>LuTrust+1"]
+    C1D["反问陆景川为何愿意说<br/>LuTrust-1<br/>EvidenceScore+1"]
+
+    C2["第二章：账房尸体<br/>周启明死亡，釉料粉末指向沈月娥"]
+    C2A["认定沈月娥懂釉料<br/>ShenSuspicion+2<br/>LuTrust+1"]
+    C2B["怀疑现场被布置<br/>EvidenceScore+1<br/>SelfDoubt-1"]
+    C2C["追查周启明旧账<br/>EvidenceScore+2"]
+    C2D["质问陆景川为何懂粉末<br/>LuTrust-1<br/>EvidenceScore+1"]
+
+    C3["第三章：尸检报告<br/>陈伯远线索证明旧案死因有问题"]
+    C3A["公开播放林父录音<br/>EvidenceScore+1<br/>VillageSilence+2"]
+    C3B["保留录音用于对证<br/>FatherClue+2<br/>EvidenceScore+1"]
+    C3C["追问陈伯远谁让他签字<br/>VillageSilence+1<br/>EvidenceScore+1"]
+    C3D["让陆景川听录音<br/>LuTrust-1<br/>RevengeTimer+1"]
+
+    C4["第四章：祠堂遗言<br/>破解“不是她，是孩子”"]
+    C4A["接受孩子是目击者解释<br/>LuTrust+1<br/>SelfDoubt+1"]
+    C4B["追问沈月娥孩子是谁<br/>ShenSuspicion-1<br/>FatherClue+1"]
+    C4C["注意陆怀民看向旧照片<br/>EvidenceScore+1"]
+    C4D["调查族谱被刮名<br/>EvidenceScore+1<br/>VillageSilence变化"]
+
+    C5["第五章：废窑暗格<br/>取舍旧案核心证物"]
+    C5A["让陆景川带路<br/>LuTrust+1<br/>RevengeTimer+1"]
+    C5B["让沈月娥同行<br/>ShenSuspicion-1<br/>EvidenceScore+1"]
+    C5C["独自进入废窑<br/>SelfDoubt+1<br/>EvidenceScore可能+2"]
+    C5D["取出生证明+举报信<br/>EvidenceScore+2"]
+    C5E["取出生证明+林父缺页<br/>FatherClue+2<br/>EvidenceScore+1"]
+    C5F["取举报信+林父缺页<br/>FatherClue+1<br/>EvidenceScore+1"]
+    C5G["取废窑暗道图<br/>RevengeTimer-1<br/>降低D风险"]
+
+    C6["第六章：最后对质<br/>三层判断：凶手、旧案、公开方式"]
+    C6A["指认沈月娥<br/>ShenSuspicion判定"]
+    C6B["指认陆景川<br/>EvidenceScore判定"]
+    C6C["指认村庄集体沉默<br/>VillageSilence判定"]
+    C6D["只公开当前命案<br/>EvidenceScore不足时转C"]
+    C6E["公开完整旧案并阻止复仇<br/>RevengeTimer-1"]
+    C6F["理解陆景川但阻止复仇<br/>FatherClue判定<br/>RevengeTimer-1"]
+    C6G["放任复仇<br/>RevengeTimer+2"]
+    C6H["羞辱陆景川<br/>RevengeTimer+1<br/>SelfDoubt+1"]
+
+    END_A(["A 真相公开<br/>旧案重查，沈月娥洗清"])
+    END_B(["B 替罪羊<br/>沈月娥被误认凶手"])
+    END_C(["C 复仇继续<br/>知道可疑但证据不足"])
+    END_D(["D 困死废窑<br/>推理失败且无暗道图"])
+    END_E(["E 隐藏结局：窑火未熄，证词重燃<br/>证据、父亲线和村庄证词同时成立"])
+
+    START --> C1
+    C1 --> C1A --> C2
+    C1 --> C1B --> C2
+    C1 --> C1C --> C2
+    C1 --> C1D --> C2
+
+    C2 --> C2A --> C3
+    C2 --> C2B --> C3
+    C2 --> C2C --> C3
+    C2 --> C2D --> C3
+
+    C3 --> C3A --> C4
+    C3 --> C3B --> C4
+    C3 --> C3C --> C4
+    C3 --> C3D --> C4
+
+    C4 --> C4A --> C5
+    C4 --> C4B --> C5
+    C4 --> C4C --> C5
+    C4 --> C4D --> C5
+
+    C5 --> C5A --> C5D
+    C5 --> C5B --> C5E
+    C5 --> C5C --> C5G
+    C5D --> C6
+    C5E --> C6
+    C5F --> C6
+    C5G --> C6
+
+    C6 --> C6A
+    C6 --> C6B
+    C6 --> C6C
+    C6B --> C6D
+    C6B --> C6E
+    C6B --> C6F
+    C6B --> C6G
+    C6B --> C6H
+    C6C --> C6E
+    C6C --> C6F
+
+    C6A -->|"ShenSuspicion过高<br/>缺出生证明或旧照片"| END_B
+    C6B -->|"EvidenceScore较高<br/>ShenSuspicion不高<br/>阻止复仇"| END_A
+    C6D -->|"只公开当前命案<br/>旧案证据不足"| END_C
+    C6G -->|"放任复仇"| END_C
+    C6H -->|"激怒陆景川<br/>RevengeTimer过高"| END_D
+    C5C -->|"无废窑暗道图<br/>RevengeTimer过高"| END_D
+    C6F -->|"EvidenceScore高<br/>FatherClue高<br/>VillageSilence低<br/>ShenSuspicion低<br/>RevengeTimer未满"| END_E
+
+    C2A -. "误判沈月娥埋雷" .-> END_B
+    C4B -. "破解孩子线" .-> C5E
+    C3B -. "父亲线完整" .-> END_E
+    C5D -. "身份+动机完整" .-> END_A
+    C5G -. "避免困死废窑" .-> C6

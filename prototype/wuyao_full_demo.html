@@ -420,6 +420,17 @@
       body { padding-bottom: 230px; }
     }
   </style>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-CTPHCG9JXL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-CTPHCG9JXL', {
+      send_page_view: true
+    });
+  </script>
 </head>
 <body>
   <header>
@@ -462,6 +473,21 @@
 
   <script>
     const STORAGE_KEY = "wuyao_demo_v0_2_1";
+    let sessionGameOpenSent = false;
+
+    function trackEvent(eventName, params = {}) {
+      try {
+        if (typeof gtag === "function") {
+          gtag("event", eventName, {
+            version: "v0.2.1",
+            demo_type: "full_demo",
+            ...params
+          });
+        }
+      } catch (error) {
+        console.warn("GA event failed:", eventName, error);
+      }
+    }
 
     const variableNames = {
       EvidenceScore: "旧案证据完整度",
@@ -1876,6 +1902,7 @@
         evidence: [],
         logs: [],
         flags: {},
+        analytics: {},
         wrongCombos: 0,
         reviewOpen: false,
         reviewSceneId: null,
@@ -1892,6 +1919,8 @@
         if (typeof parsed.latestFeedback === "string" && parsed.latestFeedback.includes("把这个细节先拍下来")) {
           parsed.latestFeedback = "当前版本已改为具体观察反馈。继续调查未点击物件，会直接显示物件本身和可读信息，但不会一步给出推理结论。";
         }
+        parsed.analytics = parsed.analytics || {};
+        parsed.analytics.chaptersSent = parsed.analytics.chaptersSent || {};
         return parsed;
       } catch {
         return null;
@@ -1910,6 +1939,42 @@
 
     function currentScene() {
       return scenes[state.sceneIndex];
+    }
+
+    function trackGameOpenOnce(entry = "auto_start") {
+      if (sessionGameOpenSent) return;
+      trackEvent("game_open", { entry });
+      trackEvent("full_demo_open", { entry });
+      sessionGameOpenSent = true;
+    }
+
+    function chapterNumberFromLabel(label = "") {
+      const map = {
+        "第一章": 1,
+        "第二章": 2,
+        "第三章": 3,
+        "第四章": 4,
+        "第五章": 5,
+        "第六章": 6
+      };
+      return map[label] || "";
+    }
+
+    function trackChapterEnter(chapterNo, chapterTitle = "") {
+      if (!chapterNo) return;
+      state.analytics = state.analytics || {};
+      state.analytics.chaptersSent = state.analytics.chaptersSent || {};
+
+      const key = String(chapterNo);
+      if (state.analytics.chaptersSent[key]) return;
+
+      trackEvent("chapter_enter", {
+        chapter: chapterNo,
+        chapter_title: chapterTitle,
+        scene_id: currentScene()?.id || ""
+      });
+
+      state.analytics.chaptersSent[key] = true;
     }
 
     function addLog(message) {
@@ -1978,6 +2043,12 @@
     }
 
     function render() {
+      trackGameOpenOnce("auto_start");
+      if (!state.ended) {
+        const scene = currentScene();
+        const chapterNo = chapterNumberFromLabel(scene?.chapter || "");
+        trackChapterEnter(chapterNo, scene?.chapter || "");
+      }
       if (state.mode === "intro") {
         renderIntro();
       } else if (state.ended) {
@@ -2364,6 +2435,22 @@
 
     function renderFinal() {
       const ending = getEndingState();
+      state.analytics = state.analytics || {};
+      if (!state.analytics.gameCompleteSent) {
+        trackEvent("game_complete", {
+          final_ending: ending.code || "",
+          evidence_score: state.vars?.EvidenceScore ?? state.EvidenceScore ?? "",
+          shen_suspicion: state.vars?.ShenSuspicion ?? state.ShenSuspicion ?? "",
+          revenge_timer: state.vars?.RevengeTimer ?? state.RevengeTimer ?? ""
+        });
+        state.analytics.gameCompleteSent = true;
+      }
+      if (!state.analytics.endingReachedSent) {
+        trackEvent("ending_reached", {
+          ending: ending.code || ending.title || ""
+        });
+        state.analytics.endingReachedSent = true;
+      }
       document.getElementById("scenePanel").innerHTML = `
         <div class="scene-head">
           <div class="tag">END</div>

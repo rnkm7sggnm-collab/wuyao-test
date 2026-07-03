@@ -975,6 +975,17 @@
       body { padding-bottom: 230px; }
     }
   </style>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-CTPHCG9JXL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-CTPHCG9JXL', {
+      send_page_view: true
+    });
+  </script>
 </head>
 <body>
   <header>
@@ -1043,6 +1054,19 @@
   <script>
     const STORAGE_KEY = "wuyao_chapter1_v0_3_explore";
     const MAX_VISITS = 3;
+
+    function trackEvent(eventName, params = {}) {
+      try {
+        if (typeof gtag === "function") {
+          gtag("event", eventName, {
+            version: "v0.3.3",
+            ...params
+          });
+        }
+      } catch (error) {
+        console.warn("GA event failed:", eventName, error);
+      }
+    }
 
     const variableNames = {
       EvidenceScore: "旧案证据完整度",
@@ -1421,6 +1445,7 @@
         evidence: [],
         logs: [],
         flags: {},
+        analytics: {},
         characterReads: initialCharacterReads(),
         visitCount: 0,
         route: null,
@@ -1435,6 +1460,7 @@
         const parsed = JSON.parse(raw);
         if (!parsed || parsed.version !== 1) return null;
         parsed.characterReads = { ...initialCharacterReads(), ...(parsed.characterReads || {}) };
+        parsed.analytics = parsed.analytics || {};
         parsed.viewMode = "play";
         parsed.reviewSceneId = null;
         parsed.evidenceFilter = parsed.evidenceFilter || "default";
@@ -1625,6 +1651,9 @@
     async function enterImmersiveStart() {
       hasStartedSession = true;
       updateBodyMode();
+      trackEvent("game_open", {
+        entry: "start_screen"
+      });
       try {
         const el = document.documentElement;
         if (el.requestFullscreen) await el.requestFullscreen();
@@ -2039,6 +2068,11 @@
 
     function enterCharacterScene(sceneId) {
       if (state.viewMode === "review") return;
+      const scene = sceneById[sceneId];
+      trackEvent("character_branch_enter", {
+        character: scene?.personName || sceneId,
+        scene_id: sceneId
+      });
       showEscHint();
       startWhiteParticleTransition(() => {
         state.sceneId = sceneId;
@@ -2245,6 +2279,14 @@
     }
 
     function renderEnding() {
+      state.analytics = state.analytics || {};
+      if (!state.analytics.chapter1CompleteSent) {
+        trackEvent("chapter1_complete", {
+          visit_count: state.visitCount || 0,
+          evidence_count: Array.isArray(state.evidence) ? state.evidence.length : Object.keys(state.evidence || {}).length
+        });
+        state.analytics.chapter1CompleteSent = true;
+      }
       const route = state.route || { name: "未选择", desc: "尚未形成第二章入口路线。" };
       const coreCount = state.evidence.filter(item => item.type === "core").length;
       const clueCount = state.evidence.filter(item => item.type === "clue").length;
