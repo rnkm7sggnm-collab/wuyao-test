@@ -850,6 +850,104 @@
       transition: opacity .9s ease;
     }
 
+    body.is-ending {
+      background: #050505;
+    }
+
+    body.is-ending main {
+      display: block;
+      width: min(920px, calc(100% - 28px));
+    }
+
+    body.is-ending .evidence-side,
+    body.is-ending .right-stack,
+    body.is-ending .vars-bar {
+      display: none;
+    }
+
+    .ending-immersive {
+      min-height: calc(100vh - 80px);
+      background: #050505;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 16px;
+      padding: 0;
+      overflow: hidden;
+      box-shadow: 0 20px 90px rgba(0,0,0,.7);
+    }
+
+    .ending-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 64px 28px 52px;
+    }
+
+    .ending-kicker {
+      color: rgba(255,255,255,.55);
+      letter-spacing: .18em;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    .ending-title {
+      font-size: 34px;
+      margin-bottom: 10px;
+    }
+
+    .ending-subtitle {
+      color: var(--accent);
+      margin-bottom: 34px;
+    }
+
+    .ending-line {
+      opacity: 0;
+      transform: translateY(8px);
+      animation: endingLineIn .8s ease forwards;
+      white-space: pre-line;
+      font-size: 18px;
+      line-height: 2;
+      margin: 0 0 18px;
+    }
+
+    @keyframes endingLineIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .ending-section {
+      margin-top: 36px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,.12);
+    }
+
+    .ending-review {
+      display: none;
+    }
+
+    .ending-review.show {
+      display: block;
+    }
+
+    .ending-actions {
+      margin-top: 38px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .ending-gate {
+      min-height: calc(100vh - 150px);
+      display: flex;
+      align-items: center;
+    }
+
+    .ending-gate .dialogue {
+      width: 100%;
+      background: #050505;
+      border-color: rgba(255,255,255,.12);
+    }
+
     .particle-transition {
       position: fixed;
       inset: 0;
@@ -1903,7 +2001,7 @@
         clickables: [
           { id: "ch2_shen_glaze_ash", label: "沈月娥袖口的白灰", text: "灰贴在袖口外侧，像刚蹭上去，不像一路从窑棚带回来。", effects: { EvidenceScore: 1 }, evidence: { id: "shen_glaze_ash", type: "risk", name: "沈月娥袖口白灰", detail: "白灰让沈月娥显得可疑，但位置过于显眼。" } },
           { id: "ch2_old_kiln_mud", label: "旧窑棚泥水", text: "泥水里混着旧砖粉，和袖口白灰不是同一种湿度。", evidence: { id: "kiln_mud_not_match_ash", type: "clue", name: "旧窑泥水与袖口灰不完全一致", detail: "沈月娥身上的灰未必能直接对应案发现场。" } },
-          { id: "ch2_shen_guarding_words", label: "沈月娥看向旧窑的眼神", text: "她没有急着辩解，只往旧窑方向看了一眼，像怕那边还有什么被雨冲走。", hiddenEffects: { MotherKey: 1, ShenWillIntervene: true }, effects: { ShenSuspicion: -1 }, evidence: { id: "shen_child_water_fish", type: "clue", name: "沈月娥提到水里的东西", detail: "沈月娥说，窑里的人命苦，孩子以后要做水里的东西。这句话暂时还没有完整对象。" } }
+          { id: "ch2_shen_guarding_words", label: "沈月娥看向旧窑的眼神", text: "她没有急着辩解，只往旧窑方向看了一眼，像怕那边还有什么被雨冲走。", hiddenEffects: { MotherKey: 1, ShenWillIntervene: true }, effects: { ShenSuspicion: -1 }, evidence: { id: "shen_child_water_fish", type: "clue", name: "沈月娥提到水里的鱼", detail: "沈月娥说，窑里的人命苦，孩子以后要做水里的鱼,顺风顺水。这句话暂时还没有完整对象。" } }
         ],
         choices: [
           { label: "A", text: "当场逼问沈月娥去了哪里。", effects: { ShenSuspicion: 2, SelfDoubt: 1 }, evidence: { id: "risk_publicly_press_shen", type: "risk", name: "公开逼问沈月娥", detail: "短期得到村民配合，长期可能把她推成最方便的答案。" }, short: "堂屋里立刻安静，沈月娥不再解释。" },
@@ -2277,7 +2375,7 @@
         description: "油纸被打开，里面不是金银，而是一枚小小的青瓷鱼坠。鱼尾缺了一角，腹部刻着一个浅浅的“川”。沈月娥看见它时，脸上的血色一点点退下去。林知夏忽然明白，二十年前被藏起来的，不只是一场火。",
         goal: "推进母亲钥匙与陆景川身份链，但仍不让真相一次性说透。",
         dialogue: [
-          "沈月娥很轻地说：“窑里的人命苦，孩子以后要做水里的东西。”",
+          "沈月娥很轻地说：“窑里的人命苦，孩子以后要做水里的鱼,顺风顺水”",
           "林知夏：“这是给谁的？”",
           "沈月娥没有回答，只把鱼坠攥在掌心，像怕它再被抱走一次。"
         ],
@@ -2373,7 +2471,7 @@
         no: "6-1",
         chapter: 6,
         sceneType: "chapterIntro",
-        title: "文字回放：旧火真相",
+        title: "第六章 · 旧火回看",
         description: "雨声忽然小下去，旧窑里只剩水滴落在瓷片上的声音。林知夏把证据按顺序排开：火、账、报告、孩子、分红、沉默。真相不再是一句话，而是一条被人拆散二十年的路。",
         goal: "根据当前证据生成终局前的阶段性真相回放。",
         dynamicTruthReplay: true,
@@ -2438,11 +2536,20 @@
         ],
         choices: [
           { label: "A", text: "用证据阻止陆景川。", effects: { EvidenceScore: 1, RevengeTimer: -1 }, finalAction: "evidence", short: "证据能压住火，但不一定能让人放下恨。" },
-          { label: "B", text: "让沈月娥开口。", effects: { ShenSuspicion: -1, VillageSilence: -1, RevengeTimer: -1 }, hiddenEffects: { ShenWillIntervene: true }, finalAction: "shen_speaks", short: "这不是替陆景川脱罪，而是让他听见火以外的证词。" },
-          { label: "C", text: "指责陆景川也是凶手。", effects: { RevengeTimer: 2, SelfDoubt: 1 }, finalAction: "accuse", short: "这句话准确，也危险。它可能切断最后一条回头路。" },
-          { label: "D", text: "沉默，看他完成。", effects: { RevengeTimer: 2 }, finalAction: "let_fire", short: "你把真相交给火，也把证词交给火。" },
+          { label: "B", text: "让沈月娥开口。", effects: { ShenSuspicion: -1, VillageSilence: -1 }, finalAction: "shen_speaks", short: "这不是替陆景川脱罪，而是让他听见火以外的证词。" },
+          { label: "C", text: "指责陆景川也是凶手。", effects: { RevengeTimer: 2, SelfDoubt: 1 }, finalAction: "condemn_lu", short: "这句话准确，也危险。它可能切断最后一条回头路。" },
+          { label: "D", text: "沉默，看他完成。", effects: { RevengeTimer: 2 }, finalAction: "silent", short: "你把真相交给火，也把证词交给火。" },
           { label: "E", text: "证据不足，无法回答。", effects: { SelfDoubt: 2 }, finalAction: "cannot_answer", short: "真相没有成形，沉默会替你成形。" }
         ]
+      },
+      {
+        id: "CH6_ENDING_GATE",
+        no: "6-4",
+        chapter: 6,
+        sceneType: "endingGate",
+        title: "第六章 · 火将亮未亮",
+        description: "旧窑前安静下来。\n\n雨声像被谁按低了。\n每个人都站在自己二十年前的位置上，只是这一次，林知夏终于知道他们为什么沉默。\n\n陆景川手里的火没有立刻亮起。\n沈月娥的手还停在半空。\n陆怀民留下的钥匙躺在泥水里。\n周启明没有发出去的短信、陈伯远删掉的报告、何青山没有写完的痕迹，都在这一刻压向同一个问题：\n\n真相应该由谁说出？\n\n不是每个答案都会通向同一种清晨。",
+        goal: "终局黑场，只在此处进行结局结算。"
       }
     ];
 
@@ -2555,6 +2662,7 @@
     }
 
     let hasStartedSession = false;
+    let forceNewStartOnHome = false;
     let transitionTimer = null;
     let animationFrameId = null;
     let state = loadState() || createInitialState();
@@ -2627,19 +2735,55 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
 
-    function clearSave() {
-      if (!window.confirm("确定要清空当前进度并回到首页重新开始吗？手动存档不会被删除。")) return;
-      localStorage.removeItem(STORAGE_KEY);
-      state = createInitialState();
-      state.log = ["新档开始。"];
+    function hideModalBackdrop(id) {
+      const backdrop = document.getElementById(id);
+      if (!backdrop) return;
+      backdrop.classList.remove("show");
+      backdrop.setAttribute("aria-hidden", "true");
+    }
+
+    function resetTransientViewState() {
+      if (transitionTimer) {
+        clearTimeout(transitionTimer);
+        transitionTimer = null;
+      }
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+      document.body.classList.remove("modal-open", "is-cinematic", "is-ending", "is-page-hidden", "is-page-revealing");
+      hideModalBackdrop("modalBackdrop");
+      hideModalBackdrop("saveModalBackdrop");
+      hideModalBackdrop("devModalBackdrop");
+      const particleLayer = document.getElementById("particleTransition");
+      if (particleLayer) particleLayer.classList.remove("active");
+      const canvas = document.getElementById("particleCanvas");
+      const ctx = canvas && canvas.getContext ? canvas.getContext("2d") : null;
+      if (ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function forceRenderStartScreen() {
       hasStartedSession = false;
-      closeDirectoryModal();
-      closeSaveModal();
+      resetTransientViewState();
+      document.body.classList.add("is-start-screen");
+      renderStartScreen();
+      scrollToTop();
+    }
+
+    function clearSave() {
+      if (!window.confirm("确定要清空当前自动进度并回到首页吗？手动存档不会被删除。")) return;
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (error) {
+        console.warn("Clear autosave failed:", error);
+      }
+      state = createInitialState();
+      state.logs = [];
+      forceNewStartOnHome = false;
       trackEvent("clear_autosave", {
         version: VERSION_LABEL
       });
-      render();
-      scrollToTop();
+      forceRenderStartScreen();
     }
 
     function currentScene() {
@@ -2955,6 +3099,7 @@
       const isCinematic = hasStartedSession && scene && state.mode !== "intro" && (scene.cinematic || scene.personKey);
       document.body.classList.toggle("is-start-screen", isStart);
       document.body.classList.toggle("is-cinematic", Boolean(isCinematic));
+      document.body.classList.toggle("is-ending", Boolean(hasStartedSession && state.ended));
       document.body.classList.toggle("dev-unlocked", isDevUnlocked());
     }
 
@@ -2981,7 +3126,8 @@
       else if (activeSceneId() === "CH1_HUB_FREE_EXPLORE") renderHub();
       else {
         const scene = currentScene();
-        if (scene && (scene.cinematic || scene.personKey)) renderCinematicScene(scene);
+        if (scene && scene.sceneType === "endingGate") renderEndingGate(scene);
+        else if (scene && (scene.cinematic || scene.personKey)) renderCinematicScene(scene);
         else renderScene();
       }
 
@@ -2994,21 +3140,22 @@
     }
 
     function renderStartScreen() {
-      const hasAutoSave = Boolean(localStorage.getItem(STORAGE_KEY));
-      const hasManualSave = getSaveSlots().some(slot => slot && slot.state);
+      resetTransientViewState();
+      document.body.classList.add("is-start-screen");
+      const hasAutoSave = hasAutoSaveStored();
+      const hasManualSave = hasManualSaveSlots();
       document.getElementById("scenePanel").innerHTML = `
         <div class="start-screen">
           <div class="start-card">
             <div class="start-title">雾窑</div>
             <div class="start-subtitle">v0.4 全剧情文本试玩版</div>
-            ${hasAutoSave || hasManualSave ? `
+            ${hasAutoSave ? `
               <button class="start-button" id="continueGameBtn">继续游戏</button>
-              <div class="start-continue-options" id="continueOptions" hidden>
-                <div class="small">${hasAutoSave ? "选择继续当前自动进度，或读取一个手动存档槽。" : "当前没有自动进度，可以读取一个手动存档槽。"}</div>
-                ${hasAutoSave ? `<button class="start-button" id="continueAutoBtn">继续当前进度</button>` : ""}
-                ${hasManualSave ? `<button class="start-button" id="loadSaveFromHomeBtn">读取手动存档</button>` : `<button class="start-button" disabled>暂无手动存档</button>`}
-              </div>
-              <button class="start-button" id="${hasAutoSave ? "restartGameBtn" : "startGameBtn"}">${hasAutoSave ? "重新开始" : "进入雾窑"}</button>
+              <button class="start-button" id="loadSaveFromHomeBtn">读取存档</button>
+              <button class="start-button" id="restartGameBtn">重新开始</button>
+            ` : hasManualSave ? `
+              <button class="start-button" id="startGameBtn">进入雾窑</button>
+              <button class="start-button" id="loadSaveFromHomeBtn">读取存档</button>
             ` : `
               <button class="start-button" id="startGameBtn">进入雾窑</button>
             `}
@@ -3018,20 +3165,29 @@
       `;
       const startBtn = document.getElementById("startGameBtn");
       const continueBtn = document.getElementById("continueGameBtn");
-      const continueAutoBtn = document.getElementById("continueAutoBtn");
       const loadSaveFromHomeBtn = document.getElementById("loadSaveFromHomeBtn");
       const restartBtn = document.getElementById("restartGameBtn");
       if (startBtn) startBtn.addEventListener("click", startNewGameFromHome);
-      if (continueBtn) continueBtn.addEventListener("click", showStartContinueOptions);
-      if (continueAutoBtn) continueAutoBtn.addEventListener("click", continueGameFromHome);
+      if (continueBtn) continueBtn.addEventListener("click", continueGameFromHome);
       if (loadSaveFromHomeBtn) loadSaveFromHomeBtn.addEventListener("click", openSaveModalFromHome);
       if (restartBtn) restartBtn.addEventListener("click", restartGameFromHome);
     }
 
-    function showStartContinueOptions() {
-      const options = document.getElementById("continueOptions");
-      if (!options) return;
-      options.hidden = !options.hidden;
+    function hasManualSaveSlots() {
+      try {
+        const slots = getSaveSlots();
+        return Array.isArray(slots) && slots.some(slot => slot && slot.state);
+      } catch {
+        return false;
+      }
+    }
+
+    function hasAutoSaveStored() {
+      try {
+        return Boolean(localStorage.getItem(STORAGE_KEY));
+      } catch {
+        return false;
+      }
     }
 
     function openSaveModalFromHome() {
@@ -3043,22 +3199,24 @@
     }
 
     function goHomeScreen() {
-      hasStartedSession = false;
-      document.body.classList.add("is-start-screen");
-      document.body.classList.remove("is-cinematic");
-      document.body.classList.remove("is-page-hidden", "is-page-revealing");
-      if (typeof closeDirectoryModal === "function") closeDirectoryModal();
-      if (typeof closeSaveModal === "function") closeSaveModal();
+      forceNewStartOnHome = false;
+      if (hasStartedSession) {
+        try {
+          saveState();
+        } catch (error) {
+          console.warn("Save before home failed:", error);
+        }
+      }
       trackEvent("home_screen_open", {
         version: VERSION_LABEL
       });
-      renderStartScreen();
-      scrollToTop();
+      forceRenderStartScreen();
     }
 
     function startNewGameFromHome() {
+      forceNewStartOnHome = false;
       state = createInitialState();
-      state.log = ["新档开始。"];
+      state.logs = [];
       trackEvent("new_game_start", {
         version: VERSION_LABEL
       });
@@ -3066,19 +3224,47 @@
     }
 
     function continueGameFromHome() {
-      state = loadState() || state || createInitialState();
-      startGameSession("continue_game");
+      forceNewStartOnHome = false;
+      const saved = loadState();
+      if (!saved) {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (error) {
+          console.warn("Remove broken autosave failed:", error);
+        }
+        state = createInitialState();
+        hasStartedSession = false;
+        renderStartScreen();
+        window.alert("自动存档损坏，请重新开始或读取手动存档。");
+        return;
+      }
+      state = normalizeLoadedState(saved);
+      normalizeAllStats();
+      hasStartedSession = true;
+      document.body.classList.remove("is-start-screen");
+      trackEvent("continue_game", {
+        scene_id: state.sceneId || "",
+        version: VERSION_LABEL
+      });
+      render();
+      scrollToTop();
     }
 
     function restartGameFromHome() {
       if (!window.confirm("确定要清空当前进度并重新开始吗？手动存档不会被删除。")) return;
+      forceNewStartOnHome = false;
       localStorage.removeItem(STORAGE_KEY);
       state = createInitialState();
-      state.log = ["新档开始。"];
+      state.logs = [];
+      normalizeAllStats();
+      hasStartedSession = true;
+      document.body.classList.remove("is-start-screen");
       trackEvent("new_game_start", {
         version: VERSION_LABEL
       });
-      startGameSession("restart_game");
+      saveState();
+      render();
+      scrollToTop();
     }
 
     async function enterImmersiveStart() {
@@ -3442,6 +3628,25 @@
       if (nextBtn) nextBtn.addEventListener("click", goNext);
     }
 
+    function renderEndingGate(scene) {
+      const review = state.viewMode === "review";
+      document.getElementById("scenePanel").innerHTML = `
+        ${review ? renderReviewBanner() : ""}
+        <div class="ending-gate">
+          <div class="dialogue">
+            <div class="intro-kicker">终局黑场</div>
+            <h2>${scene.title}</h2>
+            <div class="intro-text">${scene.description}</div>
+            <div class="next-row">
+              ${review ? "" : `<button class="primary" id="resolveEndingBtn">进入结局</button>`}
+            </div>
+          </div>
+        </div>
+      `;
+      const btn = document.getElementById("resolveEndingBtn");
+      if (btn) btn.addEventListener("click", resolveEndingAtFinalGate);
+    }
+
     function renderChoices(scene, selected, readOnly = false) {
       return `
         <h3>${scene.id === "CH1_HALL" ? "晚饭后先去找谁" : "玩家选择"}</h3>
@@ -3623,6 +3828,94 @@
       render();
     }
 
+    function resolveFinalChoiceFeedback(choice) {
+      state.hidden = { ...initialHiddenState(), ...(state.hidden || {}) };
+      if (choice.finalAction !== "shen_speaks") {
+        state.hidden.FinalChoice = choice.finalAction;
+        if (choice.finalAction === "evidence") {
+          return [
+            "林知夏：“证据已经够了。”",
+            "陆景川：“够给谁看？”",
+            "陆景川：“陈伯远说出来，他们会说老人糊涂。”",
+            "陆景川：“周启明死了，他们会说死人不能作证。”",
+            "陆景川：“沈月娥说出来，他们会说疯女人终于疯到底。”",
+            "陆景川：“那我呢？”",
+            "陆景川：“我说我是谁，他们会说我是为了分老窑址的账。”",
+            "陆景川：“没有火，他们不会听。”",
+            "林知夏：“二十年前，他们也是这么想的。”"
+          ].join("<br>");
+        }
+        if (choice.finalAction === "condemn_lu") {
+          return "陆景川看着林知夏，像终于确认她也只看见了凶手。火机在他掌心响了一下，雨声没有盖住。";
+        }
+        if (choice.finalAction === "silent") {
+          return "林知夏没有立刻说话。沉默在旧窑前扩散开，像青瓷庄最熟悉的那种语言。";
+        }
+        return "真相没有成形，沉默会替你成形。";
+      }
+
+      const motherReady = state.hidden.MotherKey >= 2 && state.hidden.ShenWillIntervene === true && state.hidden.LuIdentityProof >= 2;
+      if (!motherReady) {
+        state.hidden.FinalChoice = "shen_failed";
+        state.hidden.ShenWillIntervene = false;
+        const extraChanges = applyEffects({ RevengeTimer: 1 });
+        const lines = [
+          "林知夏看向沈月娥。",
+          "沈月娥站在雨里，嘴唇动了一下，却没有声音。",
+          "她或许已经猜到陆景川是谁。也或许早就猜到了。可猜到不是证据。痛苦也不是资格。",
+          "她没有拿到那句话，也没有拿到那枚能把二十年前和现在连起来的青瓷鱼坠。",
+          "于是她只能看着陆景川。",
+          "沈月娥：“我没有资格叫他停。”"
+        ];
+        if (state.vars.ShenSuspicion >= 5) {
+          lines.push("她已经被推到所有人的目光中太久。这一刻，她不是母亲。她只是青瓷庄最方便的嫌疑人。");
+        }
+        return `${lines.join("<br>")}<br>变量变化：${extraChanges.join("；") || "无"}`;
+      }
+
+      state.hidden.FinalChoice = "shen_speaks";
+      state.hidden.ShenWillIntervene = true;
+      state.flags.usedMotherKeyFinale = true;
+      const extraChanges = applyEffects({ RevengeTimer: -2 });
+      const fullLines = [
+        "林知夏：“这句话不该我说。”",
+        "沈月娥接过青瓷鱼坠。她的手抖得厉害，像握住的不是半枚瓷，而是二十年里没能抱住的那个孩子。",
+        "沈月娥：“你爹给你的，不是火。”",
+        "陆景川：“你没有资格提他。”",
+        "沈月娥：“我有。”",
+        "陆景川的眼神终于乱了一下。",
+        "沈月娥：“我等了二十年，才知道该等的人站在我面前。”",
+        "沈月娥：“青山说，窑里的人命苦。”",
+        "沈月娥：“孩子以后要做水里的鱼,顺风顺水”",
+        "沈月娥：“走山外的路，别回窑里来。”",
+        "陆景川低头看那枚鱼坠。背面的“川”字小得几乎要被雨水洗掉。",
+        "沈月娥：“你要烧了青瓷庄，我不拦你，是因为我也恨。”",
+        "沈月娥：“我恨他们把你从我身边抱走。”",
+        "沈月娥：“我恨他们让我守着一个空襁褓过了二十年。”",
+        "沈月娥：“我恨我每一次看见你的眉眼，都不敢相信那是真的。”",
+        "沈月娥：“可你要是点这把火，你就不是替你爹讨公道。”",
+        "沈月娥：“你是在替他们证明：人最后还是只能让火说话。”",
+        "林知夏看着陆景川手里的火机，忽然明白：他不是想毁掉证据。他是想把自己也烧成证据的一部分。",
+        "沈月娥：“陆景川。”",
+        "她第一次把这个名字叫得像是在叫自己的孩子。",
+        "沈月娥：“我不知道我还有没有资格叫你一声孩子。”",
+        "沈月娥：“但我不能看着我的孩子，再进一次窑。”",
+        "林知夏：“真相必须公开。”",
+        "林知夏：“但它不能再靠一场火公开。”"
+      ];
+      const partialLines = [
+        "沈月娥接过青瓷鱼坠，手指停在那个几乎被雨水洗掉的“川”字上。",
+        "沈月娥：“你爹给你的，不是火。”",
+        "陆景川没有立刻反驳。",
+        "沈月娥：“我不知道我还有没有资格叫你一声孩子。”",
+        "沈月娥：“但我不能看着你再进一次窑。”",
+        "林知夏：“真相必须公开。”",
+        "林知夏：“但它不能再靠一场火公开。”"
+      ];
+      const lines = state.hidden.MotherKey >= 3 ? fullLines : partialLines;
+      return `${lines.join("<br>")}<br>变量变化：${extraChanges.join("；") || "无"}`;
+    }
+
     function handleChoice(index) {
       if (state.viewMode === "review") return;
       const scene = currentScene();
@@ -3672,16 +3965,16 @@
         return;
       }
       if (choice.finalAction) {
-        state.hidden.FinalChoice = choice.finalAction;
-        const endingKey = evaluateEnding(choice.finalAction);
+        const finalFeedback = resolveFinalChoiceFeedback(choice);
         state.latestFeedback = [
           `<strong>${choice.label}. ${choice.text}</strong>`,
           changes.length ? `变量变化：${changes.join("；")}` : "变量变化：无",
           hiddenChanges.length ? `隐藏伏笔：${hiddenChanges.join("；")}` : "",
+          finalFeedback,
           choice.short ? `结果：${choice.short}` : ""
         ].filter(Boolean).join("<br>");
         addLog({ message: `终局选择：${choice.label}. ${choice.text}`, type: "choice" });
-        goToEnding(endingKey);
+        transitionToScene("CH6_ENDING_GATE", "旧窑前安静下来。最终结局将在下一步结算。", "进入终局黑场");
         return;
       }
       state.latestFeedback = [
@@ -3787,43 +4080,60 @@
       return lines.length ? `<h3>内心整理</h3><div class="dialogue">${lines.map(line => `<p>内心：“${line}”</p>`).join("")}</div>` : "";
     }
 
-    function renderTruthReplay() {
+    function getUnlockedReplayBlocks() {
       const hidden = { ...initialHiddenState(), ...(state.hidden || {}) };
-      let title = "文字回放：残缺真相";
-      let lines = [
-        "火、账、报告、孩子和沉默还没有完全连成一条线。",
-        "林知夏知道旧案不是事故，却还不能把每个人的位置都钉牢。"
+      const blocks = [
+        {
+          id: "replay_full_truth",
+          title: "【文字回放：完整真相】",
+          conditionLabel: "证据链完整",
+          unlocked: state.vars.EvidenceScore >= 7 && hidden.ZhouDeathTruth >= 2 && hidden.ChenReportTruth >= 2 && hidden.VillageProfitProof >= 2,
+          text: "二十年前，何青山不是死在一场意外里。\n\n他先发现了账。\n旧窑修缮款、非遗补助、老窑址权益、分红名单。\n每一笔都不大，摊开来却足够让一个村子选择闭嘴。\n\n举报前夜，他回到旧窑房。\n周启明说他不懂村里怎么活。\n陆怀民说事情还有商量。\n何青山没有退。\n\n第一下不是火。\n是钝器落在后脑的闷声。\n\n周启明以为自己杀了人。\n陆怀民看着倒下去的何青山，沉默了很久。\n然后他说：\n\n“不能让他这样被发现。”\n\n火是后来才烧起来的。\n\n热浪把何青山烤醒时，窑房已经没有出口。\n他爬向门，指甲在砖缝里刮出血。\n他没有来得及逃出去，只留下了那些后来被称作“火场痕迹”的东西。\n\n报告没有完全撒谎。\n何青山确实死在火里。\n可报告删掉了火烧起来之前发生的一切。"
+        },
+        {
+          id: "replay_shen",
+          title: "【文字回放：沈月娥视角】",
+          conditionLabel: "母亲钥匙",
+          unlocked: hidden.MotherKey >= 1 || hidden.ShenWillIntervene === true || state.vars.ShenSuspicion <= 3,
+          text: "沈月娥不是从一开始就疯的。\n\n她记得何青山出门前洗过手。\n手上还有釉灰，洗不干净。\n他说，等孩子出生，就不让孩子靠窑吃饭了。\n\n后来有人告诉她，何青山死于窑火事故。\n又有人告诉她，孩子没保住。\n\n她没有看到完整的尸身。\n也没有看到完整的孩子。\n她只看到一只被包起来的小襁褓，轻得不像命。\n\n从那以后，青瓷庄学会了叫她疯女人。\n疯女人说的话不用听。\n疯女人守旧窑，也只是疯。\n疯女人不肯坐上桌，也只是疯。\n\n可她守的不是死人。\n她守的是一句没人肯还给她的话。\n\n“孩子以后要做水里的鱼,顺风顺水”"
+        },
+        {
+          id: "replay_lu",
+          title: "【文字回放：陆景川视角】",
+          conditionLabel: "身份链或复仇临界",
+          unlocked: hidden.LuIdentityProof >= 2 || state.vars.RevengeTimer >= 5,
+          text: "陆景川第一次知道自己不是陆家人时，没有立刻恨。\n\n他先是不信。\n然后去查。\n\n出生记录。\n族谱旁支。\n镇上亲戚家。\n旧窑项目的档案。\n\n每一处都像被人擦过，但擦得不够干净。\n\n他回到青瓷庄时，所有人都叫他小陆。\n陆怀民也这样叫他。\n\n这个名字很方便。\n方便到他可以站在沈月娥面前，却没有资格叫她一声母亲。\n方便到他可以查何青山，却不能公开问：\n\n那是不是我的父亲？\n\n他邀请林知夏来，不是因为她能通关。\n而是因为她是外来者。\n\n有些话，他问出口就会惊动所有人。\n林知夏问出口，才像一个项目编剧该有的好奇。\n\n可真相越完整，他越明白一件事：\n\n周启明死了没有用。\n陆怀民死了也没有用。\n只要青瓷庄还想活在谎里，他们就会再找一个沈月娥。\n\n于是他想：\n\n那就不要证词了。\n让火自己作证。"
+        },
+        {
+          id: "replay_father",
+          title: "【文字回放：林父调查】",
+          conditionLabel: "父亲线",
+          unlocked: state.vars.FatherClue >= 3,
+          text: "林知夏的父亲当年来过青瓷庄。\n\n他不是第一个听见旧窑事故的人。\n但他可能是第一个问错方向的人。\n\n别人问：\n\n火怎么烧起来的？\n\n他问：\n\n火是不是后来才烧起来的？\n\n这句话让陈伯远沉默。\n让陆怀民送客。\n让周启明把账本换了地方。\n也让那本采访笔记在多年后，只剩下半句话。\n\n林知夏终于明白，父亲不是没有查到。\n他只是没有来得及把证词带出去。\n\n现在，那半句话落到她手里。\n\n不是为了让她替父亲复仇。\n是为了让她别让真相再少一次。"
+        },
+        {
+          id: "replay_fragment",
+          title: "【文字回放：残缺真相】",
+          conditionLabel: "默认",
+          unlocked: true,
+          text: "如果证据不够，真相就不会像故事一样完整。\n\n它只会剩下碎片。\n\n雨声。\n旧窑。\n一份被删过的报告。\n一张被烧焦的账页。\n沈月娥手上的釉灰。\n陆景川没有说完的名字。\n陆怀民合上的祠堂门。\n\n林知夏看见很多东西。\n但每一样都差一步。\n\n差一步，就足够让青瓷庄继续说：\n\n那只是事故。"
+        }
       ];
-      if (state.vars.ShenSuspicion >= 6) {
-        title = "文字回放：沈月娥误判视角";
-        lines = [
-          "所有线索都太容易指向沈月娥。",
-          "她站在旧窑边的样子，让人忘了问：是谁最希望她站在那里。"
-        ];
-      } else if (hidden.LuIdentityProof >= 3 && state.vars.RevengeTimer >= 6) {
-        title = "文字回放：陆景川复仇视角";
-        lines = [
-          "一个孩子被换了名字，长成能带所有人进旧窑的人。",
-          "可复仇越接近完成，真相越像要被火重新夺走。"
-        ];
-      } else if (state.vars.FatherClue >= 5 && hidden.ChenReportTruth >= 2) {
-        title = "文字回放：林父调查视角";
-        lines = [
-          "父亲当年问到火前伤、报告顺序和孩子去向，却没能把问题带出青瓷庄。",
-          "林知夏走到这里，不是替父亲完成遗愿，而是让问题终于有证词回应。"
-        ];
-      }
-      if (state.vars.EvidenceScore >= 9 && hidden.ChenReportTruth >= 3 && hidden.VillageProfitProof >= 3) {
-        title = "文字回放：完整真相";
-        lines = [
-          "何青山举报前夜被伤，火灾随后吞掉证据，报告留下死亡却删掉责任。",
-          "周启明借火毁账，陆怀民抱走孩子又压下名字，陈伯远用签字让事故变成纸面结论。",
-          "二十年后，周启明准备谈条件，旧账再次开口，青瓷庄的沉默也再次杀人。"
-        ];
-      }
+      const unlocked = blocks.filter(block => block.unlocked && block.id !== "replay_fragment");
+      return unlocked.length ? unlocked : blocks.filter(block => block.id === "replay_fragment");
+    }
+
+    function renderTruthReplay() {
+      const blocks = getUnlockedReplayBlocks();
       return `
-        <h3>${title}</h3>
-        <div class="status-card">${lines.map(line => `<p>${line}</p>`).join("")}</div>
+        <h3>【文字回放】</h3>
+        ${blocks.map(block => `
+          <div class="status-card">
+            <h3>${block.title}</h3>
+            <p class="small">${block.conditionLabel}</p>
+            ${block.text.split("\n\n").map(line => `<p>${line}</p>`).join("")}
+          </div>
+        `).join("")}
       `;
     }
 
@@ -3859,48 +4169,134 @@
 
     const endingDefinitions = {
       D: {
-        title: "D 真相断裂",
-        subtitle: "坏结局",
-        text: [
-          "真相没有成形。父亲笔记被雨水泡开，陆景川消失在旧窑后的山路。",
-          "青瓷庄对外给出模糊说法：暴雨夜旧窑再次发生事故。",
-          "青瓷庄又一次活了下来。只是这一次，林知夏知道它靠什么活着。"
+        title: "D｜真相断裂",
+        subtitle: "真相没有成形，再次消失。",
+        lines: [
+          "废窑塌下去的时候，声音并不大。",
+          "像一只旧碗终于裂开。\n像某个拖了二十年的问题，终于被泥水埋回去。",
+          "林知夏手里的父亲笔记被雨泡开。\n字迹一行行散掉。",
+          "“火不是火先烧起来的”那句话，最后只剩下一个“火”字。",
+          "青瓷庄对外说：",
+          "暴雨夜，旧窑附近发生二次事故。\n项目暂停整顿。\n相关人员配合调查。",
+          "每一个词都很干净。\n干净得像二十年前那份报告。",
+          "陈伯远曾经说：",
+          "“报告没有完全撒谎。”",
+          "林知夏现在明白了。\n最可怕的谎言从来不是全假的。\n而是把最关键的那一半拿走。",
+          "陆景川消失了。\n沈月娥没有再回旧窑棚。\n周启明的手机被雨水泡坏。\n陆怀民的祠堂门重新合上。"
+        ],
+        afterword: [
+          "青瓷庄又一次活了下来。",
+          "只是这一次，林知夏知道它靠什么活着。"
         ]
       },
       C: {
-        title: "C 复仇继续",
-        subtitle: "真相被火夺走",
-        text: [
-          "陆景川没有被洗白，也没有获得胜利。他只是把所有证据都推向一场更大的火。",
-          "二十年前，陆怀民说，为了村子，牺牲一个人。二十年后，陆景川说，为了真相，烧掉一个村子。",
-          "火终于说话了。可它说出来的，已经不全是真相。"
+        title: "C｜复仇继续",
+        subtitle: "真相被陆景川夺走，变成火。",
+        lines: [
+          "火终于亮起来时，雨已经小了。",
+          "这很荒唐。",
+          "二十年前，一场火被用来掩盖真相。\n二十年后，又有人想用一场火证明真相。",
+          "陆景川没有大笑，也没有胜利。\n火光照在他脸上，他看起来比任何时候都安静。",
+          "林知夏终于明白，他不是不知道自己在犯罪。\n他只是已经不相信还有别的语言。",
+          "周启明死了。\n陆怀民死了。\n陈伯远说出了报告。\n沈月娥也许还活着，也许还站在雨里。",
+          "可青瓷庄仍然可以说：",
+          "这是混乱。\n这是意外。\n这是疯子点的火。\n这是一个孩子走到尽头后的失控。",
+          "陆景川想让火作证。\n可火烧起来以后，证词和谎言会一起变成灰。",
+          "林知夏：“你知道这样会毁掉多少东西吗？”",
+          "陆景川：“他们二十年前也知道。”",
+          "林知夏：“那你和他们有什么不同？”",
+          "陆景川看着旧窑里的火。\n很久之后，他说：",
+          "陆景川：“我没有不同。”",
+          "陆景川：“我只是终于知道，他们为什么敢。”"
+        ],
+        afterword: [
+          "二十年前，陆怀民说：\n为了村子，牺牲一个人。",
+          "二十年后，陆景川说：\n为了真相，烧掉一个村子。",
+          "火终于说话了。",
+          "可它说出来的，已经不全是真相。"
         ]
       },
       B: {
-        title: "B 替罪羊",
-        subtitle: "最方便的答案",
-        text: [
+        title: "B｜替罪羊",
+        subtitle: "真相被村庄夺走，并被包装成沈月娥的罪。",
+        lines: [
+          "天亮时，雨还没停。",
+          "所有人都需要一个能结束恐慌的人。",
+          "沈月娥守旧窑。\n她恨文旅。\n她懂釉料。\n她沉默。\n她失态。\n她曾在雨夜离开过堂屋。",
+          "这些碎片终于被拼成了一个最方便的答案。",
+          "林知夏知道不对。\n可她手里的证据不够。",
+          "不够让周启明的短信说话。\n不够让旧账页说话。\n不够让陈伯远的报告压过村庄的沉默。\n也不够让沈月娥从“嫌疑人”重新变回“母亲”。",
+          "沈月娥：“这次轮到我了？”",
+          "林知夏：“我会继续查。”",
+          "沈月娥看着她，笑了一下。\n那笑不是讽刺，更像一个人终于等累了。",
+          "沈月娥：“你们都这么说。”",
+          "沈月娥：“说完，火就又烧了一遍。”",
+          "陆景川没有说话。\n他站在人群后面，第一次没有看林知夏。"
+        ],
+        afterword: [
           "沈月娥终于成了他们需要的那个人。",
-          "不是因为她有罪，而是因为所有人都需要一个可以结束恐慌的人。",
-          "林知夏没有完全相信这个答案，却也没能把公共叙事推翻。她写下的，不是第一份假证词。"
+          "不是因为她有罪。",
+          "而是因为所有人都需要一个可以结束恐慌的人。"
         ]
       },
       E: {
-        title: "E 隐藏结局：证词重燃",
-        subtitle: "火没有替人说话",
-        text: [
-          "沈月娥、陆景川、陈伯远报告、林父笔记、村民证词和何青山举报信终于排在同一张纸上。",
-          "真相不属于村庄，不属于复仇，也不属于火。它属于愿意作证的人。",
-          "雨停时，旧窑里没有火。只有六份迟到二十年的证词。"
+        title: "E｜证词重燃",
+        subtitle: "真相由愿意作证的人共同说出。",
+        lines: [
+          "六只青瓷杯重新摆回供桌。",
+          "这一次，它们不是用来待客。\n也不是用来祭祖。",
+          "每只杯下，都压着一份证词。",
+          "第一份，是沈月娥。",
+          "她证明何青山不是一个事故里的名字。\n也是丈夫，是父亲，是那个想让孩子离开窑火的人。",
+          "第二份，是陆景川。",
+          "他证明自己不是陆怀民给出的那个名字。\n他是被偷走的孩子，也是差一点把自己交给火的人。",
+          "第三份，是陈伯远留下的报告。",
+          "报告终于补回被删掉的那一半：\n钝器伤、挣扎痕迹、人为纵火。",
+          "第四份，是林父笔记。",
+          "那半句话终于有了后半句：\n火不是火先烧起来的，人心才是。",
+          "第五份，是村民证词。",
+          "不完整，不干净，甚至带着推脱。\n可它终于承认：\n沉默不是无辜。",
+          "第六份，是何青山留下的痕迹。",
+          "举报信、旧账页、火场砖缝里的抓痕。",
+          "死人不会说话。\n但证词可以替他留下来。",
+          "沈月娥：“这不是原谅。”",
+          "林知夏：“我知道。”",
+          "陆景川看着那枚青瓷鱼坠，很久之后问：",
+          "陆景川：“那是什么？”",
+          "林知夏：“是你没有烧掉的路。”",
+          "沈月娥把鱼坠放在第一只青瓷杯旁边。",
+          "沈月娥：“青山，我们没有让孩子再进窑。”"
+        ],
+        afterword: [
+          "雨停时，旧窑里没有火。",
+          "光从破瓦缝里落下来，照在那些证词上。\n有那么一瞬间，青瓷庄像真的被洗干净了。",
+          "但林知夏知道，这样的美好薄得像一层釉。",
+          "只要人还会怕、会贪、会沉默，它就可能再裂。",
+          "青瓷庄第一次没有让火替人说话。",
+          "但林知夏不知道，这样的诚实能撑多久。",
+          "雨停时，旧窑里没有火。",
+          "只有六份迟到二十年的证词。"
         ]
       },
       A: {
-        title: "A 真相公开",
-        subtitle: "旧案重查",
-        text: [
-          "真相终于离开旧窑，进入现实世界。",
-          "陆景川被阻止，沈月娥被洗清，旧案开始重查。村庄沉默被打破，但没有人轻松。",
-          "真相没有烧起来，也没有熄灭。它只是第一次，走到了人群面前。"
+        title: "A｜真相公开",
+        subtitle: "真相进入现实世界。",
+        lines: [
+          "陆景川没有点火。",
+          "打火机从他手里落下，掉进一滩雨水里。\n火没有亮起来。\n雨水把那一点金属声吞得很轻。",
+          "远处终于有车灯穿过山路。\n不是救赎，也不是审判。\n只是外面的世界终于找到一条缝，照进青瓷庄。",
+          "旧窑被封。\n文旅项目暂停。\n陆怀民的名字从“老村长”变成案卷里的嫌疑人。\n周启明的死不再只是暴雨夜的意外。\n二十年前的窑火，也第一次不能再被轻易叫作事故。",
+          "陆景川：“这就够了吗？”",
+          "林知夏：“不够。”",
+          "林知夏：“但从这里开始，不能再由火来补。”",
+          "沈月娥没有看任何人。\n她走到旧窑门口，轻轻把一块歪掉的旧砖放正。",
+          "沈月娥：“青山，外面有人听见了。”"
+        ],
+        afterword: [
+          "真相终于离开旧窑。",
+          "它没有烧起来。",
+          "也没有熄灭。",
+          "它只是第一次，走到了人群面前。"
         ]
       }
     };
@@ -3928,7 +4324,7 @@
         vars.RevengeTimer >= 7 ||
         (vars.RevengeTimer >= 6 && hidden.MotherKey < 2) ||
         (vars.RevengeTimer >= 5 && vars.VillageSilence >= 6 && hidden.LuIdentityProof >= 2 && hidden.MotherKey < 2) ||
-        finalAction === "let_fire"
+        finalAction === "silent"
       ) {
         return "C";
       }
@@ -3978,11 +4374,49 @@
       return "A";
     }
 
+    function canResolveEndingNow() {
+      return state.sceneId === "CH6_ENDING_GATE";
+    }
+
+    function resolveEndingAtFinalGate() {
+      if (!canResolveEndingNow()) {
+        console.warn("Blocked ending resolution before final gate:", state.sceneId);
+        return;
+      }
+      const endingKey = evaluateEnding();
+      state.hidden = { ...initialHiddenState(), ...(state.hidden || {}) };
+      state.hidden.EndingKey = endingKey;
+      state.sceneId = `ENDING_${endingKey}`;
+      state.ended = true;
+      state.mode = "game";
+      state.viewMode = "play";
+      state.reviewSceneId = null;
+      state.analytics = state.analytics || {};
+      if (!state.analytics.gameCompleteSent) {
+        trackEvent("game_complete", {
+          final_ending: endingKey,
+          evidence_score: state.vars?.EvidenceScore ?? "",
+          shen_suspicion: state.vars?.ShenSuspicion ?? "",
+          revenge_timer: state.vars?.RevengeTimer ?? ""
+        });
+        state.analytics.gameCompleteSent = true;
+      }
+      if (!state.analytics.endingReachedSent) {
+        trackEvent("ending_reached", { ending: endingKey });
+        state.analytics.endingReachedSent = true;
+      }
+      addLog({ message: `第六章终局完成，进入结局 ${endingKey}`, type: "ending" });
+      saveState();
+      render();
+      scrollToTop();
+    }
+
     function goToEnding(endingKey) {
       showEscHint();
       startWhiteParticleTransition(() => {
         state.hidden = { ...initialHiddenState(), ...(state.hidden || {}) };
         state.hidden.EndingKey = endingKey;
+        state.sceneId = `ENDING_${endingKey}`;
         state.ended = true;
         state.mode = "game";
         state.viewMode = "play";
@@ -4009,51 +4443,100 @@
       });
     }
 
+    function escapeHtml(value = "") {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function renderEndingLines(lines = [], offset = 0) {
+      return lines.map((line, index) => `
+        <p class="ending-line" style="animation-delay:${(offset + index) * 0.35}s">${escapeHtml(line)}</p>
+      `).join("");
+    }
+
+    function getEndingReasonText(endingKey) {
+      const reasons = {
+        A: "你完成了核心证据链，并阻止陆景川点火。真相进入现实，但由于母亲钥匙或村民证词不完整，它还没有成为隐藏结局的六份证词。",
+        B: "沈月娥的公共嫌疑过高，母亲钥匙没有成形，村庄沉默重新夺回了叙事权。你不一定相信她有罪，但你没能阻止别人把她变成答案。",
+        C: "你查到了足够多真相，却没能压住陆景川的暗流临界。没有母亲钥匙，证据只能证明他为什么恨，不能让他停下。",
+        D: "关键证据链断裂，推理没有形成可公开的证词。青瓷庄再次把真相变成事故。",
+        E: "你完成了证据、身份、母亲钥匙、村民证词和终局选择。真相没有交给火，而是由活人共同说出。"
+      };
+      return reasons[endingKey] || reasons.A;
+    }
+
+    function getEndingReviewHints() {
+      const hidden = { ...initialHiddenState(), ...(state.hidden || {}) };
+      return [
+        { label: "第二章沈月娥隐藏对话", achieved: hidden.MotherKey >= 1, detail: "这决定沈月娥终局是否能开口。" },
+        { label: "青瓷鱼坠", achieved: hidden.LuIdentityProof >= 2 || hasEvidence("porcelain_fish_pendant"), detail: "它把孩子、沈月娥和陆景川的身份线连起来。" },
+        { label: "终局让沈月娥开口", achieved: state.flags.usedMotherKeyFinale === true || hidden.FinalChoice === "shen_speaks", detail: "这决定真相是否能由活人共同说出。" },
+        { label: "周启明灭口链", achieved: hidden.ZhouDeathTruth >= 2, detail: "这决定周启明之死是否能从普通命案回到旧账压力。" },
+        { label: "旧报告责任链", achieved: hidden.ChenReportTruth >= 2, detail: "这决定二十年前报告删掉的责任能否补回。" },
+        { label: "陆怀民责任链", achieved: hidden.LuHuaiMinGuiltProof >= 2, detail: "这决定村庄权力是否被放进旧案结构。" },
+        { label: "村庄获利链", achieved: hidden.VillageProfitProof >= 2, detail: "这决定沉默是否不再只是几个凶手的沉默。" },
+        { label: "村民证词", achieved: state.flags.villagerSpoke === true || hidden.VillageWitnessOpened === true, detail: "这决定青瓷庄是否有人愿意承担自己的那一份。" },
+        { label: "父亲线", achieved: state.vars.FatherClue >= 3, detail: "这决定林知夏能否接上父亲当年没能带出的证词。" },
+        { label: "暗流临界", achieved: state.vars.RevengeTimer <= 5, detail: "这决定陆景川是否还有机会听见火以外的声音。" }
+      ];
+    }
+
     function renderEnding() {
-      const endingKey = state.hidden?.EndingKey || evaluateEnding();
+      const endingKey = state.hidden?.EndingKey || "A";
       const ending = endingDefinitions[endingKey] || endingDefinitions.A;
-      state.analytics = state.analytics || {};
-      const coreCount = state.evidence.filter(item => item.type === "core").length;
-      const clueCount = state.evidence.filter(item => item.type === "clue").length;
-      const obsCount = state.evidence.filter(item => item.type === "obs").length;
-      const riskCount = state.evidence.filter(item => item.type === "risk").length;
-      const solved = Object.keys(state.deduction?.combinationResults || {});
+      const reviewHints = getEndingReviewHints();
       document.getElementById("scenePanel").innerHTML = `
-        <div class="scene-head">
-          <div class="tag">${endingKey}</div>
-          <div>
-            <h2>${ending.title}</h2>
-            <p class="small">${ending.subtitle} · ${VERSION_LABEL}</p>
+        <div class="ending-immersive">
+          <div class="ending-inner">
+            <div class="ending-kicker">结局 ${endingKey} · ${VERSION_LABEL}</div>
+            <h2 class="ending-title">${ending.title}</h2>
+            <div class="ending-subtitle">${ending.subtitle}</div>
+            ${renderEndingLines(ending.lines || [])}
+            <div class="ending-section">
+              ${renderEndingLines(ending.afterword || [], (ending.lines || []).length)}
+            </div>
+            <div class="ending-section">
+              <button class="secondary" id="endingReasonBtn">查看本结局形成原因</button>
+              <div class="ending-review" id="endingReview">
+                <h3>本结局为什么发生</h3>
+                <p>${getEndingReasonText(endingKey)}</p>
+                <h3>关键条件回看</h3>
+                <ul class="summary-list">
+                  ${reviewHints.map(item => `
+                    <li>
+                      <strong>${item.achieved ? "已完成" : "未完成"}｜${item.label}</strong>
+                      <br><span class="small">${item.detail}</span>
+                    </li>
+                  `).join("")}
+                </ul>
+              </div>
+            </div>
+            <div class="ending-actions">
+              <button class="secondary" id="endingHomeBtn">回到首页</button>
+              <button class="secondary" id="endingRestartBtn">重新开始</button>
+              <button class="secondary" id="endingSaveBtn">打开存档</button>
+              ${isDevUnlocked() ? `<button class="secondary" id="endingDevBtn">开发者控制台</button>` : ""}
+            </div>
           </div>
         </div>
-        <div class="ending-box">
-          ${ending.text.map(line => `<p>${line}</p>`).join("")}
-
-          <h3>进入该结局的关键状态</h3>
-          <ul class="summary-list">
-            <li>旧案证据完整度：${state.vars.EvidenceScore}</li>
-            <li>沈月娥嫌疑值：${state.vars.ShenSuspicion}</li>
-            <li>暗流临界：${state.vars.RevengeTimer}</li>
-            <li>周启明灭口链：${state.hidden?.ZhouDeathTruth || 0}</li>
-            <li>旧报告责任链：${state.hidden?.ChenReportTruth || 0}</li>
-            <li>陆怀民责任链：${state.hidden?.LuHuaiMinGuiltProof || 0}</li>
-            <li>陆景川身份链：${state.hidden?.LuIdentityProof || 0}</li>
-            <li>村庄获利链：${state.hidden?.VillageProfitProof || 0}</li>
-            <li>母亲钥匙：${state.hidden?.MotherKey || 0}</li>
-          </ul>
-
-          <h3>证据池数量</h3>
-          <p>关键证物 ${coreCount} · 重要线索 ${clueCount} · 观察记录 ${obsCount} · 待验证/误导 ${riskCount}</p>
-
-          <h3>完成的推理组合</h3>
-          <p>${solved.length ? solved.map(id => deductionCombinationById(id)?.label || id).join("、") : "暂无"}</p>
-
-          <h3>回看提示</h3>
-          <ul class="summary-list">
-            ${renderHiddenHints()}
-          </ul>
-        </div>
       `;
+      const reasonBtn = document.getElementById("endingReasonBtn");
+      if (reasonBtn) reasonBtn.addEventListener("click", () => {
+        const review = document.getElementById("endingReview");
+        if (review) review.classList.toggle("show");
+      });
+      const homeBtn = document.getElementById("endingHomeBtn");
+      if (homeBtn) homeBtn.addEventListener("click", goHomeScreen);
+      const restartBtn = document.getElementById("endingRestartBtn");
+      if (restartBtn) restartBtn.addEventListener("click", restartGameFromHome);
+      const saveBtn = document.getElementById("endingSaveBtn");
+      if (saveBtn) saveBtn.addEventListener("click", openSaveModal);
+      const devBtn = document.getElementById("endingDevBtn");
+      if (devBtn) devBtn.addEventListener("click", openDevModal);
     }
 
     function feedbackTemplate() {
@@ -4488,7 +4971,8 @@
       ["第六章", [
         ["第六章：真相回放", "CH6_TRUTH_REPLAY"],
         ["第六章：旧窑终局", "CH6_FINAL_KILN"],
-        ["第六章：终局选择", "CH6_FINAL_CHOICE"]
+        ["第六章：终局选择", "CH6_FINAL_CHOICE"],
+        ["第六章：终局黑场", "CH6_ENDING_GATE"]
       ]],
       ["结局", [
         ["结局 A 真相公开", "ENDING_A"],
@@ -4575,7 +5059,7 @@
       const box = document.getElementById("devConsole");
       if (!box) return;
       const label = state.ended ? { no: "结局", title: endingDefinitions[state.hidden?.EndingKey]?.title || "终局结算" } : sceneLabel(state.sceneId);
-      const currentEnding = state.ended ? (state.hidden?.EndingKey || "已进入结局") : "未进入结局";
+      const endingStatus = state.ended ? (state.hidden?.EndingKey || "已进入结局") : "未进入结局";
       box.innerHTML = `
         <section class="dev-section">
           <h3>当前状态</h3>
@@ -4586,7 +5070,7 @@
             ${devStatusItem("当前场景标题", `${label.no || ""} ${label.title || ""}`)}
             ${devStatusItem("当前路线", state.hidden?.SecondChapterRoute || state.route?.name || "未设置")}
             ${devStatusItem("已获得证据数量", String((state.evidence || []).length))}
-            ${devStatusItem("当前结局", currentEnding)}
+            ${devStatusItem("结局状态", endingStatus)}
           </div>
           <h3>当前变量</h3>
           <div class="dev-status-grid">${Object.keys(variableNames).map(key => devStatusItem(`${key} / ${variableNames[key]}`, state.vars[key])).join("")}</div>
@@ -4655,6 +5139,9 @@
             <button class="secondary" data-dev-preset="ch6_revenge">开发预设：第六章开始，复仇爆表条件</button>
             <button class="secondary" data-dev-preset="ch6_scapegoat">开发预设：第六章开始，替罪羊条件</button>
             <button class="secondary" data-dev-preset="ch6_bad">开发预设：第六章开始，坏结局条件</button>
+            <button class="secondary" data-dev-preset="ch6_mother_complete">开发预设：终局母亲钥匙完整状态</button>
+            <button class="secondary" data-dev-preset="ch6_mother_missing">开发预设：终局母亲钥匙缺失状态</button>
+            <button class="secondary" data-dev-preset="ending_e_review">开发预设：E 结局完整回看</button>
           </div>
         </section>
       `;
@@ -4969,6 +5456,59 @@
           applyEndingPreset("D");
           state.sceneId = "CH6_FINAL_CHOICE";
           break;
+        case "ch6_mother_complete":
+          devGrantEvidenceSet("final");
+          state.vars = {
+            ...state.vars,
+            EvidenceScore: 8,
+            ShenSuspicion: 2,
+            RevengeTimer: 4
+          };
+          state.hidden = {
+            ...initialHiddenState(),
+            ...(state.hidden || {}),
+            MotherKey: 3,
+            ShenWillIntervene: true,
+            LuIdentityProof: 3,
+            ZhouDeathTruth: 2,
+            ChenReportTruth: 2,
+            VillageProfitProof: 2,
+            LuHuaiMinGuiltProof: 2,
+            FinalChoice: "shen_speaks"
+          };
+          state.flags.usedMotherKeyFinale = true;
+          state.sceneId = "CH6_FINAL_CHOICE";
+          break;
+        case "ch6_mother_missing":
+          devGrantEvidenceSet("final");
+          state.vars = {
+            ...state.vars,
+            EvidenceScore: 8,
+            ShenSuspicion: 4,
+            RevengeTimer: 6
+          };
+          state.hidden = {
+            ...initialHiddenState(),
+            ...(state.hidden || {}),
+            MotherKey: 0,
+            ShenWillIntervene: false,
+            LuIdentityProof: 2,
+            ZhouDeathTruth: 2,
+            ChenReportTruth: 2,
+            VillageProfitProof: 2,
+            LuHuaiMinGuiltProof: 2,
+            FinalChoice: ""
+          };
+          state.flags.usedMotherKeyFinale = false;
+          state.sceneId = "CH6_FINAL_CHOICE";
+          break;
+        case "ending_e_review":
+          applyEndingPreset("E");
+          devGrantEvidenceSet("all");
+          state.hidden.EndingKey = "E";
+          state.sceneId = "ENDING_E";
+          state.ended = true;
+          break;
       }
       state.viewMode = "play";
       state.reviewSceneId = null;
@@ -5143,7 +5683,11 @@
     function loadFromSlot(slotIndex) {
       const slot = getSaveSlots()[slotIndex];
       if (!slot || !slot.state) return;
+      forceNewStartOnHome = false;
       state = normalizeLoadedState(cloneState(slot.state));
+      normalizeAllStats();
+      state.viewMode = "play";
+      state.reviewSceneId = null;
       hasStartedSession = true;
       addLog({ message: `读取存档槽 ${slotIndex + 1}`, type: "load" });
       saveState();
@@ -5153,6 +5697,7 @@
         version: VERSION_LABEL
       });
       closeSaveModal();
+      document.body.classList.remove("is-start-screen");
       render();
       scrollToTop();
     }
