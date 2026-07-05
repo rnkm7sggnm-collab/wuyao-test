@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>《雾窑》v0.4.1 全剧情文本试玩版</title>
+  <title>《雾窑》v0.4.2 全剧情文本试玩版</title>
   <style>
     :root {
       --bg: #121313;
@@ -938,6 +938,15 @@
       display: block;
     }
 
+    .ending-afterword {
+      display: none;
+      margin-top: 18px;
+    }
+
+    .ending-afterword.show {
+      display: block;
+    }
+
     .ending-actions {
       margin-top: 38px;
       display: flex;
@@ -1452,28 +1461,439 @@
       filter: blur(5px);
     }
 
-    @media (max-width: 920px) {
+    @media (max-width: 760px) {
+      body {
+        padding-bottom: calc(120px + env(safe-area-inset-bottom));
+      }
+
+      body.mobile-drawer-open {
+        overflow: hidden;
+      }
+
+      header {
+        padding: 8px 12px;
+        justify-content: center;
+        align-items: center;
+      }
+
+      header h1,
+      .header-progress-wrap {
+        display: none;
+      }
+
+      h2 {
+        font-size: 19px;
+      }
+
+      .header-meta {
+        display: none;
+      }
+
+      .small {
+        font-size: 12px;
+      }
+
+      .mobile-overview-rope {
+        display: inline-flex;
+        min-height: 36px;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 7px 16px;
+        border-color: rgba(210,164,95,.38);
+        border-radius: 999px;
+        color: var(--accent);
+        background: rgba(210,164,95,.07);
+        text-align: center;
+      }
+
+      .mobile-overview-rope::before,
+      .mobile-overview-rope::after {
+        content: "";
+        width: 16px;
+        height: 1px;
+        background: rgba(210,164,95,.5);
+      }
+
+      .mobile-overview-panel {
+        position: fixed;
+        left: 12px;
+        right: 12px;
+        top: 10px;
+        z-index: 7200;
+        display: block;
+        transform: translateY(-120%);
+        transition: transform .28s ease;
+        background: rgba(18,19,19,.98);
+        border: 1px solid rgba(210,164,95,.24);
+        border-radius: 14px;
+        padding: 14px;
+        box-shadow: 0 18px 48px rgba(0,0,0,.5);
+      }
+
+      .mobile-overview-panel.open {
+        transform: translateY(0);
+      }
+
+      .mobile-overview-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 6px;
+        margin-bottom: 10px;
+      }
+
+      .mobile-overview-head h3 {
+        margin: 0;
+      }
+
+      .top-actions {
+        display: none;
+      }
+
       main {
-        width: min(100% - 28px, 720px);
-        grid-template-columns: 1fr;
+        width: 100%;
+        margin: 0;
+        display: block;
       }
+
+      #scenePanel {
+        min-height: 100vh;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 18px 18px calc(120px + env(safe-area-inset-bottom)) 28px;
+        background: var(--bg);
+      }
+
+      .scene-head {
+        gap: 10px;
+        border-bottom: 1px solid rgba(255,255,255,.08);
+        margin-bottom: 12px;
+      }
+
+      .tag {
+        font-size: 12px;
+        padding: 3px 9px;
+      }
+
       .side, .right-stack, .thought-panel, .evidence-side {
-        position: static;
-        max-height: none;
-        overflow: visible;
+        display: none;
       }
+
       .deduction-panel,
       .record-panel {
         max-height: none;
       }
+
+      .button-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .clickable-card {
+        grid-template-rows: auto;
+        min-height: 0;
+      }
+
+      .clickable-card button {
+        min-height: auto;
+        padding: 11px 12px;
+      }
+
+      .item-hint {
+        min-height: auto;
+        max-height: none;
+        font-size: 13px;
+      }
+
+      .choices-wrap {
+        position: fixed;
+        left: 10px;
+        right: 10px;
+        bottom: calc(12px + env(safe-area-inset-bottom));
+        z-index: 6200;
+        padding: 10px;
+        border: 1px solid rgba(210,164,95,.22);
+        border-radius: 16px;
+        background: rgba(18,19,19,.96);
+        box-shadow: 0 -10px 40px rgba(0,0,0,.45);
+        max-height: 48vh;
+        overflow: auto;
+      }
+
+      .choices-wrap.is-locked {
+        display: none;
+      }
+
+      button.choice {
+        margin: 8px 0;
+        padding: 12px 13px;
+        border-radius: 12px;
+        background: rgba(255,255,255,.045);
+      }
+
+      button.choice strong {
+        font-size: 14px;
+      }
+
+      .next-row {
+        position: fixed;
+        left: 10px;
+        right: 10px;
+        bottom: calc(12px + env(safe-area-inset-bottom));
+        z-index: 6100;
+        margin: 0;
+        justify-content: stretch;
+      }
+
+      .next-row.is-waiting {
+        display: none;
+      }
+
+      .next-row button {
+        width: 100%;
+        text-align: center;
+        border-radius: 999px;
+        padding: 13px 16px;
+      }
+
+      .description,
+      .dialogue,
+      .feedback,
+      .inline-reaction,
+      .context-echo {
+        border-radius: 12px;
+        padding: 13px 14px;
+        font-size: 15px;
+        line-height: 1.82;
+      }
+
+      .intro-panel {
+        min-height: calc(100vh - 40px);
+      }
+
+      .intro-text {
+        font-size: 20px;
+      }
+
+      .start-screen {
+        padding: 22px;
+      }
+
+      .start-title {
+        font-size: 38px;
+        letter-spacing: .22em;
+      }
+
+      .cinematic-inner,
+      .ending-inner {
+        padding: 34px 18px 32px;
+      }
+
+      .cinematic-story {
+        font-size: 17px;
+        line-height: 1.9;
+      }
+
+      .ending-line {
+        font-size: 16px;
+        line-height: 1.9;
+      }
+
       .version-badge {
         right: 14px;
-        bottom: 226px;
+        bottom: 94px;
       }
-      .header-progress-track { height: 5px; }
-      .header-progress-label { font-size: 11px; }
+
       .vars-grid { grid-template-columns: repeat(2, 1fr); }
-      body { padding-bottom: 230px; }
+
+      body.dev-unlocked {
+        padding-bottom: 290px;
+      }
+
+      body.dev-unlocked .vars-bar {
+        bottom: 72px;
+        max-height: 205px;
+        overflow: auto;
+        padding: 8px 10px;
+      }
+
+      .vars-grid {
+        gap: 6px;
+      }
+
+      .mobile-rope-btn {
+        position: fixed;
+        left: 0;
+        top: 42%;
+        width: 22px;
+        height: 96px;
+        z-index: 6500;
+        display: block;
+        border: 0;
+        background: transparent;
+        padding: 0;
+      }
+
+      .mobile-rope-btn::before {
+        content: "";
+        position: absolute;
+        left: 8px;
+        top: 0;
+        width: 2px;
+        height: 96px;
+        background: rgba(210,164,95,.72);
+        box-shadow: 0 0 10px rgba(210,164,95,.18);
+      }
+
+      .mobile-rope-btn::after {
+        content: "";
+        position: absolute;
+        left: 3px;
+        bottom: 8px;
+        width: 12px;
+        height: 12px;
+        border: 2px solid rgba(210,164,95,.82);
+        border-radius: 50%;
+        background: rgba(18,19,19,.9);
+      }
+
+      .mobile-drawer-scrim {
+        position: fixed;
+        inset: 0;
+        z-index: 6990;
+        display: none;
+        background: rgba(0,0,0,.45);
+        backdrop-filter: blur(5px);
+      }
+
+      .mobile-drawer-scrim.open {
+        display: block;
+      }
+
+      .mobile-system-drawer {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: min(82vw, 360px);
+        z-index: 7000;
+        display: block;
+        transform: translateX(-100%);
+        transition: transform .28s ease;
+        background: rgba(18,19,19,.97);
+        border-right: 1px solid var(--line);
+        box-shadow: 18px 0 40px rgba(0,0,0,.48);
+        overflow: auto;
+        padding: 14px 12px calc(18px + env(safe-area-inset-bottom));
+      }
+
+      .mobile-system-drawer.open {
+        transform: translateX(0);
+      }
+
+      .mobile-drawer-tabs {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        display: flex;
+        gap: 6px;
+        padding: 0 0 12px;
+        background: rgba(18,19,19,.97);
+      }
+
+      .mobile-drawer-tabs button {
+        flex: 1;
+        padding: 8px 6px;
+        border-radius: 999px;
+        text-align: center;
+        font-size: 12px;
+      }
+
+      .mobile-drawer-tabs button.is-active {
+        border-color: rgba(210,164,95,.76);
+        background: rgba(210,164,95,.16);
+        color: var(--text);
+      }
+
+      .mobile-drawer-content {
+        display: grid;
+        gap: 12px;
+      }
+
+      .mobile-drawer-content .evidence-filter-row,
+      .mobile-drawer-content .dev-action-grid,
+      .mobile-action-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .mobile-drawer-content .evidence-pool,
+      .mobile-drawer-content .combination-list,
+      .mobile-drawer-content .log-list {
+        max-height: none;
+      }
+
+      .mobile-system-card {
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 12px;
+        padding: 12px;
+        background: rgba(255,255,255,.035);
+      }
+
+      .mobile-system-card h3 {
+        margin-top: 0;
+      }
+
+      body.is-start-screen .mobile-rope-btn,
+      body.is-start-screen .mobile-overview-rope,
+      body.is-start-screen .mobile-overview-panel,
+      body.is-start-screen .mobile-system-drawer,
+      body.is-start-screen .mobile-drawer-scrim {
+        display: none;
+      }
+
+      body.is-ending .mobile-rope-btn,
+      body.is-ending .mobile-overview-rope {
+        opacity: .18;
+      }
+
+      body.is-ending .mobile-rope-btn:hover,
+      body.is-ending .mobile-overview-rope:hover {
+        opacity: 1;
+      }
+
+      body.is-ending main,
+      body.is-cinematic main {
+        width: 100%;
+        margin: 0;
+        display: block;
+      }
+
+      body.is-ending #scenePanel,
+      body.is-cinematic #scenePanel {
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 18px 18px calc(120px + env(safe-area-inset-bottom)) 28px;
+      }
+
+      .version-badge {
+        pointer-events: auto;
+      }
+
+    }
+
+    @media (max-width: 760px) and (orientation: landscape) {
+      #scenePanel {
+        padding-bottom: calc(96px + env(safe-area-inset-bottom));
+      }
+
+      .choices-wrap {
+        max-height: 56vh;
+      }
     }
   </style>
   <!-- Google tag (gtag.js) -->
@@ -1491,8 +1911,8 @@
 <body>
   <header>
     <div class="header-stack">
-      <h1>《雾窑》v0.4.1 全剧情文本试玩版</h1>
-      <div class="header-meta" id="headerMeta">测试版本：v0.4.1-full-text-demo</div>
+      <h1>《雾窑》v0.4.2 全剧情文本试玩版</h1>
+      <div class="header-meta" id="headerMeta">测试版本：v0.4.2-full-text-demo</div>
       <div class="header-progress-wrap">
         <div class="header-progress-track">
           <div id="headerProgressBar" class="header-progress-bar"></div>
@@ -1500,6 +1920,7 @@
         <div id="headerProgressLabel" class="header-progress-label"></div>
       </div>
     </div>
+    <button class="secondary mobile-overview-rope" id="mobileOverviewBtn" hidden>当前章节</button>
     <div class="top-actions">
       <button class="secondary" id="directoryBtn">目录</button>
       <button class="secondary" id="saveBtn">存档</button>
@@ -1531,7 +1952,19 @@
     </aside>
   </main>
 
-  <div class="version-badge">v0.4.1-full-text-demo</div>
+  <button id="mobileRopeBtn" class="mobile-rope-btn" aria-label="打开证据与推理" hidden><span></span></button>
+  <div id="mobileDrawerScrim" class="mobile-drawer-scrim" aria-hidden="true" hidden></div>
+  <div id="mobileSystemDrawer" class="mobile-system-drawer" aria-hidden="true" hidden>
+    <div class="mobile-drawer-tabs">
+      <button class="secondary" data-mobile-tab="evidence">证据池</button>
+      <button class="secondary" data-mobile-tab="deduction">推理台</button>
+      <button class="secondary" data-mobile-tab="log">活动记录</button>
+    </div>
+    <div id="mobileDrawerContent" class="mobile-drawer-content"></div>
+  </div>
+  <div id="mobileOverviewPanel" class="mobile-overview-panel" aria-hidden="true" hidden></div>
+
+  <div class="version-badge">v0.4.2-full-text-demo</div>
 
   <div class="vars-bar">
     <div class="vars-grid" id="varsGrid"></div>
@@ -1592,7 +2025,7 @@
     const DEV_UNLOCK_KEY = "wuyao_dev_unlocked";
     const DEV_PASS = "wuyao-v04-7742";
     const MAX_VISITS = 3;
-    const VERSION_LABEL = "v0.4.1-full-text-demo";
+    const VERSION_LABEL = "v0.4.2-full-text-demo";
     const MEDIA_DIR_LABEL = "prototype/assets/media/";
     const MEDIA_RELATIVE_DIR = "assets/media/";
 
@@ -1638,7 +2071,7 @@
     ];
 
     function applyAssetPathsFromExpectedFiles() {
-      // v0.4.1-full-text-demo: 当前只预留逻辑，不主动检查文件是否存在，也不加载不存在的文件。
+      // v0.4.2-full-text-demo: 当前只预留逻辑，不主动检查文件是否存在，也不加载不存在的文件。
       // 后续替换素材步骤：
       // 1. 用户把所有素材放进 prototype/assets/media/
       // 2. 文件名尽量与 expectedFiles.fileName 保持一致
@@ -2384,8 +2817,14 @@
         description: "走廊另一端忽然响起木门撞墙的声音。陈伯远把报告残页塞回药箱，手却抖得扣不上锁。林知夏第一次清楚意识到：旧报告并不是一张过期纸，它还在杀人，也还在保护某些活着的人。",
         goal: "形成第三章结论：何青山确实死于火场，但火不是事故。",
         dialogue: [
-          "陈伯远：“不是火……先死人。”",
-          "他说完这句，走廊灯又暗了一下。",
+          "走廊另一端忽然传来一声闷响。",
+          "林知夏再回到门口时，陈伯远的药箱翻在地上。",
+          "录音笔滚到搪瓷盆边，红灯还亮着。",
+          "里面只有一句话反复被雨声打断：",
+          "“火不是事故。”",
+          "陈伯远：“他……确实死在火里。”",
+          "陈伯远：“但火……不是自己烧起来的。”",
+          "陈伯远：“报告删掉的，不是死因，是他们动过手。”",
           "林知夏知道下一扇门在祠堂。"
         ],
         clickables: [
@@ -2394,9 +2833,9 @@
           { id: "ch3_shrine_direction", label: "祠堂方向的脚步声", text: "脚步声从祠堂那边停住，像有人一直在听。", hiddenEffects: { LuHuaiMinGuiltProof: 1 }, evidence: { id: "shrine_listening_steps", type: "clue", name: "祠堂方向有人听墙", detail: "有人不希望陈伯远继续说下去。" } }
         ],
         choices: [
-          { label: "A", text: "把第三章结论写成：火不是事故。", effects: { EvidenceScore: 1 }, hiddenEffects: { ChenReportTruth: 1 }, evidence: { id: "fire_not_accident_conclusion", type: "core", name: "火不是事故的阶段结论", detail: "何青山确实死于火场，但火不是事故。" }, short: "林知夏没有写凶手，只写下报告删掉的是责任。" },
-          { label: "B", text: "立刻去找陆怀民。", effects: { VillageSilence: 1, RevengeTimer: 1 }, hiddenEffects: { LuHuaiMinGuiltProof: 1 }, evidence: { id: "go_to_luhuai_after_report", type: "clue", name: "报告线指向陆怀民", detail: "陈伯远的说法把祠堂和旧报告连起来。" }, short: "这个选择很危险，但祠堂不会再只是背景。" },
-          { label: "C", text: "先通知沈月娥陈伯远开口了。", effects: { ShenSuspicion: -1, VillageSilence: -1 }, hiddenEffects: { MotherKey: 1, ShenWillIntervene: true }, evidence: { id: "tell_shen_chen_spoke", type: "clue", name: "沈月娥得知陈伯远开口", detail: "沈月娥沉默很久，只问：他有没有说孩子。" }, short: "沈月娥第一次主动问到了孩子。" }
+          { label: "A", text: "先救陈伯远。", effects: { VillageSilence: -1, EvidenceScore: 1 }, hiddenEffects: { ChenReportTruth: 1 }, evidence: { id: "chen_report_incomplete_version", type: "core", name: "旧报告残缺版", detail: "陈伯远活到第四章前段，但报告里最关键的一页被雨水泡花。" }, short: "陈伯远活到第四章前段，但报告里最关键的一页被雨水泡花。" },
+          { label: "B", text: "先抢旧报告。", effects: { EvidenceScore: 2, SelfDoubt: 1 }, hiddenEffects: { ChenReportTruth: 1 }, evidence: { id: "old_report_key_page", type: "core", name: "旧报告关键页", detail: "林知夏抓住了纸，却没能第一时间扶住陈伯远。" }, short: "林知夏抓住了纸，却没能第一时间扶住陈伯远。" },
+          { label: "C", text: "喊所有人过来。", effects: { VillageSilence: 1 }, hiddenEffects: { ChenReportTruth: 1 }, evidence: { id: "public_old_report_exists", type: "core", name: "公开存在的旧报告", detail: "村民都看见报告存在，也都开始计算自己该沉默到哪里。" }, short: "村民都看见报告存在，也都开始计算自己该沉默到哪里。" }
         ],
         next: "CH4_SHRINE_GATHER"
       },
@@ -2608,12 +3047,17 @@
         chapter: 4,
         sceneType: "investigation",
         title: "陆怀民遗言",
-        description: "祠堂门刚合上，外头传来一声闷响。陆怀民倒在香案边，手指抓住族谱墙下方那块补纸，像要撕，又像要护。陆景川第一个冲过去，沈月娥却比他更快喊出别碰。灯光在每个人脸上跳了一下，二十年的沉默终于露出血色。",
+        description: "陆怀民突然转身，冲向族谱墙下的暗格。林知夏看见他手里攥着几张发黄的纸。不是账。是出生记录。陆景川扑过去，两人在祠堂前撞在一起。烛台翻倒，旧木梁发出一声闷响。那一刻不像临死交代，更像陆怀民最后一次毁证。",
         goal: "记录陆怀民遗言，进入废窑和孩子线。",
         dialogue: [
-          "陆怀民断断续续：“不是她。”",
-          "他看向沈月娥，又像越过她看向另一个人：“是孩子。”",
-          "最后一句轻得像灰：“别让她知道……不，已经晚了。”"
+          "陆怀民：“不能让他知道。”",
+          "陆景川：“我已经知道得够多了。”",
+          "陆怀民：“你不知道。”",
+          "陆怀民：“你不知道你是谁，也不知道你要烧的是什么。”",
+          "陆怀民倒下时，终于看向沈月娥：",
+          "陆怀民：“不是她……是孩子。”",
+          "他喘了一口气：",
+          "陆怀民：“是我抱走的那个孩子。”"
         ],
         clickables: [
           { id: "ch4_last_words", label: "陆怀民遗言", text: "“不是她。是孩子。”这不是完整指认，更像临死前终于承认自己藏过的人。", hiddenEffects: { LuIdentityProof: 1, LuHuaiMinGuiltProof: 1 }, evidence: { id: "luhuai_min_last_words", type: "core", name: "陆怀民遗言：不是她，是孩子", detail: "遗言把沈月娥和孩子从嫌疑结构里分开。" } },
@@ -2633,6 +3077,7 @@
         chapter: 5,
         sceneType: "chapterIntro",
         title: "废窑暗格",
+        dynamicHeLastImage: true,
         description: "废窑口被雨水灌得发亮，黑砖像一排闭着的牙。林知夏把手电照进去，光很快被窑壁吃掉。父亲笔记里缺掉的那几页仿佛就在里面等她。身后有人跟来，又有人停在雨里不肯靠近。",
         goal: "进入旧案核心空间，寻找身份链和获利链证据。",
         dialogue: [
@@ -2658,6 +3103,7 @@
         chapter: 5,
         sceneType: "investigation",
         title: "青瓷鱼坠",
+        dynamicHeLastImage: true,
         description: "油纸被打开，里面不是金银，而是一枚小小的青瓷鱼坠。鱼尾缺了一角，腹部刻着一个浅浅的“川”。沈月娥看见它时，脸上的血色一点点退下去。林知夏忽然明白，二十年前被藏起来的，不只是一场火。",
         goal: "推进母亲钥匙与陆景川身份链，但仍不让真相一次性说透。",
         dialogue: [
@@ -2958,6 +3404,10 @@
     let forceNewStartOnHome = false;
     let transitionTimer = null;
     let animationFrameId = null;
+    let mobileActiveTab = "evidence";
+    let mobileVersionTapCount = 0;
+    let mobileVersionTapTimer = null;
+    let mobileTouchStartX = 0;
     let state = loadState() || createInitialState();
 
     function createInitialState() {
@@ -2974,7 +3424,7 @@
         clicked: {},
         selectedChoices: {},
         selectedByScene: {},
-        latestFeedback: "从前情开始。v0.4.1 全剧情文本试玩版已开启。",
+        latestFeedback: "从前情开始。v0.4.2 全剧情文本试玩版已开启。",
         evidence: [],
         log: [],
         logs: [],
@@ -3050,6 +3500,8 @@
       hideModalBackdrop("modalBackdrop");
       hideModalBackdrop("saveModalBackdrop");
       hideModalBackdrop("devModalBackdrop");
+      if (typeof closeMobileDrawer === "function") closeMobileDrawer();
+      if (typeof closeMobileOverview === "function") closeMobileOverview();
       const particleLayer = document.getElementById("particleTransition");
       if (particleLayer) particleLayer.classList.remove("active");
       const canvas = document.getElementById("particleCanvas");
@@ -3435,6 +3887,7 @@
       renderThoughtPanel();
       renderRecordRail();
       renderVars();
+      syncMobileShell();
       saveState();
     }
 
@@ -3447,7 +3900,7 @@
         <div class="start-screen">
           <div class="start-card">
             <div class="start-title">雾窑</div>
-            <div class="start-subtitle">v0.4.1 全剧情文本试玩版</div>
+            <div class="start-subtitle">v0.4.2 全剧情文本试玩版</div>
             ${hasAutoSave ? `
               <button class="start-button" id="continueGameBtn">继续游戏</button>
               <button class="start-button" id="loadSaveFromHomeBtn">读取存档</button>
@@ -3809,7 +4262,7 @@
     }
 
     function renderAssetBlock(asset = {}) {
-      // v0.4.1-full-text-demo: 素材字段暂时保留，当前版本不在页面显示。
+      // v0.4.2-full-text-demo: 素材字段暂时保留，当前版本不在页面显示。
       // 后续接入真实图片、视频、音效时再启用。
       return "";
     }
@@ -3839,7 +4292,7 @@
     }
 
     function renderAssetCue(cue = {}) {
-      // v0.4.1-full-text-demo: 线索素材字段暂时保留，当前版本不在页面显示。
+      // v0.4.2-full-text-demo: 线索素材字段暂时保留，当前版本不在页面显示。
       return "";
     }
 
@@ -3901,7 +4354,8 @@
       const dynamicBlocks = [
         scene.dynamicSummary ? renderReturnSummary() : "",
         scene.dynamicRoom ? renderRoomReflection() : "",
-        scene.dynamicTruthReplay ? renderTruthReplay() : ""
+        scene.dynamicTruthReplay ? renderTruthReplay() : "",
+        scene.dynamicHeLastImage ? renderHeQingshanLastImage(review) : ""
       ].join("");
 
       document.getElementById("scenePanel").innerHTML = `
@@ -3924,7 +4378,7 @@
         ${hasChoices ? renderChoices(scene, selected, review) : ""}
         ${renderInlineReaction(scene)}
         <div class="feedback">${review ? "这是回溯查看，不会改变林知夏当前判断。" : state.latestFeedback}</div>
-        <div class="next-row">
+        <div class="next-row ${ready ? "is-ready" : "is-waiting"}">
           ${review ? "" : canShowNext ? `<button class="primary" id="nextBtn" ${ready ? "" : "disabled"}>${nextText}</button>` : ""}
         </div>
       `;
@@ -4109,13 +4563,15 @@
 
     function renderChoices(scene, selected, readOnly = false) {
       return `
-        <h3>${scene.id === "CH1_HALL" ? "晚饭后先去找谁" : "玩家选择"}</h3>
-        ${scene.choices.map((choice, index) => `
-          <button class="choice" ${readOnly || selected !== undefined ? "disabled" : ""} data-choice="${index}">
-            <strong>${choice.label}. ${choice.text}</strong>
-            ${renderChoiceDebugEffects(choice.effects || {})}
-          </button>
-        `).join("")}
+        <div class="choices-wrap ${readOnly || selected !== undefined ? "is-locked" : "is-pending"}">
+          <h3>${scene.id === "CH1_HALL" ? "晚饭后先去找谁" : "玩家选择"}</h3>
+          ${scene.choices.map((choice, index) => `
+            <button class="choice" ${readOnly || selected !== undefined ? "disabled" : ""} data-choice="${index}">
+              <strong>${choice.label}. ${choice.text}</strong>
+              ${renderChoiceDebugEffects(choice.effects || {})}
+            </button>
+          `).join("")}
+        </div>
       `;
     }
 
@@ -4796,6 +5252,52 @@
       `;
     }
 
+    function heQingshanLastImageUnlocked() {
+      const hidden = { ...initialHiddenState(), ...(state.hidden || {}) };
+      const byScores = state.vars.EvidenceScore >= 5 && state.vars.FatherClue >= 2 && hidden.VillageProfitProof >= 1;
+      const byEvidence = hasEvidence("fire_scene_trace") && hasEvidence("father_kiln_mark") && hasEvidence("porcelain_fish_pendant");
+      return Boolean(byScores || byEvidence);
+    }
+
+    function heQingshanLastImageLines() {
+      return [
+        "【何青山最后画面】",
+        "何青山在火里醒来。",
+        "第一反应不是喊救命，而是去摸墙。",
+        "他知道门外的人不会回来。",
+        "他只能把真相留给后来的人。",
+        "何青山低声：“月娥，别让孩子进窑。”",
+        "他用碎瓷在墙上刻下不完整的账目符号和一个像鱼尾的痕。",
+        "火光吞上来时，画面切黑。",
+        "只剩一声瓷片落地。"
+      ];
+    }
+
+    function heQingshanTraceLines() {
+      return [
+        "【火场旧痕】",
+        "烟熏层下露出几道不完整的刮痕。",
+        "林知夏能确认这里有人在火里留下过什么。",
+        "但证据还不够，画面无法拼回最后一刻。"
+      ];
+    }
+
+    function renderHeQingshanLastImage(review = false) {
+      const unlocked = heQingshanLastImageUnlocked();
+      if (unlocked && !review && !state.flags.heQingshanLastImageSeen) {
+        applyEffects({ EvidenceScore: 1, FatherClue: 1 });
+        applyHiddenEffects({ FinalTruthReady: true });
+        state.flags.heQingshanLastImageSeen = true;
+      }
+      const lines = unlocked ? heQingshanLastImageLines() : heQingshanTraceLines();
+      return `
+        <h3>${unlocked ? "条件画面" : "火场旧痕"}</h3>
+        <div class="status-card">
+          ${lines.map((line, index) => index === 0 ? `<h3>${escapeHtml(line)}</h3>` : `<p>${escapeHtml(line)}</p>`).join("")}
+        </div>
+      `;
+    }
+
     function personFromKey(keyOrPerson) {
       if (typeof keyOrPerson === "object") return keyOrPerson;
       return people.find(person => person.key === keyOrPerson || person.readKey === keyOrPerson);
@@ -4966,6 +5468,87 @@
       }
     };
 
+    const characterAfterwords = {
+      luJingchuan: {
+        title: "人物后记｜陆景川：火边的人",
+        unlockWhen: endingKey => ["E", "ENDING_E"].includes(String(endingKey || "")),
+        partialUnlockWhen: endingKey => ["A", "B", "C", "D", "ENDING_A", "ENDING_B", "ENDING_C", "ENDING_D"].includes(String(endingKey || "")),
+        partialLines: [
+          "二十年前，陆景川还没有这个名字。",
+          "他被抱出青瓷庄的时候，雨下得很大。",
+          "后来很多年里，他都以为自己只是一个被命运遗漏的人。",
+          "没有父亲。\n没有母亲。\n没有来处。",
+          "这段后记尚未完整解锁。"
+        ],
+        lines: [
+          "二十年前，陆景川还没有这个名字。",
+          "他被抱出青瓷庄的时候，雨下得很大。",
+          "后来很多年里，他都以为自己只是一个被命运遗漏的人。",
+          "没有父亲。\n没有母亲。\n没有来处。",
+          "他学会了把每一句话都听完，把每一个人的沉默都记住。",
+          "他学会了不问自己从哪里来。",
+          "因为没有人愿意回答的问题，问久了，就会变成恨。",
+          "直到他重新回到青瓷庄。",
+          "他起初以为，自己要找的是一个凶手。",
+          "一个名字。\n一双手。\n一个能被证据钉死的人。",
+          "可他越往下查，越发现那场火不是一个人点起来的。",
+          "有人递了锁。\n有人改了报告。\n有人拿走了账。\n有人分了钱。\n有人抱走了孩子。\n更多人什么都没做。",
+          "他们只是沉默。",
+          "可在青瓷庄，沉默从来不是空白。",
+          "沉默是第二把火。",
+          "陆景川曾经很想让火替自己说话。",
+          "因为火不需要别人相信。",
+          "火烧起来的时候，所有人都会看见。",
+          "火不会被压低声音。",
+          "火不会被写成事故。",
+          "火不会在二十年后还被人劝一句：算了。",
+          "所以他回来了。",
+          "他把林知夏请进青瓷庄，不是因为他相信她能救谁。",
+          "他只是想看看，一个外来的人，一个靠写故事活着的人，能不能把那些被青瓷庄藏起来的话，一句一句问出来。",
+          "如果她问不出来，那就让火问。",
+          "可最后，他听见沈月娥叫他的名字。",
+          "不是项目里的名字。",
+          "不是村民嘴里的名字。",
+          "也不是他自己用来撑住仇恨的名字。",
+          "那一声像一只手，从火边伸过来。",
+          "她说：",
+          "孩子以后要做水里的鱼，顺风顺水。",
+          "陆景川那时才明白，原来自己不是从火里生出来的。",
+          "他曾经被人盼望过。",
+          "有人想过让他离开窑。",
+          "有人想过让他走山外的路。",
+          "有人在二十年的沉默里，一直守着一句没能送到的话。",
+          "这比真相更残忍。",
+          "也比仇恨更难承受。",
+          "因为恨可以让人站得很稳。",
+          "爱不行。",
+          "爱会让人发抖。",
+          "陆景川最后没有真正原谅青瓷庄。",
+          "他也不知道自己有没有资格替何青山原谅任何人。",
+          "他只是终于明白：",
+          "如果他点燃那把火，青瓷庄会记住他。",
+          "可他们会用最熟悉的方式记住他。",
+          "他们会说，看吧，疯子的孩子也是疯子。",
+          "他们会说，旧窑的人果然离不开火。",
+          "他们会说，那场火烧得有理由。",
+          "到那时，他就会变成他们最想要的答案。",
+          "所以他放下火。",
+          "不是因为他不恨了。",
+          "而是因为他终于不想再替他们证明，火就是最后的结局。",
+          "雨还在下。",
+          "旧窑没有塌。",
+          "青瓷庄也没有真正干净。",
+          "陆景川站在窑口，第一次不知道自己该往哪里走。",
+          "他还有很多话没有问。",
+          "关于何青山。",
+          "关于沈月娥。",
+          "关于那个被抱走的孩子。",
+          "关于他自己到底该不该回来。",
+          "而这一次，他不想让火替他开口。"
+        ]
+      }
+    };
+
     function solvedKeyReasoningCount(hidden = { ...initialHiddenState(), ...(state.hidden || {}) }) {
       return [
         hidden.ZhouDeathTruth > 0,
@@ -5123,6 +5706,39 @@
       `).join("");
     }
 
+    function normalizeEndingKeyLabel(endingKey = "") {
+      return String(endingKey || "").replace(/^ENDING_/, "");
+    }
+
+    function afterwordUnlocked(afterword, endingKey) {
+      const key = normalizeEndingKeyLabel(endingKey);
+      return Boolean(afterword.unlockWhen?.(key) || afterword.unlockWhen?.(`ENDING_${key}`));
+    }
+
+    function afterwordPartiallyUnlocked(afterword, endingKey) {
+      const key = normalizeEndingKeyLabel(endingKey);
+      return Boolean(afterword.partialUnlockWhen?.(key) || afterword.partialUnlockWhen?.(`ENDING_${key}`));
+    }
+
+    function renderCharacterAfterword(afterwordKey, endingKey) {
+      const afterword = characterAfterwords[afterwordKey];
+      if (!afterword) return "";
+      const full = afterwordUnlocked(afterword, endingKey);
+      const partial = full || afterwordPartiallyUnlocked(afterword, endingKey);
+      if (!partial) return "";
+      const lines = full ? afterword.lines : afterword.partialLines;
+      return `
+        <div class="ending-section">
+          <button class="secondary" id="luJingchuanAfterwordBtn">阅读陆景川后记</button>
+          <div class="ending-afterword" id="luJingchuanAfterword">
+            <h3>${escapeHtml(afterword.title)}</h3>
+            ${full ? "" : `<p class="small">这段后记尚未完整解锁。</p>`}
+            ${renderEndingLines(lines || [], 0)}
+          </div>
+        </div>
+      `;
+    }
+
     function getEndingReasonText(endingKey) {
       const reasons = {
         A: "你完成了核心证据链，并阻止陆景川点火。真相进入现实，但由于母亲钥匙或村民证词不完整，它还没有成为隐藏结局的六份证词。",
@@ -5164,6 +5780,7 @@
             <div class="ending-section">
               ${renderEndingLines(ending.afterword || [], (ending.lines || []).length)}
             </div>
+            ${renderCharacterAfterword("luJingchuan", endingKey)}
             <div class="ending-section">
               <button class="secondary" id="endingReasonBtn">查看本结局形成原因</button>
               <div class="ending-review" id="endingReview">
@@ -5194,6 +5811,13 @@
         const review = document.getElementById("endingReview");
         if (review) review.classList.toggle("show");
       });
+      const afterwordBtn = document.getElementById("luJingchuanAfterwordBtn");
+      if (afterwordBtn) afterwordBtn.addEventListener("click", () => {
+        const afterword = document.getElementById("luJingchuanAfterword");
+        if (!afterword) return;
+        afterword.classList.toggle("show");
+        afterwordBtn.textContent = afterword.classList.contains("show") ? "收起陆景川后记" : "阅读陆景川后记";
+      });
       const homeBtn = document.getElementById("endingHomeBtn");
       if (homeBtn) homeBtn.addEventListener("click", goHomeScreen);
       const restartBtn = document.getElementById("endingRestartBtn");
@@ -5205,7 +5829,7 @@
     }
 
     function feedbackTemplate() {
-      return `《雾窑》v0.4.1-full-text-demo 测试反馈
+      return `《雾窑》v0.4.2-full-text-demo 测试反馈
 我拜访的人物：${visitedPeople().map(person => person.name).join("、")}
 我对每个人物的理解：
 陆怀民：${readLabels[getReadLevel("LuHuaiMin")]}，${getUnderstanding("LuHuaiMin")}
@@ -5236,9 +5860,7 @@
       return hints.map(text => `<li>${text}</li>`).join("");
     }
 
-    function renderEvidencePool() {
-      const box = document.getElementById("evidenceBox");
-      if (!box) return;
+    function buildEvidencePoolMarkup(filterAttr = "data-evidence-filter") {
       const counts = Object.fromEntries(Object.keys(evidenceTypes).map(type => [type, state.evidence.filter(item => item.type === type).length]));
       const active = state.evidenceFilter || "default";
       const filters = [
@@ -5254,10 +5876,10 @@
         if (active === "all") return true;
         return item.type === active;
       });
-      box.innerHTML = `
+      return `
         <div class="evidence-stats">关键证物 ${counts.core || 0} · 重要线索 ${counts.clue || 0} · 观察记录 ${counts.obs || 0} · 待验证 ${counts.risk || 0}</div>
         <div class="evidence-filter-row">
-          ${filters.map(([key, label]) => `<button class="evidence-filter ${active === key ? "is-active" : ""}" data-evidence-filter="${key}">${label}</button>`).join("")}
+          ${filters.map(([key, label]) => `<button class="evidence-filter ${active === key ? "is-active" : ""}" ${filterAttr}="${key}">${label}</button>`).join("")}
         </div>
         <div class="evidence-pool">
           ${visible.length ? visible.map(item => {
@@ -5277,12 +5899,245 @@
           }).join("") : `<p class="small">暂无。</p>`}
         </div>
       `;
-      document.querySelectorAll("[data-evidence-filter]").forEach(button => {
+    }
+
+    function bindEvidenceFilterButtons(selector, afterChange = render) {
+      document.querySelectorAll(selector).forEach(button => {
         button.addEventListener("click", () => {
-          state.evidenceFilter = button.dataset.evidenceFilter;
-          render();
+          state.evidenceFilter = button.dataset.evidenceFilter || button.dataset.mobileEvidenceFilter;
+          afterChange();
         });
       });
+    }
+
+    function renderEvidencePool() {
+      const box = document.getElementById("evidenceBox");
+      if (!box) return;
+      box.innerHTML = buildEvidencePoolMarkup("data-evidence-filter");
+      bindEvidenceFilterButtons("[data-evidence-filter]");
+    }
+
+    function renderMobileEvidenceContent() {
+      return buildEvidencePoolMarkup("data-mobile-evidence-filter");
+    }
+
+    function renderMobileDeductionContent() {
+      state.deduction = { ...initialDeductionState(), ...(state.deduction || {}) };
+      state.deduction.combinationResults = state.deduction.combinationResults || {};
+      const snapshot = buildDeductionSnapshot();
+      const combos = availableDeductionCombinations();
+      return `
+        <div class="deduction-stage">当前阶段：${snapshot.stage}</div>
+        ${renderDeductionSection("当前疑问", snapshot.questions)}
+        ${renderDeductionSection("已形成判断", snapshot.conclusions)}
+        ${renderDeductionSection("待验证方向", snapshot.pending)}
+        ${getChapterNo(activeSceneId()) >= 2 ? `
+          <button class="secondary deduction-toggle" id="mobileDeductionToggleBtn">整理当前证据</button>
+          ${state.deduction.panelOpen ? renderCombinationPanel(combos) : ""}
+        ` : `<div class="deduction-locked">第一章先收集人物与空间异常。第二章开始开放证据组合。</div>`}
+      `;
+    }
+
+    function renderMobileLogContent() {
+      const logs = (state.logs || []).map(normalizeLog);
+      return logs.length
+        ? logs.map((log, index) => `
+          <button class="record-item" ${log.sceneId ? "" : "disabled"} data-mobile-log-index="${index}">
+            <strong>${log.sceneNo || "记录"} ${log.sceneTitle || ""}</strong>
+            <span>${log.message}</span>
+            <span>${log.createdAt || ""}</span>
+          </button>
+        `).join("")
+        : `<p class="small">暂无记录。</p>`;
+    }
+
+    function isMobileLayout() {
+      try {
+        return window.matchMedia ? window.matchMedia("(max-width: 760px)").matches : window.innerWidth <= 760;
+      } catch {
+        return false;
+      }
+    }
+
+    function renderMobileDrawerContent(tab = mobileActiveTab) {
+      const drawer = document.getElementById("mobileSystemDrawer");
+      const box = document.getElementById("mobileDrawerContent");
+      if (!drawer || !box) return;
+      mobileActiveTab = tab || "evidence";
+      drawer.querySelectorAll("[data-mobile-tab]").forEach(button => {
+        button.classList.toggle("is-active", button.dataset.mobileTab === mobileActiveTab);
+      });
+      const titleMap = {
+        evidence: "证据池",
+        deduction: "推理台",
+        log: "活动记录"
+      };
+      const contentMap = {
+        evidence: renderMobileEvidenceContent,
+        deduction: renderMobileDeductionContent,
+        log: renderMobileLogContent
+      };
+      box.innerHTML = `
+        <div class="mobile-system-card">
+          <h3>${titleMap[mobileActiveTab] || "证据池"}</h3>
+          ${contentMap[mobileActiveTab] ? contentMap[mobileActiveTab]() : renderMobileEvidenceContent()}
+        </div>
+      `;
+      bindEvidenceFilterButtons("[data-mobile-evidence-filter]", () => renderMobileDrawerContent("evidence"));
+      const mobileDeductionToggleBtn = document.getElementById("mobileDeductionToggleBtn");
+      if (mobileDeductionToggleBtn) {
+        mobileDeductionToggleBtn.addEventListener("click", () => {
+          state.deduction.panelOpen = !state.deduction.panelOpen;
+          renderMobileDrawerContent("deduction");
+        });
+      }
+      box.querySelectorAll("[data-combo]").forEach(button => {
+        button.addEventListener("click", () => applyDeductionCombination(button.dataset.combo));
+      });
+      box.querySelectorAll("[data-mobile-log-index]").forEach(button => {
+        const logs = (state.logs || []).map(normalizeLog);
+        button.addEventListener("click", () => {
+          closeMobileDrawer();
+          openLogReview(logs[Number(button.dataset.mobileLogIndex)]);
+        });
+      });
+    }
+
+    function openMobileDrawer(tab = mobileActiveTab) {
+      closeMobileOverview();
+      renderMobileDrawerContent(tab);
+      const drawer = document.getElementById("mobileSystemDrawer");
+      const scrim = document.getElementById("mobileDrawerScrim");
+      if (!drawer || !scrim) return;
+      drawer.hidden = false;
+      scrim.hidden = false;
+      drawer.classList.add("open");
+      drawer.setAttribute("aria-hidden", "false");
+      scrim.classList.add("open");
+      scrim.setAttribute("aria-hidden", "false");
+      document.body.classList.add("mobile-drawer-open");
+    }
+
+    function closeMobileDrawer() {
+      const drawer = document.getElementById("mobileSystemDrawer");
+      const scrim = document.getElementById("mobileDrawerScrim");
+      if (drawer) {
+        drawer.classList.remove("open");
+        drawer.setAttribute("aria-hidden", "true");
+        drawer.hidden = !isMobileLayout() || !hasStartedSession;
+      }
+      if (scrim) {
+        scrim.classList.remove("open");
+        scrim.setAttribute("aria-hidden", "true");
+        scrim.hidden = true;
+      }
+      document.body.classList.remove("mobile-drawer-open");
+    }
+
+    function renderMobileOverviewPanel() {
+      const panel = document.getElementById("mobileOverviewPanel");
+      const btn = document.getElementById("mobileOverviewBtn");
+      if (!panel || !btn) return;
+      const label = state.mode === "intro"
+        ? { no: "前情", title: `前情 ${state.introIndex + 1}/${introSteps.length}` }
+        : state.ended
+          ? { no: "结局", title: endingDefinitions[state.hidden?.EndingKey]?.title || "终局结算" }
+          : sceneLabel(activeSceneId());
+      const progress = getProgressInfo();
+      const evidenceCount = (state.evidence || []).length;
+      btn.textContent = state.mode === "intro" ? "前情" : `${label.no || "当前"} ${label.title || ""}`.trim();
+      panel.innerHTML = `
+        <div class="mobile-overview-head">
+          <div>
+            <h3>${escapeHtml(label.title || "当前章节")}</h3>
+            <p class="small">${escapeHtml(label.no || "")} · 测试版本：${VERSION_LABEL}</p>
+          </div>
+          <button class="secondary" id="mobileOverviewCloseBtn">收起</button>
+        </div>
+        <div class="progress"><span style="width:${Math.max(0, Math.min(100, progress.ratio * 100))}%"></span></div>
+        <p class="small">进度 ${progress.current}/${progress.total} · 证据 ${evidenceCount} · 拜访 ${state.visitCount || 0}/${MAX_VISITS}</p>
+        <div class="mobile-action-grid">
+          <button class="secondary" data-mobile-action="directory">目录</button>
+          <button class="secondary" data-mobile-action="save">存档 / 读档</button>
+          <button class="secondary" data-mobile-action="fullscreen">全屏</button>
+          <button class="secondary" data-mobile-action="home">首页</button>
+          <button class="secondary" data-mobile-action="reset">清空存档</button>
+          ${isDevUnlocked() ? `<button class="secondary" data-mobile-action="dev">开发者</button>` : ""}
+        </div>
+      `;
+      const closeBtn = document.getElementById("mobileOverviewCloseBtn");
+      if (closeBtn) closeBtn.addEventListener("click", closeMobileOverview);
+      panel.querySelectorAll("[data-mobile-action]").forEach(button => {
+        button.addEventListener("click", () => handleMobileOverviewAction(button.dataset.mobileAction));
+      });
+    }
+
+    function toggleMobileOverview() {
+      const panel = document.getElementById("mobileOverviewPanel");
+      if (!panel) return;
+      if (panel.classList.contains("open")) closeMobileOverview();
+      else openMobileOverview();
+    }
+
+    function openMobileOverview() {
+      closeMobileDrawer();
+      renderMobileOverviewPanel();
+      const panel = document.getElementById("mobileOverviewPanel");
+      if (!panel) return;
+      panel.hidden = false;
+      panel.classList.add("open");
+      panel.setAttribute("aria-hidden", "false");
+    }
+
+    function closeMobileOverview() {
+      const panel = document.getElementById("mobileOverviewPanel");
+      if (!panel) return;
+      panel.classList.remove("open");
+      panel.setAttribute("aria-hidden", "true");
+      panel.hidden = !isMobileLayout() || !hasStartedSession;
+    }
+
+    function handleMobileOverviewAction(action) {
+      closeMobileOverview();
+      if (action === "directory") openDirectoryModal();
+      if (action === "save") openSaveModal();
+      if (action === "fullscreen") requestGameFullscreen();
+      if (action === "home") goHomeScreen();
+      if (action === "reset") clearSave();
+      if (action === "dev") openDevModal();
+    }
+
+    function syncMobileShell() {
+      const canShowMobileShell = isMobileLayout() && hasStartedSession;
+      ["mobileRopeBtn", "mobileOverviewBtn", "mobileSystemDrawer", "mobileOverviewPanel"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.hidden = !canShowMobileShell;
+      });
+      const scrim = document.getElementById("mobileDrawerScrim");
+      if (scrim) scrim.hidden = !(canShowMobileShell && scrim.classList.contains("open"));
+      if (!canShowMobileShell) {
+        const drawer = document.getElementById("mobileSystemDrawer");
+        const overview = document.getElementById("mobileOverviewPanel");
+        if (drawer) drawer.classList.remove("open");
+        if (overview) overview.classList.remove("open");
+        document.body.classList.remove("mobile-drawer-open");
+        return;
+      }
+      renderMobileOverviewPanel();
+      const drawer = document.getElementById("mobileSystemDrawer");
+      if (drawer && drawer.classList.contains("open")) renderMobileDrawerContent(mobileActiveTab);
+    }
+
+    function handleMobileVersionTap() {
+      window.clearTimeout(mobileVersionTapTimer);
+      mobileVersionTapCount += 1;
+      mobileVersionTapTimer = window.setTimeout(() => {
+        mobileVersionTapCount = 0;
+      }, 1600);
+      if (mobileVersionTapCount >= 7) {
+        mobileVersionTapCount = 0;
+        requestDevUnlock();
+      }
     }
 
     function briefEvidence(detail = "") {
@@ -5735,6 +6590,8 @@
         requestDevUnlock();
         return;
       }
+      closeMobileDrawer();
+      closeMobileOverview();
       closeDirectoryModal();
       closeSaveModal();
       renderDevModal();
@@ -5850,6 +6707,7 @@
             <button class="secondary" data-dev-self-check="narrative">叙事文本自检</button>
             <button class="secondary" data-dev-self-check="spoiler">剧透节奏自检</button>
             <button class="secondary" data-dev-self-check="flow">交互流程自检</button>
+            <button class="secondary" data-dev-self-check="mobile">手机端 UI 自检</button>
           </div>
           ${renderDevSelfCheckOutput()}
         </section>
@@ -5937,7 +6795,8 @@
         final: runFinalDocumentSelfCheck,
         narrative: runNarrativeCoverageSelfCheck,
         spoiler: runSpoilerTimingSelfCheck,
-        flow: runInteractionFlowSelfCheck
+        flow: runInteractionFlowSelfCheck,
+        mobile: runMobileLayoutSelfCheck
       };
       const runner = runners[kind] || runFinalDocumentSelfCheck;
       const result = runner();
@@ -6113,10 +6972,32 @@
       return collectVisibleStrings(reaction).join("\n");
     }
 
+    function formalSceneText(sceneId) {
+      const scene = sceneById[sceneId];
+      if (!scene) return "";
+      const parts = [
+        scene.description || "",
+        ...(scene.dialogue || []),
+        ...(scene.choices || []).map(choice => choice.text || "")
+      ];
+      if (scene.dynamicHeLastImage) {
+        parts.push(...heQingshanTraceLines(), ...heQingshanLastImageLines());
+      }
+      return parts.filter(Boolean).join("\n");
+    }
+
+    function formalTextBeforeScene(sceneId) {
+      const index = scenes.findIndex(scene => scene.id === sceneId);
+      if (index < 0) return "";
+      return scenes.slice(0, index).map(scene => formalSceneText(scene.id)).join("\n");
+    }
+
     function runNarrativeCoverageSelfCheck() {
       const corpus = visibleCorpus();
       const evidenceReaction = finalChoiceReactionText("evidence");
-      const ch2ShenMemory = ch2ShenHiddenMemoryInlineReactionText();
+      const ch3DeductionText = formalSceneText("CH3_DEDUCTION");
+      const ch4DeathText = formalSceneText("CH4_LU_HUAIMIN_DEATH");
+      const ch5LastImageText = `${formalSceneText("CH5_KILN_SECRET")}\n${formalSceneText("CH5_FISH_PENDANT")}`;
       const checks = [
         makeCheck(1, "第四章保沈月娥分支有正式场景反馈", corpus.includes("釉灰、旧窑、沉默、恨意，这些东西太容易被拼成一个别人想要的答案。") && corpus.includes("她不是只会追着最像凶手的人跑。") && corpus.includes("她只是在阻止青瓷庄又一次把最方便的人推到火前。")),
         makeCheck(2, "第四章账本分支有周启明勒索与旧账反应", corpus.includes("账不是这么还的") && corpus.includes("有些账，翻出来没有人能干净")),
@@ -6125,12 +7006,21 @@
         makeCheck(5, "第六章终局有火与证据的主题冲突", evidenceReaction.includes("你不是替何青山讨回公道。") && evidenceReaction.includes("你是在替青瓷庄完成最后一次毁证。") && evidenceReaction.includes("没有火，他们不会听。") && evidenceReaction.includes("二十年前，他们也是这么想的。")),
         makeCheck(6, "完整母亲钥匙对白可见", corpus.includes("沈月娥：“孩子以后要做水里的鱼，顺风顺水。”")),
         makeCheck(7, "结局 C/D/E 都有新的情绪落点", corpus.includes("那至少这次，答案会疼") && corpus.includes("我没有把任何人带出来") && corpus.includes("我们没有让孩子再进窑")),
-        makeCheck(8, "第二章沈月娥隐藏记忆来自 CH2_ROUTE_SHEN 场景内反应",
-          ch2ShenMemory.includes("林知夏：“他们说你守着死人。”") &&
-          ch2ShenMemory.includes("林知夏：“可我觉得，你像是在等一个活人。”") &&
-          ch2ShenMemory.includes("沈月娥：“我不是在等死人。”") &&
-          ch2ShenMemory.includes("沈月娥：“等一句没人肯还给我的话。”") &&
-          ch2ShenMemory.includes("沈月娥：“孩子以后要做水里的鱼，顺风顺水。”"))
+        makeCheck(8, "第三章陈伯远被袭与旧报告代价场面可见",
+          ch3DeductionText.includes("录音笔滚到搪瓷盆边") &&
+          ch3DeductionText.includes("报告删掉的，不是死因，是他们动过手。") &&
+          ch3DeductionText.includes("先救陈伯远") &&
+          ch3DeductionText.includes("先抢旧报告") &&
+          ch3DeductionText.includes("喊所有人过来")),
+        makeCheck(9, "第四章陆怀民最后一次毁证和完整遗言可见",
+          ch4DeathText.includes("不是账。是出生记录。") &&
+          ch4DeathText.includes("你不知道你是谁，也不知道你要烧的是什么。") &&
+          ch4DeathText.includes("是我抱走的那个孩子。")),
+        makeCheck(10, "第五章何青山最后画面作为正式剧情可见",
+          ch5LastImageText.includes("何青山在火里醒来。") &&
+          ch5LastImageText.includes("月娥，别让孩子进窑。") &&
+          ch5LastImageText.includes("碎瓷") &&
+          ch5LastImageText.includes("瓷片落地。"))
       ];
       return { title: "叙事文本自检", checks };
     }
@@ -6139,6 +7029,12 @@
       const early = chapterCorpus(1);
       const beforeReveal = chapterCorpus(4);
       const visible = visibleCorpus();
+      const ch3DeductionText = formalSceneText("CH3_DEDUCTION");
+      const beforeCh4Death = formalTextBeforeScene("CH4_LU_HUAIMIN_DEATH");
+      const ch4DeathText = formalSceneText("CH4_LU_HUAIMIN_DEATH");
+      const beforeCh5 = formalTextBeforeScene("CH5_KILN_SECRET");
+      const ch5LastImageText = `${formalSceneText("CH5_KILN_SECRET")}\n${formalSceneText("CH5_FISH_PENDANT")}`;
+      const beforeCh6 = formalTextBeforeScene("CH6_TRUTH_REPLAY");
       const oldFishCommaText = "孩子以后要做水里的鱼" + "," + "顺风顺水";
       const forbiddenEarlyPairs = [
         ["陆景川", "何青山之子"],
@@ -6155,7 +7051,31 @@
         makeCheck(3, "第四章前不把沈月娥直接写成母亲", !containsAll(beforeReveal, ["沈月娥", "母亲"])),
         makeCheck(4, "早期不直接写陈伯远删改报告", !containsAll(chapterCorpus(2), ["陈伯远", "删改报告"]) && !containsAll(chapterCorpus(2), ["陈伯远", "假报告"])),
         makeCheck(5, "当前正式文本没有旧逗号版本的水鱼句", !visible.includes(oldFishCommaText)),
-        makeCheck(6, "素材占位不会出现在玩家页面", renderAssetBlock({ title: "【未来画面位】" }) === "" && renderAssetCue({ expectedFiles: [{ fileName: "test.mp4" }] }) === "")
+        makeCheck(6, "素材占位不会出现在玩家页面", renderAssetBlock({ title: "【未来画面位】" }) === "" && renderAssetCue({ expectedFiles: [{ fileName: "test.mp4" }] }) === ""),
+        makeCheck(7, "第三章只推进旧报告责任，不确认身份真相",
+          ch3DeductionText.includes("火不是事故。") &&
+          ch3DeductionText.includes("报告删掉的，不是死因，是他们动过手。") &&
+          !containsAll(ch3DeductionText, ["陆景川", "何青山之子"]) &&
+          !containsAll(ch3DeductionText, ["沈月娥", "母亲"]) &&
+          !ch3DeductionText.includes("是我抱走的那个孩子")),
+        makeCheck(8, "第四章死亡节点后才出现抱走孩子与出生记录",
+          !beforeCh4Death.includes("是我抱走的那个孩子。") &&
+          !beforeCh4Death.includes("不是账。是出生记录。") &&
+          !beforeCh4Death.includes("你不知道你是谁") &&
+          ch4DeathText.includes("是我抱走的那个孩子。") &&
+          ch4DeathText.includes("不是账。是出生记录。") &&
+          ch4DeathText.includes("你不知道你是谁，也不知道你要烧的是什么。")),
+        makeCheck(9, "第五章才出现何青山最后画面",
+          !beforeCh5.includes("何青山在火里醒来。") &&
+          !beforeCh5.includes("月娥，别让孩子进窑。") &&
+          ch5LastImageText.includes("何青山在火里醒来。") &&
+          ch5LastImageText.includes("月娥，别让孩子进窑。") &&
+          ch5LastImageText.includes("瓷片落地。")),
+        makeCheck(10, "第五章前不出现完整终局结论",
+          !beforeCh6.includes("真相必须公开。") &&
+          !beforeCh6.includes("但它不能再靠一场火公开。") &&
+          !beforeCh6.includes("六份迟到二十年的证词") &&
+          !beforeCh6.includes("证词重燃"))
       ];
       return { title: "剧透节奏自检", checks };
     }
@@ -6172,6 +7092,33 @@
         makeCheck(8, "开发者模式通行证仍使用当前口令", DEV_PASS === "wuyao-v04-7742")
       ];
       return { title: "交互流程自检", checks };
+    }
+
+    function runMobileLayoutSelfCheck() {
+      const css = Array.from(document.querySelectorAll("style")).map(style => style.textContent || "").join("\n");
+      const checks = [
+        makeCheck(1, "手机端断点限定为 max-width: 760px", css.includes("@media (max-width: 760px)") && css.includes("main {\n        width: 100%;")),
+        makeCheck(2, "手机端 PC 侧栏不直接堆在剧情下方", css.includes(".side, .right-stack, .thought-panel, .evidence-side") && css.includes("display: none;")),
+        makeCheck(3, "mobileSystemDrawer 存在", Boolean(document.getElementById("mobileSystemDrawer"))),
+        makeCheck(4, "mobileRopeBtn 存在", Boolean(document.getElementById("mobileRopeBtn"))),
+        makeCheck(5, "mobileOverviewPanel 存在", Boolean(document.getElementById("mobileOverviewPanel"))),
+        makeCheck(6, "当前选择使用底部浮层", css.includes(".choices-wrap") && css.includes("position: fixed") && String(renderChoices).includes("choices-wrap")),
+        makeCheck(7, "inlineReaction 后继续按钮逻辑仍存在", String(renderScene).includes("hasInlineNext") && String(renderScene).includes("continueAfterInlineReaction")),
+        makeCheck(8, "手机端普通玩家默认看不到开发者按钮", css.includes(".dev-button") && css.includes("display: none") && css.includes("body.dev-unlocked .dev-button")),
+        makeCheck(9, "手机端普通玩家默认看不到变量栏", css.includes(".vars-bar") && css.includes("display: none") && css.includes("body.dev-unlocked .vars-bar")),
+        makeCheck(10, "结局页系统绳子弱化", css.includes("body.is-ending .mobile-rope-btn") && css.includes("opacity: .18")),
+        makeCheck(11, "底部安全区已处理", css.includes("env(safe-area-inset-bottom)") && css.includes("calc(120px + env(safe-area-inset-bottom))")),
+        makeCheck(12, "PC 端三栏布局未删除", css.includes("grid-template-columns: minmax(0, 1fr) 300px 340px"))
+      ];
+      const missing = checks.filter(check => !check.passed).map(check => check.label);
+      const warnings = [];
+      return {
+        title: "手机端 UI 自检",
+        passed: missing.length === 0,
+        missing,
+        warnings,
+        checks
+      };
     }
 
     function refreshDevModal() {
@@ -6526,6 +7473,8 @@
     }
 
     function openDirectoryModal() {
+      closeMobileDrawer();
+      closeMobileOverview();
       renderChapterDirectoryModal();
       document.body.classList.add("modal-open");
       const backdrop = document.getElementById("modalBackdrop");
@@ -6542,6 +7491,8 @@
     }
 
     function openSaveModal() {
+      closeMobileDrawer();
+      closeMobileOverview();
       closeDirectoryModal();
       renderSaveSlots();
       document.body.classList.add("modal-open");
@@ -6739,6 +7690,21 @@
     document.getElementById("closeSaveModalBtn").addEventListener("click", closeSaveModal);
     document.getElementById("closeDevModalBtn").addEventListener("click", closeDevModal);
     document.getElementById("exitDevModeBtn").addEventListener("click", exitDevMode);
+    document.getElementById("mobileRopeBtn").addEventListener("click", () => openMobileDrawer(mobileActiveTab));
+    document.getElementById("mobileOverviewBtn").addEventListener("click", toggleMobileOverview);
+    document.getElementById("mobileDrawerScrim").addEventListener("click", closeMobileDrawer);
+    document.querySelectorAll("[data-mobile-tab]").forEach(button => {
+      button.addEventListener("click", () => renderMobileDrawerContent(button.dataset.mobileTab));
+    });
+    document.getElementById("mobileSystemDrawer").addEventListener("touchstart", event => {
+      mobileTouchStartX = event.touches && event.touches.length ? event.touches[0].clientX : 0;
+    }, { passive: true });
+    document.getElementById("mobileSystemDrawer").addEventListener("touchend", event => {
+      const endX = event.changedTouches && event.changedTouches.length ? event.changedTouches[0].clientX : mobileTouchStartX;
+      if (mobileTouchStartX - endX > 54) closeMobileDrawer();
+      mobileTouchStartX = 0;
+    }, { passive: true });
+    document.querySelector(".version-badge").addEventListener("click", handleMobileVersionTap);
     document.getElementById("modalBackdrop").addEventListener("click", event => {
       if (event.target.id === "modalBackdrop") closeDirectoryModal();
     });
@@ -6758,10 +7724,13 @@
         closeDirectoryModal();
         closeSaveModal();
         closeDevModal();
+        closeMobileDrawer();
+        closeMobileOverview();
       }
     });
     document.addEventListener("fullscreenchange", handleFullscreenChange);
     document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+    if (window.addEventListener) window.addEventListener("resize", syncMobileShell);
     updateFullscreenButton();
     render();
     if (new URLSearchParams(window.location.search).get("dev") === "1") {
