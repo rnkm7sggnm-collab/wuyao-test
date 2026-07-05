@@ -2160,11 +2160,11 @@
         clickables: [
           { id: "ch2_shen_glaze_ash", label: "沈月娥袖口的白灰", text: "灰贴在袖口外侧，像刚蹭上去，不像一路从窑棚带回来。", effects: { EvidenceScore: 1 }, evidence: { id: "shen_glaze_ash", type: "risk", name: "沈月娥袖口白灰", detail: "白灰让沈月娥显得可疑，但位置过于显眼。" } },
           { id: "ch2_old_kiln_mud", label: "旧窑棚泥水", text: "泥水里混着旧砖粉，和袖口白灰不是同一种湿度。", evidence: { id: "kiln_mud_not_match_ash", type: "clue", name: "旧窑泥水与袖口灰不完全一致", detail: "沈月娥身上的灰未必能直接对应案发现场。" } },
-          { id: "ch2_shen_guarding_words", label: "沈月娥看向旧窑的眼神", text: "她没有急着辩解，只往旧窑方向看了一眼，像怕那边还有什么被雨冲走。", hiddenEffects: { MotherKey: 1, ShenWillIntervene: true }, effects: { ShenSuspicion: -1 }, evidence: { id: "shen_child_water_fish", type: "clue", name: "沈月娥提到水里的鱼", brief: "沈月娥提到一句和“水里的鱼”有关的话。", detail: "沈月娥说，窑里的人命苦，孩子以后要做水里的鱼，顺风顺水。这句话暂时还没有完整对象。" } }
+          { id: "ch2_shen_guarding_words", label: "沈月娥看向旧窑的眼神", text: "她没有急着辩解，只往旧窑方向看了一眼，像怕那边还有什么被雨冲走。", hiddenMemory: "ch2Shen", evidence: { id: "shen_hidden_memory_water_fish", type: "clue", name: "沈月娥的水中小鱼记忆", brief: "沈月娥提到何青山曾说，孩子以后要做水里的鱼，顺风顺水。", detail: "这句话暂时还没有完整对象，但它不像疯话，更像一段被青瓷庄夺走的亲密记忆。" } }
         ],
         choices: [
           { label: "A", text: "当场逼问沈月娥去了哪里。", effects: { ShenSuspicion: 2, SelfDoubt: 1 }, evidence: { id: "risk_publicly_press_shen", type: "risk", name: "公开逼问沈月娥", detail: "短期得到村民配合，长期可能把她推成最方便的答案。" }, short: "堂屋里立刻安静，沈月娥不再解释。" },
-          { label: "B", text: "问她为什么还守着旧窑棚。", effects: { ShenSuspicion: -1, EvidenceScore: 1 }, hiddenEffects: { MotherKey: 1, ShenWillIntervene: true }, evidence: { id: "shen_guards_old_kiln", type: "clue", name: "沈月娥守旧窑", detail: "沈月娥不像在毁证，更像在守着某种没有被承认的证词。" }, short: "沈月娥没有回答，但第一次没有转身离开。" },
+          { label: "B", text: "问她为什么还守着旧窑棚。", hiddenMemory: "ch2Shen", evidenceList: [{ id: "shen_guards_old_kiln", type: "clue", name: "沈月娥守旧窑", detail: "沈月娥不像在毁证，更像在守着某种没有被承认的证词。" }, { id: "shen_hidden_memory_water_fish", type: "clue", name: "沈月娥的水中小鱼记忆", brief: "沈月娥提到何青山曾说，孩子以后要做水里的鱼，顺风顺水。", detail: "这句话暂时还没有完整对象，但它不像疯话，更像一段被青瓷庄夺走的亲密记忆。" }], short: "沈月娥没有回答，但第一次没有转身离开。" },
           { label: "C", text: "先记下所有人看她的顺序。", effects: { OutsiderTrust: 1, EvidenceScore: 1 }, evidence: { id: "everyone_pushes_shen_forward", type: "clue", name: "众人把目光推向沈月娥", detail: "沈月娥成为公共嫌疑，可能是现场判断，也可能是习惯。" }, short: "陆怀民皱了一下眉，像不喜欢你记录人群反应。" }
         ],
         next: "CH2_DEATH_SCENE"
@@ -3402,6 +3402,10 @@
       return Boolean(state.devMode) || localStorage.getItem(DEV_UNLOCK_KEY) === "1";
     }
 
+    function shouldShowDebugMeta() {
+      return !PUBLIC_TEST_MODE || isDevUnlocked();
+    }
+
     function syncDevMode() {
       if (localStorage.getItem(DEV_UNLOCK_KEY) === "1") state.devMode = true;
     }
@@ -3884,7 +3888,7 @@
       const hasChoices = Array.isArray(scene.choices) && scene.choices.length > 0;
       const isExploration = Boolean(scene.personKey);
       const inlineReaction = getInlineReaction(scene.id);
-      const hasInlineNext = Boolean(inlineReaction && (inlineReaction.nextAfterReaction || scene.next));
+      const hasInlineNext = Boolean(inlineReaction && !inlineReaction.stayInScene && (inlineReaction.nextAfterReaction || scene.next));
       const canShowNext = Boolean(scene.next || hasInlineNext);
       const ready = !review && (
         hasInlineNext
@@ -3979,6 +3983,7 @@
       if (state.viewMode === "review") return;
       const reaction = getInlineReaction(sceneId);
       if (!reaction) return;
+      if (reaction.stayInScene) return;
       const scene = sceneById[sceneId];
       const nextId = reaction.nextAfterReaction || scene?.next;
       if (!nextId) return;
@@ -4108,16 +4113,32 @@
         ${scene.choices.map((choice, index) => `
           <button class="choice" ${readOnly || selected !== undefined ? "disabled" : ""} data-choice="${index}">
             <strong>${choice.label}. ${choice.text}</strong>
-            <span class="small">变量：${formatEffects(choice.effects || {})}</span>
+            ${renderChoiceDebugEffects(choice.effects || {})}
           </button>
         `).join("")}
       `;
     }
 
+    function renderChoiceDebugEffects(effects = {}) {
+      return shouldShowDebugMeta() ? `<span class="small">变量：${formatEffects(effects)}</span>` : "";
+    }
+
+    function renderDebugEffectParagraph(effects = {}) {
+      return shouldShowDebugMeta() ? `<p class="small">变量变化：${formatEffects(effects)}</p>` : "";
+    }
+
+    function debugFeedbackLines(changes = [], hiddenChanges = [], hiddenLabel = "隐藏伏笔") {
+      if (!shouldShowDebugMeta()) return [];
+      return [
+        changes.length ? `变量变化：${changes.join("；")}` : "变量变化：无",
+        hiddenChanges.length ? `${hiddenLabel}：${hiddenChanges.join("；")}` : ""
+      ].filter(Boolean);
+    }
+
     function renderClickableCard(item, readOnly = false) {
       const clicked = Boolean(state.clicked[item.id]);
       const meta = [
-        `变量：${formatEffects(filteredClickableEffects(item))}`,
+        ...(shouldShowDebugMeta() ? [`变量：${formatEffects(filteredClickableEffects(item))}`] : []),
         item.evidence || item.evidenceList ? "记录：已加入证据池" : "记录：无新增证据"
       ];
       return `
@@ -4156,7 +4177,7 @@
               ${(scene.choices || []).map((choice, index) => `
                 <button class="cinematic-option" ${review || selectedIndex !== undefined ? "disabled" : ""} data-cinematic-choice="${index}">
                   <strong>${choice.label}. ${choice.text}</strong>
-                  <span class="small">变量：${formatEffects(choice.effects || {})}</span>
+                  ${renderChoiceDebugEffects(choice.effects || {})}
                 </button>
               `).join("")}
             </div>
@@ -4192,7 +4213,7 @@
           <div class="cinematic-npc-reaction">${choice.npcReaction || "对方没有立刻回答。"}</div>
           ${choice.readLevel ? `<div class="read-level-badge">人物理解：${readLabels[choice.readLevel]}</div>` : ""}
           ${renderAssetCue(choice.assetCue)}
-          <p class="small">变量变化：${formatEffects(choice.effects || {})}</p>
+          ${renderDebugEffectParagraph(choice.effects || {})}
           <p class="small">获得：${evidenceNames.length ? evidenceNames.join("、") : "无新增线索"}</p>
           ${scene.readKey ? `<p class="small">林知夏判断：${getUnderstanding(scene.readKey)}</p>` : ""}
         </div>
@@ -4221,8 +4242,7 @@
       state.latestFeedback = [
         `<strong>${choice.label}. ${choice.text}</strong>`,
         choice.npcReaction ? `NPC反应：${choice.npcReaction}` : "",
-        changes.length ? `变量变化：${changes.join("；")}` : "变量变化：无",
-        hiddenChanges.length ? `隐藏伏笔：${hiddenChanges.join("；")}` : "",
+        ...debugFeedbackLines(changes, hiddenChanges),
         evidenceLine ? `记录：${evidenceLine}` : "记录：无新增线索",
         scene.readKey && choice.readLevel ? `人物理解层级：${readLabels[choice.readLevel]}` : "",
         scene.personKey ? `人物理解：${getUnderstanding(scene.personKey)}` : ""
@@ -4268,6 +4288,10 @@
       const item = (scene.clickables || []).find(entry => entry.id === id);
       if (!item || state.clicked[id]) return;
       state.clicked[id] = true;
+      if (item.hiddenMemory === "ch2Shen") {
+        triggerCh2ShenHiddenMemory({ scene, source: item, nextAfterReaction: null, stayInScene: true });
+        return;
+      }
       const changes = applyEffects(filteredClickableEffects(item));
       const hiddenChanges = applyHiddenEffects(filteredClickableHiddenEffects(item));
       const evidenceLine = collectEvidence(item);
@@ -4275,12 +4299,101 @@
       state.latestFeedback = [
         `<strong>已观察：${item.label}</strong>`,
         "观察内容已显示在对应物件下方。",
-        changes.length ? `变量变化：${changes.join("；")}` : "变量变化：无",
-        hiddenChanges.length ? `隐藏伏笔：${hiddenChanges.join("；")}` : "",
+        ...debugFeedbackLines(changes, hiddenChanges),
         evidenceLine ? `记录：${evidenceLine}` : "记录：已记录或无新增线索"
       ].filter(Boolean).join("<br>");
       addLog({ message: `观察了：${item.label}`, type: "observe" });
       render();
+    }
+
+    function ch2ShenHiddenMemoryEvidence() {
+      return {
+        id: "shen_hidden_memory_water_fish",
+        type: "clue",
+        name: "沈月娥的水中小鱼记忆",
+        brief: "沈月娥提到何青山曾说，孩子以后要做水里的鱼，顺风顺水。",
+        detail: "这句话暂时还没有完整对象，但它不像疯话，更像一段被青瓷庄夺走的亲密记忆。"
+      };
+    }
+
+    function buildCh2ShenHiddenMemoryReaction({ repeated = false, nextAfterReaction = null, stayInScene = false } = {}) {
+      if (repeated) {
+        return {
+          key: "ch2_shen_hidden_memory_seen",
+          title: "隐藏记忆",
+          lines: ["林知夏已经把那句话记下。"],
+          npcLines: ["沈月娥没有再重复，只把目光从旧窑棚收回来。"],
+          innerLines: ["那不像疯话，更像一段被青瓷庄夺走的亲密记忆。"],
+          nextAfterReaction,
+          stayInScene,
+          revealedAt: Date.now()
+        };
+      }
+      return {
+        key: "ch2_shen_hidden_memory_water_fish",
+        title: "隐藏记忆",
+        lines: [
+          "林知夏没有继续追问釉灰。",
+          "她看向沈月娥身后的旧窑棚，忽然把声音放轻。",
+          "林知夏：“他们说你守着死人。”",
+          "林知夏：“可我觉得，你像是在等一个活人。”"
+        ],
+        npcLines: [
+          "沈月娥的手停在袖口上。",
+          "雨水从棚檐落下来，一滴一滴砸在旧砖边。",
+          "沈月娥：“我不是在等死人。”",
+          "林知夏：“那你在等谁？”",
+          "沈月娥：“等一句没人肯还给我的话。”",
+          "沈月娥：“孩子没了以后，我一直梦见一条小鱼。”",
+          "沈月娥：“青山给他做的，没烧成，釉色还差一层。”",
+          "沈月娥：“他说，窑里的人命苦。”",
+          "沈月娥：“孩子以后要做水里的鱼，顺风顺水。”",
+          "沈月娥：“可他们连这点水都不给我留。”"
+        ],
+        innerLines: [
+          "林知夏没有立刻写下“嫌疑人”。",
+          "她只在笔记边缘记了一句：",
+          "她守着的不是凶器。",
+          "像是一句没能送到的人话。"
+        ],
+        nextAfterReaction,
+        stayInScene,
+        revealedAt: Date.now()
+      };
+    }
+
+    function triggerCh2ShenHiddenMemory({ scene, source = {}, nextAfterReaction = null, stayInScene = false } = {}) {
+      const alreadySeen = Boolean(state.flags.ch2ShenHiddenMemorySeen);
+      const existingReaction = state.inlineReactions && state.inlineReactions[scene.id];
+      if (alreadySeen && stayInScene && existingReaction && existingReaction.nextAfterReaction) {
+        state.latestFeedback = "这段隐藏记忆已经记录过。";
+        addLog({ message: "回看沈月娥隐藏记忆", type: "observe" });
+        render();
+        scrollToTop();
+        return;
+      }
+      const changes = alreadySeen ? [] : applyEffects({ FatherClue: 1, ShenSuspicion: -1 });
+      const hiddenChanges = alreadySeen ? [] : applyHiddenEffects({ MotherKey: 1, ShenWillIntervene: true });
+      const evidenceLine = [
+        collectEvidence(source),
+        alreadySeen ? "" : collectEvidence({ evidence: ch2ShenHiddenMemoryEvidence() })
+      ].filter(Boolean).join("；");
+
+      state.flags.ch2ShenHiddenMemorySeen = true;
+      state.inlineReactions = state.inlineReactions || {};
+      state.inlineReactions[scene.id] = buildCh2ShenHiddenMemoryReaction({
+        repeated: alreadySeen,
+        nextAfterReaction,
+        stayInScene
+      });
+      state.latestFeedback = [
+        alreadySeen ? "这段隐藏记忆已经记录过。" : "隐藏记忆已触发。",
+        ...debugFeedbackLines(changes, hiddenChanges),
+        evidenceLine ? `记录：${evidenceLine}` : "记录：已记录"
+      ].filter(Boolean).join("<br>");
+      addLog({ message: alreadySeen ? "回看沈月娥隐藏记忆" : "触发沈月娥隐藏记忆", type: "choice" });
+      render();
+      scrollToTop();
     }
 
     function buildInlineReaction(choice, scene) {
@@ -4458,6 +4571,17 @@
         return;
       }
 
+      if (choice.hiddenMemory === "ch2Shen") {
+        state.selectedByScene[scene.id] = index;
+        triggerCh2ShenHiddenMemory({
+          scene,
+          source: choice,
+          nextAfterReaction: scene.next || "CH2_DEATH_SCENE",
+          stayInScene: false
+        });
+        return;
+      }
+
       state.selectedByScene[scene.id] = index;
       const changes = applyEffects(choice.effects);
       const hiddenChanges = applyHiddenEffects(choice.hiddenEffects);
@@ -4480,8 +4604,7 @@
         state.route = { name: choice.route, desc: choice.routeDesc };
         state.latestFeedback = [
           `<strong>${choice.label}. ${choice.text}</strong>`,
-          changes.length ? `变量变化：${changes.join("；")}` : "变量变化：无",
-          hiddenChanges.length ? `隐藏伏笔：${hiddenChanges.join("；")}` : "",
+          ...debugFeedbackLines(changes, hiddenChanges),
           evidenceLine ? `记录：${evidenceLine}` : "记录：无新增线索",
           `第一章路线：${routeName}`
         ].filter(Boolean).join("<br>");
@@ -4507,8 +4630,7 @@
         state.inlineReactions[scene.id] = finalReaction;
         state.latestFeedback = [
           `选择已记录：${choice.feedbackLabel || choice.text}`,
-          changes.length ? `变量变化：${changes.join("；")}` : "",
-          hiddenChanges.length ? `隐藏伏笔：${hiddenChanges.join("；")}` : ""
+          ...debugFeedbackLines(changes, hiddenChanges)
         ].filter(Boolean).join("<br>");
         addLog({ message: `终局选择：${choice.label}. ${choice.text}`, type: "choice" });
         render();
@@ -4518,8 +4640,7 @@
       state.latestFeedback = [
         `<strong>${choice.label}. ${choice.text}</strong>`,
         choice.npcReaction ? `NPC反应：${choice.npcReaction}` : "",
-        changes.length ? `变量变化：${changes.join("；")}` : "变量变化：无",
-        hiddenChanges.length ? `隐藏伏笔：${hiddenChanges.join("；")}` : "",
+        ...debugFeedbackLines(changes, hiddenChanges),
         evidenceLine ? `记录：${evidenceLine}` : "记录：无新增线索",
         scene.readKey && choice.readLevel ? `人物理解层级：${readLabels[choice.readLevel]}` : "",
         scene.personKey ? `人物理解：${getUnderstanding(scene.personKey)}` : "",
@@ -5246,7 +5367,7 @@
         id: "combo_ch6_mother_key",
         chapter: 6,
         label: "青瓷鱼坠 + 沈月娥隐藏话 + 身份链 + 举报信 + 火场真相",
-        requires: ["porcelain_fish_pendant", ["shen_child_water_fish", "shen_recognizes_fish_pendant"], "lu_identity_chain", "he_qingshan_report_letter", "fire_truth_chain"],
+        requires: ["porcelain_fish_pendant", ["shen_hidden_memory_water_fish", "shen_child_water_fish", "shen_recognizes_fish_pendant"], "lu_identity_chain", "he_qingshan_report_letter", "fire_truth_chain"],
         result: "证据可以阻止计划，但未必能让陆景川停下。真正能把他从火边叫回来的，是沈月娥终于把孩子叫回人群里。",
         effects: { RevengeTimer: -2 },
         hiddenEffects: { MotherKey: 1, ShenWillIntervene: true },
@@ -5347,8 +5468,7 @@
         state.latestFeedback = [
           `<strong>推理台：${combo.label}</strong>`,
           combo.result,
-          changes.length ? `变量变化：${changes.join("；")}` : "变量变化：无",
-          hiddenChanges.length ? `隐藏判断：${hiddenChanges.join("；")}` : ""
+          ...debugFeedbackLines(changes, hiddenChanges, "隐藏判断")
         ].filter(Boolean).join("<br>");
         addLog({ message: `推理台组合：${combo.label}`, type: "deduction" });
       } else {
@@ -5580,7 +5700,7 @@
       ch3: ["old_report_fragment", "blunt_wound_note", "escape_marks", "father_report_question", "chen_confession_tape"],
       ch4: ["shrine_key_gap", "genealogy_scrape_clear", "zhou_sms_old_lu", "old_account_signature", "luhuai_min_last_words", "luhuai_min_blackout_gap"],
       ch5: ["porcelain_fish_pendant", "birth_record_changed", "lu_branch_register", "he_qingshan_report_letter", "dividend_list", "fire_truth_chain"],
-      final: ["porcelain_fish_pendant", "shen_child_water_fish", "shen_recognizes_fish_pendant", "lu_identity_chain", "he_qingshan_report_letter", "fire_truth_chain", "final_evidence_order", "fire_cannot_be_witness"]
+      final: ["porcelain_fish_pendant", "shen_hidden_memory_water_fish", "shen_child_water_fish", "shen_recognizes_fish_pendant", "lu_identity_chain", "he_qingshan_report_letter", "fire_truth_chain", "final_evidence_order", "fire_cannot_be_witness"]
     };
 
     function requestDevUnlock() {
@@ -5980,9 +6100,23 @@
       return forbiddenPairs.some(pair => containsAll(introText, pair));
     }
 
+    function ch2ShenHiddenMemoryInlineReactionText() {
+      const scene = sceneById.CH2_ROUTE_SHEN;
+      if (!scene) return "";
+      const hotspotCanTrigger = (scene.clickables || []).some(item => item.hiddenMemory === "ch2Shen");
+      const choiceCanTrigger = (scene.choices || []).some(choice => choice.hiddenMemory === "ch2Shen");
+      if (!hotspotCanTrigger || !choiceCanTrigger) return "";
+      const reaction = buildCh2ShenHiddenMemoryReaction({
+        nextAfterReaction: scene.next || "CH2_DEATH_SCENE",
+        stayInScene: false
+      });
+      return collectVisibleStrings(reaction).join("\n");
+    }
+
     function runNarrativeCoverageSelfCheck() {
       const corpus = visibleCorpus();
       const evidenceReaction = finalChoiceReactionText("evidence");
+      const ch2ShenMemory = ch2ShenHiddenMemoryInlineReactionText();
       const checks = [
         makeCheck(1, "第四章保沈月娥分支有正式场景反馈", corpus.includes("釉灰、旧窑、沉默、恨意，这些东西太容易被拼成一个别人想要的答案。") && corpus.includes("她不是只会追着最像凶手的人跑。") && corpus.includes("她只是在阻止青瓷庄又一次把最方便的人推到火前。")),
         makeCheck(2, "第四章账本分支有周启明勒索与旧账反应", corpus.includes("账不是这么还的") && corpus.includes("有些账，翻出来没有人能干净")),
@@ -5990,7 +6124,13 @@
         makeCheck(4, "陆景川第五章破绽不是直接公布答案", corpus.includes("你们查得很好。") && corpus.includes("我以前以为，我要找的是凶手。")),
         makeCheck(5, "第六章终局有火与证据的主题冲突", evidenceReaction.includes("你不是替何青山讨回公道。") && evidenceReaction.includes("你是在替青瓷庄完成最后一次毁证。") && evidenceReaction.includes("没有火，他们不会听。") && evidenceReaction.includes("二十年前，他们也是这么想的。")),
         makeCheck(6, "完整母亲钥匙对白可见", corpus.includes("沈月娥：“孩子以后要做水里的鱼，顺风顺水。”")),
-        makeCheck(7, "结局 C/D/E 都有新的情绪落点", corpus.includes("那至少这次，答案会疼") && corpus.includes("我没有把任何人带出来") && corpus.includes("我们没有让孩子再进窑"))
+        makeCheck(7, "结局 C/D/E 都有新的情绪落点", corpus.includes("那至少这次，答案会疼") && corpus.includes("我没有把任何人带出来") && corpus.includes("我们没有让孩子再进窑")),
+        makeCheck(8, "第二章沈月娥隐藏记忆来自 CH2_ROUTE_SHEN 场景内反应",
+          ch2ShenMemory.includes("林知夏：“他们说你守着死人。”") &&
+          ch2ShenMemory.includes("林知夏：“可我觉得，你像是在等一个活人。”") &&
+          ch2ShenMemory.includes("沈月娥：“我不是在等死人。”") &&
+          ch2ShenMemory.includes("沈月娥：“等一句没人肯还给我的话。”") &&
+          ch2ShenMemory.includes("沈月娥：“孩子以后要做水里的鱼，顺风顺水。”"))
       ];
       return { title: "叙事文本自检", checks };
     }
