@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>《雾窑》v0.4 全剧情文本试玩版</title>
+  <title>《雾窑》v0.4.1 全剧情文本试玩版</title>
   <style>
     :root {
       --bg: #121313;
@@ -27,6 +27,10 @@
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       line-height: 1.65;
+      padding-bottom: 24px;
+    }
+
+    body.dev-unlocked {
       padding-bottom: 104px;
     }
 
@@ -614,6 +618,7 @@
     }
 
     .vars-bar {
+      display: none;
       position: fixed;
       left: 0;
       right: 0;
@@ -623,6 +628,10 @@
       border-top: 1px solid var(--line);
       padding: 10px 14px;
       backdrop-filter: blur(10px);
+    }
+
+    body.dev-unlocked .vars-bar {
+      display: block;
     }
 
     .vars-grid {
@@ -948,6 +957,102 @@
       border-color: rgba(255,255,255,.12);
     }
 
+    .inline-reaction {
+      margin: 18px 0;
+      padding: 16px 18px;
+      border-left: 3px solid var(--accent);
+      border-radius: 10px;
+      background: rgba(210, 164, 95, .075);
+      border-top: 1px solid rgba(210, 164, 95, .16);
+      border-right: 1px solid rgba(210, 164, 95, .1);
+      border-bottom: 1px solid rgba(210, 164, 95, .1);
+    }
+
+    .inline-reaction::before {
+      content: "";
+      display: block;
+      width: 42px;
+      height: 1px;
+      background: var(--accent);
+      opacity: .55;
+      margin-bottom: 12px;
+    }
+
+    .inline-reaction-kicker {
+      color: var(--accent);
+      font-size: 13px;
+      letter-spacing: .12em;
+      margin-bottom: 10px;
+    }
+
+    .inline-reaction-line {
+      opacity: 0;
+      transform: translateY(8px);
+      animation: inlineReactionIn .55s ease forwards;
+      margin: 0 0 10px;
+      white-space: pre-line;
+    }
+
+    @keyframes inlineReactionIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .character-intro-list {
+      display: grid;
+      gap: 10px;
+      margin: 14px 0 4px;
+    }
+
+    .character-intro {
+      margin: 0;
+      padding: 10px 12px;
+      border-left: 3px solid rgba(135, 183, 165, .7);
+      background: rgba(135, 183, 165, .06);
+      border-radius: 8px;
+      color: var(--text);
+    }
+
+    .character-intro b {
+      color: var(--accent);
+    }
+
+    .character-intro span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .character-intro p {
+      margin: 6px 0 0;
+      color: #d8d0c3;
+      line-height: 1.65;
+    }
+
+    .context-echo {
+      margin: 16px 0;
+      padding: 14px 16px;
+      border-left: 2px solid rgba(135, 183, 165, .65);
+      background: rgba(135, 183, 165, .06);
+      border-radius: 10px;
+    }
+
+    .context-echo-kicker {
+      color: var(--accent-2);
+      font-size: 12px;
+      letter-spacing: .1em;
+      margin-bottom: 8px;
+    }
+
+    .context-echo-line {
+      opacity: 0;
+      transform: translateY(6px);
+      animation: inlineReactionIn .5s ease forwards;
+      margin: 0 0 8px;
+      white-space: pre-line;
+    }
+
     .particle-transition {
       position: fixed;
       inset: 0;
@@ -1238,11 +1343,11 @@
     }
 
     .dev-button {
-      display: inline-flex;
-      opacity: .62;
+      display: none;
     }
 
     body.dev-unlocked .dev-button {
+      display: inline-flex;
       opacity: 1;
     }
 
@@ -1317,6 +1422,20 @@
       font-size: 11px;
     }
 
+    .dev-self-check-output {
+      white-space: pre-wrap;
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px;
+      background: rgba(0,0,0,.24);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      max-height: 260px;
+      overflow: auto;
+    }
+
     .dev-route-row {
       display: flex;
       flex-wrap: wrap;
@@ -1372,8 +1491,8 @@
 <body>
   <header>
     <div class="header-stack">
-      <h1>《雾窑》v0.4 全剧情文本试玩版</h1>
-      <div class="header-meta" id="headerMeta">测试版本：v0.4-full-text-demo</div>
+      <h1>《雾窑》v0.4.1 全剧情文本试玩版</h1>
+      <div class="header-meta" id="headerMeta">测试版本：v0.4.1-full-text-demo</div>
       <div class="header-progress-wrap">
         <div class="header-progress-track">
           <div id="headerProgressBar" class="header-progress-bar"></div>
@@ -1412,7 +1531,7 @@
     </aside>
   </main>
 
-  <div class="version-badge">v0.4-full-text-demo</div>
+  <div class="version-badge">v0.4.1-full-text-demo</div>
 
   <div class="vars-bar">
     <div class="vars-grid" id="varsGrid"></div>
@@ -1467,12 +1586,13 @@
   <div id="escHint" class="esc-hint">ESC</div>
 
   <script>
-    const STORAGE_KEY = "wuyao_v0_4_full_text_demo";
+    const PUBLIC_TEST_MODE = true;
+    const STORAGE_KEY = "wuyao_v0_4_1_full_text_demo";
     const SAVE_SLOT_KEY = "wuyao_v0_4_full_text_demo_save_slots";
     const DEV_UNLOCK_KEY = "wuyao_dev_unlocked";
     const DEV_PASS = "wuyao-v04-7742";
     const MAX_VISITS = 3;
-    const VERSION_LABEL = "v0.4-full-text-demo";
+    const VERSION_LABEL = "v0.4.1-full-text-demo";
     const MEDIA_DIR_LABEL = "prototype/assets/media/";
     const MEDIA_RELATIVE_DIR = "assets/media/";
 
@@ -1518,7 +1638,7 @@
     ];
 
     function applyAssetPathsFromExpectedFiles() {
-      // v0.4-full-text-demo: 当前只预留逻辑，不主动检查文件是否存在，也不加载不存在的文件。
+      // v0.4.1-full-text-demo: 当前只预留逻辑，不主动检查文件是否存在，也不加载不存在的文件。
       // 后续替换素材步骤：
       // 1. 用户把所有素材放进 prototype/assets/media/
       // 2. 文件名尽量与 expectedFiles.fileName 保持一致
@@ -1664,6 +1784,18 @@
         title: "山路入村",
         description: "山路像被雨水从山腰上削出来的一道黑缝。车灯只能照亮前方几米，雨点砸在挡风玻璃上，像一把细碎的砂。文旅改造临时牌在路边晃了一下，崭新的蓝底字后面压着一块褪色旧牌。远处吊桥断在雾里，铁索一下下敲着山壁。",
         goal: "建立封闭感，初见陆景川，并判断他对青瓷庄是否过于熟悉。",
+        characterIntros: [
+          {
+            name: "林知夏",
+            meta: "二十六七岁｜外来编剧",
+            text: "她表面上要为青瓷庄的非遗民宿写一个游客愿意听的故事，背包里却压着父亲二十年前留下的采访笔记。她不是警察，也不是侦探，只是一个本来该写故事的人。"
+          },
+          {
+            name: "陆景川",
+            meta: "二十七八岁｜文旅项目本地执行",
+            text: "他穿着项目组的黑色冲锋衣，负责接待、路线和现场协调；他说自己只是项目协理，可对青瓷庄的门、路和人情熟得过分。"
+          }
+        ],
         assets: mediaAssets({
           type: "video",
           title: "【未来视频位：雨夜山路】",
@@ -1699,6 +1831,33 @@
         title: "老宅堂屋：所有人首次同框",
         description: "老宅堂屋潮湿昏黄，像一口没烧透的旧窑。供桌上几只青瓷杯排得过分整齐。陆怀民坐在主位，周启明把宣传册摆到最显眼处，陈伯远靠在走廊阴影里，沈月娥没有入席，手上沾着釉灰。陆景川站在门边替林知夏收伞，水顺着伞尖滴进门槛。",
         goal: "让五个主要人物同时出现，但只通过动作和位置理解他们。",
+        characterIntros: [
+          {
+            name: "陆怀民",
+            meta: "六十岁上下｜青瓷庄老村长",
+            text: "他坐在主位，背有些弯，眼神却不松；他是这次文旅改造最先出面的人，也掌着祠堂、族谱和村里许多旧规矩的钥匙。村里人叫他“老陆”，像是在叫一个人，也像是在叫一条规矩。"
+          },
+          {
+            name: "周启明",
+            meta: "四十出头｜文旅项目负责人",
+            text: "他的西装外套被雨打湿了一角，却还把宣传册擦得很干净；他管招商、合同和项目包装，负责把青瓷庄旧窑讲成游客愿意买单的故事。"
+          },
+          {
+            name: "陈伯远",
+            meta: "六十五岁左右｜退休法医 / 镇卫生院旧人",
+            text: "他头发花白，随身带着一个旧药箱；早年在镇上做过法医相关工作，退下来后村里有个跌打损伤仍会有人找他。他坐在走廊阴影里，像一个离开案卷很久、却一直没能离开现场的人。"
+          },
+          {
+            name: "沈月娥",
+            meta: "五十岁上下｜青瓷庄女瓷匠",
+            text: "她身形很瘦，手指常年沾着洗不净的釉灰；她曾是青瓷庄最好的女瓷匠之一，如今很少和人同桌吃饭，更多时候守在旧窑棚边。村里人提起她时声音会低一截，像怕她，也像怕她记得什么。"
+          },
+          {
+            name: "陆景川",
+            meta: "二十七八岁｜本地执行 / 现场协理",
+            text: "他站在门边替林知夏收伞，负责接待、路线和现场协调；他对青瓷庄的门、路、钥匙和人情，都熟得不像第一次参与项目。"
+          }
+        ],
         assets: mediaAssets({
           type: "image",
           title: "【未来画面位：五人首次同框】",
@@ -1833,7 +1992,7 @@
         choices: [
           { label: "A", text: "雨这么大，您还随身带药箱？", effects: { OutsiderTrust: 1 }, readLevel: "surface", npcReaction: "陈伯远低头看药箱：“人老了，习惯不好改。以前走到哪儿都带着，后来不用了，也舍不得放下。”", evidence: { id: "chen_cannot_put_down_medkit", type: "obs", name: "陈伯远放不下旧身份", detail: "药箱不是工具，更像他一直带着的旧身份。" } },
           { label: "B", text: "我父亲当年是不是问过何青山的死因？", effects: { FatherClue: 1, EvidenceScore: 1 }, flag: "chenAdmitsFatherWasRight", readLevel: "crack", npcReaction: "药箱扣“啪”地合上。陈伯远说：“你父亲不该问那个。”停了一下，他又低声补了一句：“但他问得没错。”", evidence: { id: "chen_admits_father_was_right", type: "clue", name: "陈伯远承认林父追问方向正确", detail: "林父当年追问何青山死因，方向并没有错。" } },
-          { label: "C", text: "你当年是不是写了假报告？", effects: { EvidenceScore: 1, RevengeTimer: 1 }, flag: "chenDefensiveFakeReport", readLevel: "defensive", npcReaction: "陈伯远看了林知夏很久：“年轻人最残忍的地方，就是以为真相只要问出口，别人就能答。”他站起来：“你真想知道，就先活过今晚。”", evidence: { id: "danger_chen_knows_fake_report", type: "clue", name: "危险真话：陈伯远知道尸检报告有假", detail: "陈伯远没有否认假报告，只把回答推到了今晚之后。" } }
+          { label: "C", text: "二十年前那份报告，是不是还有没写出来的部分？", effects: { EvidenceScore: 1, RevengeTimer: 1 }, flag: "chenDefensiveOldReport", readLevel: "defensive", npcReaction: "陈伯远看了林知夏很久：“年轻人最残忍的地方，就是以为真相只要问出口，别人就能答。”他站起来：“你真想知道，就先活过今晚。”", evidence: { id: "danger_chen_knows_report_problem", type: "clue", name: "危险追问：陈伯远回避旧报告", detail: "陈伯远没有正面解释旧报告，只把回答推到了今晚之后。" } }
         ]
       },
       {
@@ -2001,7 +2160,7 @@
         clickables: [
           { id: "ch2_shen_glaze_ash", label: "沈月娥袖口的白灰", text: "灰贴在袖口外侧，像刚蹭上去，不像一路从窑棚带回来。", effects: { EvidenceScore: 1 }, evidence: { id: "shen_glaze_ash", type: "risk", name: "沈月娥袖口白灰", detail: "白灰让沈月娥显得可疑，但位置过于显眼。" } },
           { id: "ch2_old_kiln_mud", label: "旧窑棚泥水", text: "泥水里混着旧砖粉，和袖口白灰不是同一种湿度。", evidence: { id: "kiln_mud_not_match_ash", type: "clue", name: "旧窑泥水与袖口灰不完全一致", detail: "沈月娥身上的灰未必能直接对应案发现场。" } },
-          { id: "ch2_shen_guarding_words", label: "沈月娥看向旧窑的眼神", text: "她没有急着辩解，只往旧窑方向看了一眼，像怕那边还有什么被雨冲走。", hiddenEffects: { MotherKey: 1, ShenWillIntervene: true }, effects: { ShenSuspicion: -1 }, evidence: { id: "shen_child_water_fish", type: "clue", name: "沈月娥提到水里的鱼", detail: "沈月娥说，窑里的人命苦，孩子以后要做水里的鱼,顺风顺水。这句话暂时还没有完整对象。" } }
+          { id: "ch2_shen_guarding_words", label: "沈月娥看向旧窑的眼神", text: "她没有急着辩解，只往旧窑方向看了一眼，像怕那边还有什么被雨冲走。", hiddenEffects: { MotherKey: 1, ShenWillIntervene: true }, effects: { ShenSuspicion: -1 }, evidence: { id: "shen_child_water_fish", type: "clue", name: "沈月娥提到水里的鱼", brief: "沈月娥提到一句和“水里的鱼”有关的话。", detail: "沈月娥说，窑里的人命苦，孩子以后要做水里的鱼，顺风顺水。这句话暂时还没有完整对象。" } }
         ],
         choices: [
           { label: "A", text: "当场逼问沈月娥去了哪里。", effects: { ShenSuspicion: 2, SelfDoubt: 1 }, evidence: { id: "risk_publicly_press_shen", type: "risk", name: "公开逼问沈月娥", detail: "短期得到村民配合，长期可能把她推成最方便的答案。" }, short: "堂屋里立刻安静，沈月娥不再解释。" },
@@ -2310,9 +2469,136 @@
           { id: "ch4_shen_stands_between", label: "沈月娥站到门口", text: "沈月娥没有帮陆怀民，也没有帮林知夏，她站在门口，像怕有人冲出去做傻事。", hiddenEffects: { ShenWillIntervene: true }, evidence: { id: "shen_blocks_exit_instinct", type: "clue", name: "沈月娥本能挡住出口", detail: "沈月娥似乎担心某个人被真相推向火边。" } }
         ],
         choices: [
-          { label: "A", text: "判断沈月娥不是理性灭口者。", effects: { ShenSuspicion: -2, EvidenceScore: 1 }, evidence: { id: "shen_not_silencer", type: "clue", name: "沈月娥不像灭口者", detail: "沈月娥的行为更像守护和恐惧，不像控制全局的凶手。" }, short: "这会让你暂时失去最省事的答案。" },
-          { label: "B", text: "判断周启明死于灭口。", effects: { EvidenceScore: 1 }, hiddenEffects: { ZhouDeathTruth: 1, LuHuaiMinGuiltProof: 1 }, evidence: { id: "zhou_death_silencing_conclusion", type: "core", name: "周启明之死是灭口的阶段结论", detail: "杀死周启明的人未必最恨他，但一定最怕他说话。" }, short: "这把问题从“谁恨他”转成“谁怕他说话”。" },
-          { label: "C", text: "判断陆怀民有能力让旧案和当前案同样沉默。", effects: { VillageSilence: 1 }, hiddenEffects: { LuHuaiMinGuiltProof: 1 }, evidence: { id: "luhuai_min_silence_power", type: "core", name: "陆怀民的沉默权力", detail: "陆怀民保护的不是一个秘密，而是一种让村子继续活下去的说法。" }, short: "陆怀民没有发火，只叫人把祠堂门关上。" }
+          {
+            label: "A",
+            text: "开口：指出沈月娥正在被摆成答案。",
+            feedbackLabel: "你没有让沈月娥立刻成为所有人的答案。",
+            flags: { protectedShen: true },
+            effects: { ShenSuspicion: -1, VillageSilence: -1 },
+            hiddenEffects: { MotherKey: 1, ShenWillIntervene: true, Ch4PlayerStance: "protect_shen", PublicNarrative: "village_cracking" },
+            evidence: { id: "shen_as_public_answer", type: "clue", name: "沈月娥被推成答案", brief: "沈月娥身上的嫌疑太顺。", detail: "林知夏指出，釉灰、旧窑、沉默和恨意太容易被拼成别人想要的答案。" },
+            inlineReaction: {
+              key: "protect_shen",
+              title: "场景继续",
+              lines: [
+                "林知夏开口时，堂屋里先静了一下。",
+                "她没有替沈月娥洗清所有嫌疑。",
+                "她只是指出：",
+                "釉灰、旧窑、沉默、恨意，这些东西太容易被拼成一个别人想要的答案。"
+              ],
+              npcLines: [
+                "沈月娥没有看她。",
+                "可她原本攥紧的手，慢慢松开了一点。",
+                "陆怀民的脸色没有变。",
+                "但他第一次没有立刻接话。",
+                "陆景川站在门边，看了林知夏一眼。",
+                "那一眼很轻，却像是在确认：",
+                "她不是只会追着最像凶手的人跑。"
+              ],
+              innerLines: [
+                "林知夏忽然意识到，自己不是在替沈月娥证明无罪。",
+                "她只是在阻止青瓷庄又一次把最方便的人推到火前。"
+              ],
+              nextAfterReaction: "CH4_LU_HUAIMIN_DEATH"
+            }
+          },
+          {
+            label: "B",
+            text: "出示证据：把周启明勒索老陆的短信放到桌上。",
+            feedbackLabel: "你把旧账摆到人前。",
+            flags: { exposedZhouExtortion: true },
+            effects: { EvidenceScore: 1, VillageSilence: 1 },
+            hiddenEffects: { VillageProfitProof: 1, PublicNarrative: "accounts_exposed", ZhouDeathTruth: 1 },
+            evidence: { id: "zhou_extortion_on_table", type: "core", name: "周启明短信与烧焦账页", brief: "周启明死前不是在逃。", detail: "短信和账页显示，周启明死前像是在谈条件，而不是单纯躲避凶手。" },
+            inlineReaction: {
+              key: "accounts_exposed",
+              title: "桌上的账",
+              lines: [
+                "林知夏把周启明未发出的短信和烧焦账页放到桌上。",
+                "“他死前不是在逃。”",
+                "“他是在勒索。”",
+                "这句话落下后，村民里有人咳了一声。",
+                "很轻。",
+                "轻得像一块旧砖从墙里松开。"
+              ],
+              npcLines: [
+                "陆怀民终于抬眼看她。",
+                "陆怀民：“有些账，翻出来没有人能干净。”",
+                "沈月娥：“我早就不干净了。你们不是这么说了二十年？”",
+                "陆景川：“那就翻。”",
+                "陈伯远的声音从阴影里传来：",
+                "陈伯远：“翻账容易，翻死人难。”"
+              ],
+              innerLines: [
+                "林知夏看见几个人同时移开眼。",
+                "那一刻她明白，周启明怕的不是账本。",
+                "是账本让每个人都变得有名字。"
+              ],
+              nextAfterReaction: "CH4_LU_HUAIMIN_DEATH"
+            }
+          },
+          {
+            label: "C",
+            text: "沉默：先观察每个人听到账本时的反应。",
+            feedbackLabel: "你选择先观察。",
+            flags: { stayedSilentAtGroupDrama: true },
+            effects: { EvidenceScore: 1, VillageSilence: 1 },
+            hiddenEffects: { Ch4PlayerStance: "observe" },
+            evidence: { id: "silent_observe_group_reaction", type: "clue", name: "沉默观察众人反应", brief: "沉默让每个人露出一点反应。", detail: "林知夏没有立刻开口，换来更多观察，也让村庄有时间整理说法。" },
+            inlineReaction: {
+              key: "observe_silence",
+              title: "沉默的人",
+              lines: [
+                "林知夏没有立刻开口。",
+                "她看见陆怀民的手指按在桌沿。",
+                "看见沈月娥被所有人的目光推到灯下。",
+                "看见陆景川站得很稳，稳得像早知道这场沉默会发生。",
+                "看见陈伯远想说话，又把话吞回去。"
+              ],
+              npcLines: [
+                "没有人催她。",
+                "因为青瓷庄最熟悉的，就是等别人先开口。"
+              ],
+              innerLines: [
+                "沉默确实给了她更多观察的时间。",
+                "但它也给了青瓷庄更多整理说法的时间。"
+              ],
+              nextAfterReaction: "CH4_LU_HUAIMIN_DEATH"
+            }
+          },
+          {
+            label: "D",
+            text: "追问：逼陆怀民解释为什么祠堂和账本都在他手里。",
+            feedbackLabel: "你逼陆怀民露出了真正的口径。",
+            flags: { confrontedLuHuaiMinDirectly: true },
+            effects: { VillageSilence: 1, RevengeTimer: 1 },
+            hiddenEffects: { LuHuaiMinGuiltProof: 1, Ch4PlayerStance: "pressure" },
+            evidence: { id: "luhuai_min_true_position", type: "core", name: "陆怀民真正口径", brief: "陆怀民没有直接认罪，也没有真正否认。", detail: "陆怀民把个人责任说成全村责任，暴露出他守的是一套村庄叙事。" },
+            inlineReaction: {
+              key: "pressure_luhuai_min",
+              title: "老村长的口径",
+              lines: [
+                "林知夏没有绕开陆怀民。",
+                "她问：",
+                "“周启明死前给你发过短信，是吗？”",
+                "陆怀民的笑慢慢收回去。"
+              ],
+              npcLines: [
+                "陆怀民：“青瓷庄不是我一个人的。”",
+                "陆怀民：“你们要翻，就把全村都翻出来。”",
+                "林知夏：“所以你杀了他？”",
+                "陆怀民：“我是在堵一口会把全村都淹死的井。”",
+                "陆景川：“二十年前你也这么说？”"
+              ],
+              innerLines: [
+                "这不是认罪。",
+                "可这也不是否认。",
+                "林知夏终于看见，陆怀民守着的不是一个秘密。",
+                "他守着的是一种能让村子继续活下去的说法。"
+              ],
+              nextAfterReaction: "CH4_LU_HUAIMIN_DEATH"
+            }
+          }
         ],
         next: "CH4_LU_HUAIMIN_DEATH"
       },
@@ -2375,7 +2661,7 @@
         description: "油纸被打开，里面不是金银，而是一枚小小的青瓷鱼坠。鱼尾缺了一角，腹部刻着一个浅浅的“川”。沈月娥看见它时，脸上的血色一点点退下去。林知夏忽然明白，二十年前被藏起来的，不只是一场火。",
         goal: "推进母亲钥匙与陆景川身份链，但仍不让真相一次性说透。",
         dialogue: [
-          "沈月娥很轻地说：“窑里的人命苦，孩子以后要做水里的鱼,顺风顺水”",
+          "沈月娥很轻地说：“窑里的人命苦，孩子以后要做水里的鱼，顺风顺水。”",
           "林知夏：“这是给谁的？”",
           "沈月娥没有回答，只把鱼坠攥在掌心，像怕它再被抱走一次。"
         ],
@@ -2402,6 +2688,8 @@
         dialogue: [
           "一个村民在窑口低声说：“那时候谁家不难？”",
           "林知夏：“难，所以就可以让一个人死在火里？”",
+          "陆景川：“他们不是一起吃的吗？”",
+          "沈月娥：“账不是这么还的。”",
           "没人回答，雨水从窑口流进来，像替每个人退后一步。"
         ],
         clickables: [
@@ -2450,6 +2738,10 @@
         description: "陆景川站在废窑口，手电光从下往上照亮他的脸。他不再急着解释，也不再像那个随时替林知夏带路的人。雨水落在他肩上，他却像感觉不到冷。所有证据都在往他身上靠近，可他看的不是证据，是窑口深处那片黑。",
         goal: "确认陆景川复仇方向正在形成，进入终局。",
         dialogue: [
+          "陆景川：“你们查得很好。”",
+          "林知夏：“你还想做什么？”",
+          "陆景川：“我以前以为，我要找的是凶手。”",
+          "陆景川：“现在我知道，凶手不是一个人。”",
           "陆景川：“杀掉周启明没有用。逼死陆怀民也没有用。”",
           "陆景川：“陈伯远说出来，也会被他们解释成老人糊涂。”",
           "陆景川：“那就不要证词了。让火自己作证。”"
@@ -2502,7 +2794,8 @@
         dialogue: [
           "陆景川：“你查清楚了。”",
           "陆景川：“现在你该明白，火不是我要放的。”",
-          "陆景川：“是他们二十年前就点着的。”"
+          "陆景川：“是他们二十年前就点着的。”",
+          "林知夏：“可你现在要让它烧第二次。”"
         ],
         clickables: [
           { id: "ch6_last_cup", label: "最后一只青瓷杯", text: "杯底只有半个字，被陆景川拇指压住。", evidence: { id: "last_celadon_cup", type: "clue", name: "最后一只青瓷杯", detail: "陆景川把旧案证物也当成复仇仪式的一部分。" } },
@@ -2587,7 +2880,7 @@
         unknown: "还没有真正接触陈伯远。",
         surface: "陈伯远放不下药箱，也放不下过去的身份。",
         crack: "陈伯远承认父亲问对了方向，尸检报告很可能是旧案裂口。",
-        defensive: "陈伯远没有否认假报告，只说林知夏要先活过今晚。"
+        defensive: "陈伯远回避旧报告的关键空白，只说林知夏要先活过今晚。"
       },
       ShenYuee: {
         unknown: "还没有真正接触沈月娥。",
@@ -2681,12 +2974,13 @@
         clicked: {},
         selectedChoices: {},
         selectedByScene: {},
-        latestFeedback: "从前情开始。v0.4 全剧情文本试玩版已开启。",
+        latestFeedback: "从前情开始。v0.4.1 全剧情文本试玩版已开启。",
         evidence: [],
         log: [],
         logs: [],
         flags: {},
         visited: {},
+        inlineReactions: {},
         hidden: initialHiddenState(),
         deduction: initialDeductionState(),
         analytics: {},
@@ -2719,6 +3013,7 @@
         parsed.selectedChoices = parsed.selectedChoices || {};
         parsed.log = Array.isArray(parsed.log) ? parsed.log : [];
         parsed.visited = parsed.visited || {};
+        parsed.inlineReactions = parsed.inlineReactions || {};
         parsed.viewMode = "play";
         parsed.reviewSceneId = null;
         parsed.evidenceFilter = parsed.evidenceFilter || "default";
@@ -3100,7 +3395,7 @@
       document.body.classList.toggle("is-start-screen", isStart);
       document.body.classList.toggle("is-cinematic", Boolean(isCinematic));
       document.body.classList.toggle("is-ending", Boolean(hasStartedSession && state.ended));
-      document.body.classList.toggle("dev-unlocked", isDevUnlocked());
+      document.body.classList.toggle("dev-unlocked", !PUBLIC_TEST_MODE || isDevUnlocked());
     }
 
     function isDevUnlocked() {
@@ -3148,7 +3443,7 @@
         <div class="start-screen">
           <div class="start-card">
             <div class="start-title">雾窑</div>
-            <div class="start-subtitle">v0.4 全剧情文本试玩版</div>
+            <div class="start-subtitle">v0.4.1 全剧情文本试玩版</div>
             ${hasAutoSave ? `
               <button class="start-button" id="continueGameBtn">继续游戏</button>
               <button class="start-button" id="loadSaveFromHomeBtn">读取存档</button>
@@ -3510,7 +3805,7 @@
     }
 
     function renderAssetBlock(asset = {}) {
-      // v0.4-full-text-demo: 素材字段暂时保留，当前版本不在页面显示。
+      // v0.4.1-full-text-demo: 素材字段暂时保留，当前版本不在页面显示。
       // 后续接入真实图片、视频、音效时再启用。
       return "";
     }
@@ -3540,7 +3835,7 @@
     }
 
     function renderAssetCue(cue = {}) {
-      // v0.4-full-text-demo: 线索素材字段暂时保留，当前版本不在页面显示。
+      // v0.4.1-full-text-demo: 线索素材字段暂时保留，当前版本不在页面显示。
       return "";
     }
 
@@ -3588,8 +3883,17 @@
       const selected = state.selectedByScene[scene.id];
       const hasChoices = Array.isArray(scene.choices) && scene.choices.length > 0;
       const isExploration = Boolean(scene.personKey);
-      const ready = !review && scene.next ? (!hasChoices || selected !== undefined) : false;
-      const nextText = isExploration ? "回到行动选择" : scene.next ? "进入下一场景" : "继续";
+      const inlineReaction = getInlineReaction(scene.id);
+      const hasInlineNext = Boolean(inlineReaction && (inlineReaction.nextAfterReaction || scene.next));
+      const canShowNext = Boolean(scene.next || hasInlineNext);
+      const ready = !review && (
+        hasInlineNext
+          ? true
+          : scene.next
+            ? (!hasChoices || selected !== undefined)
+            : false
+      );
+      const nextText = inlineReaction ? "继续" : isExploration ? "回到行动选择" : scene.next ? "进入下一场景" : "继续";
       const dynamicBlocks = [
         scene.dynamicSummary ? renderReturnSummary() : "",
         scene.dynamicRoom ? renderRoomReflection() : "",
@@ -3607,14 +3911,17 @@
         </div>
         <h3>画面描述</h3>
         <div class="description">${scene.description}</div>
+        ${renderCharacterIntros(scene)}
         ${renderAssetBlock(scene.assets)}
         ${scene.dialogue && scene.dialogue.length ? `<h3>NPC / 内心文本</h3><div class="dialogue">${scene.dialogue.map(line => `<p>${line}</p>`).join("")}</div>` : ""}
+        ${renderContextEcho(scene)}
         ${dynamicBlocks}
         ${scene.clickables && scene.clickables.length ? `<h3>可观察细节 <span class="small">已观察 ${sceneClickedCount(scene)}/${scene.clickables.length}</span></h3><div class="button-grid">${scene.clickables.map(item => renderClickableCard(item, review)).join("")}</div>` : ""}
         ${hasChoices ? renderChoices(scene, selected, review) : ""}
+        ${renderInlineReaction(scene)}
         <div class="feedback">${review ? "这是回溯查看，不会改变林知夏当前判断。" : state.latestFeedback}</div>
         <div class="next-row">
-          ${review ? "" : scene.next ? `<button class="primary" id="nextBtn" ${ready ? "" : "disabled"}>${nextText}</button>` : ""}
+          ${review ? "" : canShowNext ? `<button class="primary" id="nextBtn" ${ready ? "" : "disabled"}>${nextText}</button>` : ""}
         </div>
       `;
 
@@ -3625,7 +3932,155 @@
         button.addEventListener("click", () => handleChoice(Number(button.dataset.choice)));
       });
       const nextBtn = document.getElementById("nextBtn");
-      if (nextBtn) nextBtn.addEventListener("click", goNext);
+      if (nextBtn) nextBtn.addEventListener("click", () => {
+        if (inlineReaction) continueAfterInlineReaction(scene.id);
+        else goNext();
+      });
+    }
+
+    function renderCharacterIntros(scene) {
+      const intros = scene.characterIntros || [];
+      if (!intros.length) return "";
+      return `
+        <div class="character-intro-list">
+          ${intros.map(item => `
+            <div class="character-intro">
+              <b>${escapeHtml(item.name || "")}</b>${item.meta ? `<span>｜${escapeHtml(item.meta)}</span>` : ""}
+              <p>${escapeHtml(item.text || "")}</p>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function getInlineReaction(sceneId) {
+      return state.inlineReactions && state.inlineReactions[sceneId];
+    }
+
+    function renderInlineReaction(scene) {
+      const reaction = getInlineReaction(scene.id);
+      if (!reaction) return "";
+      const lines = [
+        ...(reaction.lines || []),
+        ...(reaction.npcLines || []),
+        ...(reaction.innerLines || [])
+      ];
+      return `
+        <div class="inline-reaction">
+          <div class="inline-reaction-kicker">${escapeHtml(reaction.title || "场景继续")}</div>
+          ${lines.map((line, index) => `
+            <p class="inline-reaction-line" style="animation-delay:${index * 0.28}s">${escapeHtml(line)}</p>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function continueAfterInlineReaction(sceneId) {
+      if (state.viewMode === "review") return;
+      const reaction = getInlineReaction(sceneId);
+      if (!reaction) return;
+      const scene = sceneById[sceneId];
+      const nextId = reaction.nextAfterReaction || scene?.next;
+      if (!nextId) return;
+      transitionToScene(nextId, "场景继续。", "继续");
+    }
+
+    function getContextEchoLines(sceneId) {
+      const lines = [];
+      const isChapterFiveEcho = ["CH5_PROFIT_CHAIN", "CH5_VILLAGE_PRESSURE", "CH5_LU_REVENGE"].includes(sceneId);
+      const isChapterSixEcho = ["CH6_FINAL_KILN", "CH6_FINAL_CHOICE"].includes(sceneId);
+
+      if (isChapterFiveEcho) {
+        if (state.flags.protectedShen) {
+          lines.push(
+            "沈月娥在门外停了一下。",
+            "她没有道谢。",
+            "她只是说：",
+            "沈月娥：“别以为替我说一句话，我就会信你。”",
+            "过了一会儿，她又补了一句：",
+            "沈月娥：“但刚才那句话，我听见了。”"
+          );
+        }
+        if (state.flags.stayedSilentAtGroupDrama) {
+          lines.push(
+            "沈月娥没有再主动看林知夏。",
+            "她像已经习惯了：每一次所有人都看向她时，总有人选择先等一等。",
+            "林知夏知道，沉默给了她观察。",
+            "也拿走了沈月娥的一点信任。"
+          );
+        }
+        if (state.flags.exposedZhouExtortion) {
+          lines.push(
+            "村民看林知夏的眼神变了。",
+            "他们不再只把她当外来编剧。",
+            "她把账摊开了。",
+            "这比问旧案更危险。",
+            "有人低声说：",
+            "“账要是真翻出来，谁家没有一页？”"
+          );
+        }
+        if (state.flags.confrontedLuHuaiMinDirectly) {
+          lines.push(
+            "陆景川后来问林知夏：",
+            "陆景川：“你刚才问得很狠。”",
+            "林知夏：“他回答了吗？”",
+            "陆景川：“没有。”",
+            "陆景川：“但他怕了。”"
+          );
+        }
+      }
+
+      if (isChapterSixEcho) {
+        if (state.flags.protectedShen) {
+          lines.push(
+            "沈月娥这一次没有站在人群最后。",
+            "她站得离旧窑更近，也离陆景川更近。",
+            "林知夏忽然想起第四章那一刻。",
+            "她不是证明了沈月娥无罪。",
+            "她只是没有让所有人的沉默把她再次推成答案。"
+          );
+        }
+        if (state.flags.stayedSilentAtGroupDrama) {
+          lines.push(
+            "沈月娥仍然站在人群边缘。",
+            "这一次，她没有被人推出来。",
+            "但也没有人真正把她带回来。",
+            "林知夏知道，自己曾经有过一次机会。",
+            "她选择了先观察。",
+            "观察并不等于错。",
+            "只是有些人被看得太久，就会以为自己永远只能被看着。"
+          );
+        }
+        if (state.flags.exposedZhouExtortion) {
+          lines.push(
+            "旧账已经撕开了第一道口子。",
+            "陆景川看向村民时，眼神比雨还冷。",
+            "陆景川：“你看，他们不是不知道账。”",
+            "陆景川：“他们只是希望账永远停在别人手里。”"
+          );
+        }
+        if (state.flags.confrontedLuHuaiMinDirectly) {
+          lines.push(
+            "陆景川：“你逼他说了实话。”",
+            "林知夏：“那不是全部。”",
+            "陆景川：“所以才要让火继续问。”"
+          );
+        }
+      }
+      return lines;
+    }
+
+    function renderContextEcho(scene) {
+      const lines = getContextEchoLines(scene.id);
+      if (!lines.length) return "";
+      return `
+        <div class="context-echo">
+          <div class="context-echo-kicker">此前选择正在改变此刻</div>
+          ${lines.map((line, index) => `
+            <p class="context-echo-line" style="animation-delay:${index * 0.22}s">${escapeHtml(line)}</p>
+          `).join("")}
+        </div>
+      `;
     }
 
     function renderEndingGate(scene) {
@@ -3828,55 +4283,116 @@
       render();
     }
 
-    function resolveFinalChoiceFeedback(choice) {
+    function buildInlineReaction(choice, scene) {
+      if (!choice.inlineReaction) return null;
+      const reaction = typeof choice.inlineReaction === "function" ? choice.inlineReaction({ state, choice, scene }) : choice.inlineReaction;
+      return {
+        key: reaction.key || choice.label,
+        title: reaction.title || "场景继续",
+        lines: reaction.lines || [],
+        npcLines: reaction.npcLines || [],
+        innerLines: reaction.innerLines || [],
+        nextAfterReaction: reaction.nextAfterReaction || scene.next,
+        revealedAt: Date.now()
+      };
+    }
+
+    function buildFinalChoiceInlineReaction(choice) {
       state.hidden = { ...initialHiddenState(), ...(state.hidden || {}) };
       if (choice.finalAction !== "shen_speaks") {
         state.hidden.FinalChoice = choice.finalAction;
         if (choice.finalAction === "evidence") {
-          return [
-            "林知夏：“证据已经够了。”",
-            "陆景川：“够给谁看？”",
-            "陆景川：“陈伯远说出来，他们会说老人糊涂。”",
-            "陆景川：“周启明死了，他们会说死人不能作证。”",
-            "陆景川：“沈月娥说出来，他们会说疯女人终于疯到底。”",
-            "陆景川：“那我呢？”",
-            "陆景川：“我说我是谁，他们会说我是为了分老窑址的账。”",
-            "陆景川：“没有火，他们不会听。”",
-            "林知夏：“二十年前，他们也是这么想的。”"
-          ].join("<br>");
+          return {
+            key: "final_evidence",
+            title: "证据与火",
+            lines: [
+              "林知夏：“你不是替何青山讨回公道。”",
+              "林知夏：“你是在替青瓷庄完成最后一次毁证。”",
+              "林知夏：“证据已经够了。”"
+            ],
+            npcLines: [
+              "陆景川：“够给谁看？”",
+              "陆景川：“陈伯远说出来，他们会说老人糊涂。”",
+              "陆景川：“周启明死了，他们会说死人不能作证。”",
+              "陆景川：“沈月娥说出来，他们会说疯女人终于疯到底。”",
+              "陆景川：“那我呢？”",
+              "陆景川：“我说我是谁，他们会说我是为了分老窑址的账。”",
+              "陆景川：“没有火，他们不会听。”",
+              "林知夏：“二十年前，他们也是这么想的。”"
+            ],
+            innerLines: ["陆怀民为了村子牺牲一个人。陆景川为了真相，差一点烧掉一个村子。"],
+            nextAfterReaction: "CH6_ENDING_GATE",
+            revealedAt: Date.now()
+          };
         }
         if (choice.finalAction === "condemn_lu") {
-          return "陆景川看着林知夏，像终于确认她也只看见了凶手。火机在他掌心响了一下，雨声没有盖住。";
+          return {
+            key: "final_condemn_lu",
+            title: "切断回头路",
+            lines: ["林知夏把话说得很准，也很狠。"],
+            npcLines: ["陆景川看着林知夏，像终于确认她也只看见了凶手。", "火机在他掌心响了一下，雨声没有盖住。"],
+            innerLines: ["有些判断是事实。可事实说出口的方式，也会改变一个人还能不能回头。"],
+            nextAfterReaction: "CH6_ENDING_GATE",
+            revealedAt: Date.now()
+          };
         }
         if (choice.finalAction === "silent") {
-          return "林知夏没有立刻说话。沉默在旧窑前扩散开，像青瓷庄最熟悉的那种语言。";
+          return {
+            key: "final_silent",
+            title: "沉默扩散",
+            lines: ["林知夏没有立刻说话。"],
+            npcLines: ["陆景川也没有催她。", "沉默在旧窑前扩散开，像青瓷庄最熟悉的那种语言。"],
+            innerLines: ["她忽然明白，沉默不是空白。沉默会替人作证，也会替人毁证。"],
+            nextAfterReaction: "CH6_ENDING_GATE",
+            revealedAt: Date.now()
+          };
         }
-        return "真相没有成形，沉默会替你成形。";
+        return {
+          key: "final_cannot_answer",
+          title: "无法回答",
+          lines: ["林知夏低头看自己的笔记。"],
+          npcLines: ["没有一条证据能独自站稳。", "旧窑前的每个人都在等她说一个答案。"],
+          innerLines: ["真相没有成形，沉默会替她成形。"],
+          nextAfterReaction: "CH6_ENDING_GATE",
+          revealedAt: Date.now()
+        };
       }
 
       const motherReady = state.hidden.MotherKey >= 2 && state.hidden.ShenWillIntervene === true && state.hidden.LuIdentityProof >= 2;
       if (!motherReady) {
         state.hidden.FinalChoice = "shen_failed";
         state.hidden.ShenWillIntervene = false;
-        const extraChanges = applyEffects({ RevengeTimer: 1 });
         const lines = [
           "林知夏看向沈月娥。",
           "沈月娥站在雨里，嘴唇动了一下，却没有声音。",
-          "她或许已经猜到陆景川是谁。也或许早就猜到了。可猜到不是证据。痛苦也不是资格。",
-          "她没有拿到那句话，也没有拿到那枚能把二十年前和现在连起来的青瓷鱼坠。",
+          "她或许已经猜到陆景川是谁。",
+          "也或许早就猜到了。",
+          "可猜到不是证据。",
+          "痛苦也不是资格。",
+          "她没有拿到那句话。",
+          "也没有拿到那枚能把二十年前和现在连起来的青瓷鱼坠。",
           "于是她只能看着陆景川。",
           "沈月娥：“我没有资格叫他停。”"
         ];
         if (state.vars.ShenSuspicion >= 5) {
           lines.push("她已经被推到所有人的目光中太久。这一刻，她不是母亲。她只是青瓷庄最方便的嫌疑人。");
         }
-        return `${lines.join("<br>")}<br>变量变化：${extraChanges.join("；") || "无"}`;
+        applyEffects({ RevengeTimer: 1 });
+        return {
+          key: "mother_key_failed",
+          title: "没能说出的话",
+          lines,
+          npcLines: [],
+          innerLines: [],
+          nextAfterReaction: "CH6_ENDING_GATE",
+          revealedAt: Date.now()
+        };
       }
 
       state.hidden.FinalChoice = "shen_speaks";
       state.hidden.ShenWillIntervene = true;
       state.flags.usedMotherKeyFinale = true;
-      const extraChanges = applyEffects({ RevengeTimer: -2 });
+      applyEffects({ RevengeTimer: -2 });
       const fullLines = [
         "林知夏：“这句话不该我说。”",
         "沈月娥接过青瓷鱼坠。她的手抖得厉害，像握住的不是半枚瓷，而是二十年里没能抱住的那个孩子。",
@@ -3886,7 +4402,7 @@
         "陆景川的眼神终于乱了一下。",
         "沈月娥：“我等了二十年，才知道该等的人站在我面前。”",
         "沈月娥：“青山说，窑里的人命苦。”",
-        "沈月娥：“孩子以后要做水里的鱼,顺风顺水”",
+        "沈月娥：“孩子以后要做水里的鱼，顺风顺水。”",
         "沈月娥：“走山外的路，别回窑里来。”",
         "陆景川低头看那枚鱼坠。背面的“川”字小得几乎要被雨水洗掉。",
         "沈月娥：“你要烧了青瓷庄，我不拦你，是因为我也恨。”",
@@ -3913,7 +4429,15 @@
         "林知夏：“但它不能再靠一场火公开。”"
       ];
       const lines = state.hidden.MotherKey >= 3 ? fullLines : partialLines;
-      return `${lines.join("<br>")}<br>变量变化：${extraChanges.join("；") || "无"}`;
+      return {
+        key: state.hidden.MotherKey >= 3 ? "mother_key_full" : "mother_key_partial",
+        title: "母亲钥匙",
+        lines,
+        npcLines: [],
+        innerLines: [],
+        nextAfterReaction: "CH6_ENDING_GATE",
+        revealedAt: Date.now()
+      };
     }
 
     function handleChoice(index) {
@@ -3940,6 +4464,7 @@
       const evidenceLine = collectEvidence(choice);
       playAssetCue(choice.assetCue);
       if (choice.flag) state.flags[choice.flag] = true;
+      if (choice.flags) state.flags = { ...(state.flags || {}), ...choice.flags };
       if (scene.readKey && choice.readLevel) {
         state.characterReads[scene.readKey] = choice.readLevel;
       }
@@ -3964,17 +4489,30 @@
         transitionToScene(secondChapterRouteScene(routeName), "第二章开始。第一章的判断会影响你进入现场的角度。", `进入第二章：${routeName}`);
         return;
       }
+      if (choice.inlineReaction) {
+        const reaction = buildInlineReaction(choice, scene);
+        if (reaction) {
+          state.inlineReactions = state.inlineReactions || {};
+          state.inlineReactions[scene.id] = reaction;
+        }
+        state.latestFeedback = `选择已记录：${choice.feedbackLabel || choice.text}`;
+        addLog({ message: `选择：${choice.feedbackLabel || choice.text}`, type: "choice" });
+        render();
+        scrollToTop();
+        return;
+      }
       if (choice.finalAction) {
-        const finalFeedback = resolveFinalChoiceFeedback(choice);
+        const finalReaction = buildFinalChoiceInlineReaction(choice);
+        state.inlineReactions = state.inlineReactions || {};
+        state.inlineReactions[scene.id] = finalReaction;
         state.latestFeedback = [
-          `<strong>${choice.label}. ${choice.text}</strong>`,
-          changes.length ? `变量变化：${changes.join("；")}` : "变量变化：无",
-          hiddenChanges.length ? `隐藏伏笔：${hiddenChanges.join("；")}` : "",
-          finalFeedback,
-          choice.short ? `结果：${choice.short}` : ""
+          `选择已记录：${choice.feedbackLabel || choice.text}`,
+          changes.length ? `变量变化：${changes.join("；")}` : "",
+          hiddenChanges.length ? `隐藏伏笔：${hiddenChanges.join("；")}` : ""
         ].filter(Boolean).join("<br>");
         addLog({ message: `终局选择：${choice.label}. ${choice.text}`, type: "choice" });
-        transitionToScene("CH6_ENDING_GATE", "旧窑前安静下来。最终结局将在下一步结算。", "进入终局黑场");
+        render();
+        scrollToTop();
         return;
       }
       state.latestFeedback = [
@@ -4095,7 +4633,7 @@
           title: "【文字回放：沈月娥视角】",
           conditionLabel: "母亲钥匙",
           unlocked: hidden.MotherKey >= 1 || hidden.ShenWillIntervene === true || state.vars.ShenSuspicion <= 3,
-          text: "沈月娥不是从一开始就疯的。\n\n她记得何青山出门前洗过手。\n手上还有釉灰，洗不干净。\n他说，等孩子出生，就不让孩子靠窑吃饭了。\n\n后来有人告诉她，何青山死于窑火事故。\n又有人告诉她，孩子没保住。\n\n她没有看到完整的尸身。\n也没有看到完整的孩子。\n她只看到一只被包起来的小襁褓，轻得不像命。\n\n从那以后，青瓷庄学会了叫她疯女人。\n疯女人说的话不用听。\n疯女人守旧窑，也只是疯。\n疯女人不肯坐上桌，也只是疯。\n\n可她守的不是死人。\n她守的是一句没人肯还给她的话。\n\n“孩子以后要做水里的鱼,顺风顺水”"
+          text: "沈月娥不是从一开始就疯的。\n\n她记得何青山出门前洗过手。\n手上还有釉灰，洗不干净。\n他说，等孩子出生，就不让孩子靠窑吃饭了。\n\n后来有人告诉她，何青山死于窑火事故。\n又有人告诉她，孩子没保住。\n\n她没有看到完整的尸身。\n也没有看到完整的孩子。\n她只看到一只被包起来的小襁褓，轻得不像命。\n\n从那以后，青瓷庄学会了叫她疯女人。\n疯女人说的话不用听。\n疯女人守旧窑，也只是疯。\n疯女人不肯坐上桌，也只是疯。\n\n可她守的不是死人。\n她守的是一句没人肯还给她的话。\n\n“孩子以后要做水里的鱼，顺风顺水。”"
         },
         {
           id: "replay_lu",
@@ -4186,7 +4724,9 @@
         ],
         afterword: [
           "青瓷庄又一次活了下来。",
-          "只是这一次，林知夏知道它靠什么活着。"
+          "只是这一次，林知夏知道它靠什么活着。",
+          "林知夏内心：“我来过。”",
+          "林知夏内心：“可我没有把任何人带出来。”"
         ]
       },
       C: {
@@ -4206,6 +4746,9 @@
           "陆景川：“他们二十年前也知道。”",
           "林知夏：“那你和他们有什么不同？”",
           "陆景川看着旧窑里的火。\n很久之后，他说：",
+          "陆景川：“让火自己作证。”",
+          "林知夏：“你会变成他们最想要的答案。”",
+          "陆景川：“那至少这次，答案会疼。”",
           "陆景川：“我没有不同。”",
           "陆景川：“我只是终于知道，他们为什么敢。”"
         ],
@@ -4265,6 +4808,7 @@
           "陆景川：“那是什么？”",
           "林知夏：“是你没有烧掉的路。”",
           "沈月娥把鱼坠放在第一只青瓷杯旁边。",
+          "沈月娥：“孩子以后要做水里的鱼，顺风顺水。”",
           "沈月娥：“青山，我们没有让孩子再进窑。”"
         ],
         afterword: [
@@ -4540,7 +5084,7 @@
     }
 
     function feedbackTemplate() {
-      return `《雾窑》v0.4-full-text-demo 测试反馈
+      return `《雾窑》v0.4.1-full-text-demo 测试反馈
 我拜访的人物：${visitedPeople().map(person => person.name).join("、")}
 我对每个人物的理解：
 陆怀民：${readLabels[getReadLevel("LuHuaiMin")]}，${getUnderstanding("LuHuaiMin")}
@@ -4595,16 +5139,21 @@
           ${filters.map(([key, label]) => `<button class="evidence-filter ${active === key ? "is-active" : ""}" data-evidence-filter="${key}">${label}</button>`).join("")}
         </div>
         <div class="evidence-pool">
-          ${visible.length ? visible.map(item => `
-            <details class="evidence-card">
-              <summary>
-                <span class="evidence-type">${evidenceTypes[item.type] || "线索"}</span>
-                <span class="evidence-name">${item.name}</span>
-                <div class="evidence-brief">${briefEvidence(item.detail)}</div>
-              </summary>
-              <div class="evidence-detail">${item.detail}</div>
-            </details>
-          `).join("") : `<p class="small">暂无。</p>`}
+          ${visible.length ? visible.map(item => {
+            const brief = item.brief || briefEvidence(item.detail || item.name || "");
+            const unlocked = evidenceDetailUnlocked(item);
+            const detail = unlocked ? (item.detail || brief) : "细节仍待推理台组合或后续章节确认。";
+            return `
+              <details class="evidence-card">
+                <summary>
+                  <span class="evidence-type">${evidenceTypes[item.type] || "线索"}</span>
+                  <span class="evidence-name">${escapeHtml(item.name)}</span>
+                  <div class="evidence-brief">${escapeHtml(brief)}</div>
+                </summary>
+                <div class="evidence-detail">${escapeHtml(detail)}</div>
+              </details>
+            `;
+          }).join("") : `<p class="small">暂无。</p>`}
         </div>
       `;
       document.querySelectorAll("[data-evidence-filter]").forEach(button => {
@@ -4617,6 +5166,22 @@
 
     function briefEvidence(detail = "") {
       return detail.length > 34 ? `${detail.slice(0, 34)}…` : detail;
+    }
+
+    function evidenceDetailUnlocked(item) {
+      if (!item) return false;
+      if (item.type === "obs" || item.type === "risk") return true;
+      const chapter = getChapterNo(activeSceneId());
+      const hidden = { ...initialHiddenState(), ...(state.hidden || {}) };
+      if (chapter >= 5) return true;
+
+      const haystack = `${item.id || ""} ${item.name || ""} ${item.detail || ""}`;
+      if (/周启明|旧账|账页|短信|zhou|account|sms/i.test(haystack) && hidden.ZhouDeathTruth >= 1) return true;
+      if (/陈伯远|尸检|报告|火前伤|report|chen/i.test(haystack) && hidden.ChenReportTruth >= 1) return true;
+      if (/陆怀民|祠堂|族谱|老陆|shrine|genealogy|luhuai/i.test(haystack) && hidden.LuHuaiMinGuiltProof >= 1) return true;
+      if (/陆景川|鱼坠|出生|孩子|身份|birth|fish|identity/i.test(haystack) && hidden.LuIdentityProof >= 1) return true;
+      if (/分红|补助|权益|获利|profit|dividend|subsidy/i.test(haystack) && hidden.VillageProfitProof >= 1) return true;
+      return chapter >= 3 && item.type === "clue" && state.vars.EvidenceScore >= 5;
     }
 
     const deductionCombinations = [
@@ -4792,6 +5357,17 @@
       render();
     }
 
+    function sceneOrderIndex(sceneId) {
+      return scenes.findIndex(scene => scene.id === sceneId);
+    }
+
+    function isAtOrAfterScene(sceneId) {
+      const currentIndex = sceneOrderIndex(activeSceneId());
+      const targetIndex = sceneOrderIndex(sceneId);
+      if (currentIndex < 0 || targetIndex < 0) return false;
+      return currentIndex >= targetIndex;
+    }
+
     function buildDeductionSnapshot() {
       const chapter = getChapterNo(activeSceneId());
       const hidden = { ...initialHiddenState(), ...(state.hidden || {}) };
@@ -4820,9 +5396,11 @@
         if (hidden.ChenReportTruth >= 2) conclusions.push("何青山确实死于火场，但火不是事故。");
       }
       if (chapter === 4) {
-        if (hidden.ZhouDeathTruth >= 1) conclusions.push("杀死周启明的人未必最恨他，但一定最怕他说话。");
+        const afterNightTrial = isAtOrAfterScene("CH4_NIGHT_TRIAL");
+        const afterLuDeath = isAtOrAfterScene("CH4_LU_HUAIMIN_DEATH");
+        if (afterNightTrial && hidden.ZhouDeathTruth >= 1) conclusions.push("杀死周启明的人未必最恨他，但一定最怕他说话。");
         if (hasEvidence("genealogy_scrape_clear") || hasEvidence("shrine_key_gap")) conclusions.push("陆怀民掌握的不是一把钥匙，而是青瓷庄允许谁被记住的权力。");
-        if (hidden.LuHuaiMinGuiltProof >= 2) conclusions.push("陆怀民保护的不是一个秘密，而是一种让村子继续活下去的说法。");
+        if (afterLuDeath && hidden.LuHuaiMinGuiltProof >= 2) conclusions.push("陆怀民保护的不是一个秘密，而是一种让村子继续活下去的说法。");
       }
       if (chapter === 5) {
         if (hasEvidence("porcelain_fish_pendant")) conclusions.push("“川”不是陆怀民随手给的名字，它可能来自一个被夺走的孩子。");
@@ -5144,6 +5722,17 @@
             <button class="secondary" data-dev-preset="ending_e_review">开发预设：E 结局完整回看</button>
           </div>
         </section>
+        <section class="dev-section">
+          <h3>最终自检</h3>
+          <p class="small">只检查当前文本结构，不改变剧情、变量、证据和存档。</p>
+          <div class="dev-action-grid">
+            <button class="secondary" data-dev-self-check="final">最终文档自检</button>
+            <button class="secondary" data-dev-self-check="narrative">叙事文本自检</button>
+            <button class="secondary" data-dev-self-check="spoiler">剧透节奏自检</button>
+            <button class="secondary" data-dev-self-check="flow">交互流程自检</button>
+          </div>
+          ${renderDevSelfCheckOutput()}
+        </section>
       `;
       bindDevControls();
     }
@@ -5215,6 +5804,234 @@
       document.querySelectorAll("[data-dev-hidden]").forEach(button => button.addEventListener("click", () => devAdjustHiddenNumber(button.dataset.devHidden, button.dataset.devOp, button.dataset.devSet)));
       document.querySelectorAll("[data-dev-hidden-bool]").forEach(button => button.addEventListener("click", () => devSetHiddenBool(button.dataset.devHiddenBool, button.dataset.devBool === "true")));
       document.querySelectorAll("[data-dev-ending-key]").forEach(button => button.addEventListener("click", () => devSetEndingKey(button.dataset.devEndingKey)));
+      document.querySelectorAll("[data-dev-self-check]").forEach(button => button.addEventListener("click", () => runDevSelfCheck(button.dataset.devSelfCheck)));
+    }
+
+    function renderDevSelfCheckOutput() {
+      if (!state.devSelfCheckOutput) return `<p class="small">尚未运行自检。</p>`;
+      return `<pre class="dev-self-check-output">${escapeHtml(state.devSelfCheckOutput)}</pre>`;
+    }
+
+    function runDevSelfCheck(kind) {
+      const runners = {
+        final: runFinalDocumentSelfCheck,
+        narrative: runNarrativeCoverageSelfCheck,
+        spoiler: runSpoilerTimingSelfCheck,
+        flow: runInteractionFlowSelfCheck
+      };
+      const runner = runners[kind] || runFinalDocumentSelfCheck;
+      const result = runner();
+      state.devSelfCheckOutput = formatSelfCheckResult(result);
+      console.table(result.checks.map(check => ({
+        no: check.no,
+        item: check.label,
+        status: check.passed ? "通过" : "需检查",
+        detail: check.detail || ""
+      })));
+      trackEvent("dev_self_check", { check_type: kind, passed: result.checks.every(check => check.passed), version: VERSION_LABEL });
+      renderDevModal();
+    }
+
+    function makeCheck(no, label, passed, detail = "") {
+      return { no, label, passed: Boolean(passed), detail };
+    }
+
+    function formatSelfCheckResult(result) {
+      const passed = result.checks.filter(check => check.passed).length;
+      const total = result.checks.length;
+      const lines = [
+        `${result.title}`,
+        `通过 ${passed}/${total}`,
+        "",
+        ...result.checks.map(check => `${check.passed ? "✓" : "!"} ${check.no}. ${check.label}${check.detail ? `\n   ${check.detail}` : ""}`)
+      ];
+      return lines.join("\n");
+    }
+
+    function collectVisibleStrings(value, skipKey = "") {
+      const skipKeys = new Set(["assets", "cinematicAssets", "assetCue", "expectedFiles", "files", "bgImage", "videoSrc", "audioSrc", "ambientAudio", "imageSrc", "soundSrc"]);
+      if (skipKeys.has(skipKey)) return [];
+      if (value === null || value === undefined) return [];
+      if (typeof value === "string") return [value];
+      if (typeof value === "function") return [];
+      if (Array.isArray(value)) return value.flatMap(item => collectVisibleStrings(item));
+      if (typeof value === "object") {
+        return Object.entries(value).flatMap(([key, child]) => collectVisibleStrings(child, key));
+      }
+      return [];
+    }
+
+    function visibleCorpus() {
+      return [
+        ...collectVisibleStrings(introSteps),
+        ...collectVisibleStrings(scenes),
+        ...collectVisibleStrings(endingDefinitions),
+        ...collectVisibleStrings(deductionCombinations)
+      ].join("\n");
+    }
+
+    function chapterCorpus(maxChapter) {
+      return scenes
+        .filter(scene => getChapterNo(scene) <= maxChapter)
+        .flatMap(scene => collectVisibleStrings(scene))
+        .join("\n");
+    }
+
+    function containsAll(text, words) {
+      return words.every(word => text.includes(word));
+    }
+
+    function characterIntroByName(name) {
+      for (const scene of scenes) {
+        const intro = (scene.characterIntros || []).find(item => item.name === name);
+        if (intro) return { scene, intro };
+      }
+      return null;
+    }
+
+    function introHas(name, terms) {
+      const found = characterIntroByName(name);
+      if (!found) return false;
+      const text = `${found.intro.meta || ""} ${found.intro.text || ""}`;
+      return terms.every(term => text.includes(term));
+    }
+
+    function previewFinalChoiceReaction(choice) {
+      const snapshot = JSON.stringify(state);
+      try {
+        return buildFinalChoiceInlineReaction(choice);
+      } catch (error) {
+        console.warn("Final choice preview failed:", error);
+        return null;
+      } finally {
+        state = normalizeLoadedState(JSON.parse(snapshot));
+      }
+    }
+
+    function finalChoiceReactionsLeadToEndingGate() {
+      const choices = sceneById.CH6_FINAL_CHOICE?.choices || [];
+      return choices.length >= 5 && choices.every(choice => {
+        if (!choice.finalAction) return false;
+        const reaction = previewFinalChoiceReaction(choice);
+        return Boolean(reaction && reaction.nextAfterReaction === "CH6_ENDING_GATE");
+      });
+    }
+
+    function endingGateGuardWorks() {
+      const snapshot = JSON.stringify(state);
+      try {
+        state.sceneId = "CH6_FINAL_CHOICE";
+        const beforeGate = canResolveEndingNow() === false;
+        state.sceneId = "CH6_ENDING_GATE";
+        const atGate = canResolveEndingNow() === true;
+        return beforeGate && atGate;
+      } finally {
+        state = normalizeLoadedState(JSON.parse(snapshot));
+      }
+    }
+
+    function finalChoiceReactionText(finalAction) {
+      const choice = (sceneById.CH6_FINAL_CHOICE?.choices || []).find(item => item.finalAction === finalAction);
+      if (!choice) return "";
+      const reaction = previewFinalChoiceReaction(choice);
+      return collectVisibleStrings(reaction).join("\n");
+    }
+
+    function runFinalDocumentSelfCheck() {
+      const corpus = visibleCorpus();
+      const checks = [
+        makeCheck(1, "第四章关键选择使用场景内反馈，而不是跳出式结算", (sceneById.CH4_NIGHT_TRIAL?.choices || []).every(choice => Boolean(choice.inlineReaction))),
+        makeCheck(2, "第六章最终选择使用场景内反馈后再进入结局门", finalChoiceReactionsLeadToEndingGate()),
+        makeCheck(3, "母亲钥匙对白已使用“水里的鱼，顺风顺水”", corpus.includes("孩子以后要做水里的鱼，顺风顺水。")),
+        makeCheck(4, "C 结局有火作证的正式对白", corpus.includes("让火自己作证") && corpus.includes("那至少这次，答案会疼")),
+        makeCheck(5, "D 结局有林知夏内心落点", corpus.includes("林知夏内心：“我来过。”") && corpus.includes("可我没有把任何人带出来。")),
+        makeCheck(6, "E 结局保留证词重燃落点", corpus.includes("每只杯下，都压着一份证词") && corpus.includes("青瓷庄第一次没有让火替人说话")),
+        makeCheck(7, "素材占位字段不在页面渲染", renderAssetBlock({ title: "【未来视频位】" }) === "" && renderAssetCue({ expectedFiles: [] }) === ""),
+        makeCheck(8, "推理台包含第二至第六章证据组合", [2, 3, 4, 5, 6].every(chapter => deductionCombinations.some(combo => combo.chapter === chapter))),
+        makeCheck(9, "证据池细节已按阶段收纳", typeof evidenceDetailUnlocked === "function"),
+        makeCheck(29, "六个核心人物第一次出场时有基础介绍", [
+          introHas("林知夏", ["二十六", "外来编剧", "父亲"]),
+          introHas("陆怀民", ["六十", "老村长", "祠堂"]),
+          introHas("周启明", ["四十", "文旅项目", "合同"]),
+          introHas("陈伯远", ["六十五", "法医", "镇"]),
+          introHas("沈月娥", ["五十", "女瓷匠", "旧窑"]),
+          introHas("陆景川", ["二十七", "本地执行", "现场协调"])
+        ].every(Boolean),
+          "需要包含年龄段、职业/身份、项目或旧窑关系。"),
+        makeCheck(30, "人物介绍没有提前剧透真实罪责和血缘真相", !hasIntroSpoilerRisk(),
+          "检查陆景川真实身份、沈月娥母亲身份、陆怀民罪责、陈伯远删改报告、周启明勒索等早期介绍风险。"),
+        makeCheck(31, "人物介绍出现在第一次正式见到人物时", characterIntroByName("林知夏")?.scene.id === "CH1_ROAD" && characterIntroByName("陆景川")?.scene.id === "CH1_ROAD" && ["陆怀民", "周启明", "陈伯远", "沈月娥"].every(name => characterIntroByName(name)?.scene.id === "CH1_HALL"))
+      ];
+      return { title: "最终文档自检", checks };
+    }
+
+    function hasIntroSpoilerRisk() {
+      const introText = scenes.flatMap(scene => scene.characterIntros || []).map(item => `${item.name} ${item.meta} ${item.text}`).join("\n");
+      const forbiddenPairs = [
+        ["陆景川", "何青山之子"],
+        ["陆景川", "沈月娥之子"],
+        ["沈月娥", "母亲"],
+        ["陆怀民", "杀周启明"],
+        ["陆怀民", "抱走孩子"],
+        ["陈伯远", "假报告"],
+        ["陈伯远", "删改报告"],
+        ["周启明", "勒索老陆"]
+      ];
+      return forbiddenPairs.some(pair => containsAll(introText, pair));
+    }
+
+    function runNarrativeCoverageSelfCheck() {
+      const corpus = visibleCorpus();
+      const evidenceReaction = finalChoiceReactionText("evidence");
+      const checks = [
+        makeCheck(1, "第四章保沈月娥分支有正式场景反馈", corpus.includes("釉灰、旧窑、沉默、恨意，这些东西太容易被拼成一个别人想要的答案。") && corpus.includes("她不是只会追着最像凶手的人跑。") && corpus.includes("她只是在阻止青瓷庄又一次把最方便的人推到火前。")),
+        makeCheck(2, "第四章账本分支有周启明勒索与旧账反应", corpus.includes("账不是这么还的") && corpus.includes("有些账，翻出来没有人能干净")),
+        makeCheck(3, "第五章承接第四章选择的上下文回响", typeof getContextEchoLines === "function" && getContextEchoLines("CH5_PROFIT_CHAIN").length >= 0),
+        makeCheck(4, "陆景川第五章破绽不是直接公布答案", corpus.includes("你们查得很好。") && corpus.includes("我以前以为，我要找的是凶手。")),
+        makeCheck(5, "第六章终局有火与证据的主题冲突", evidenceReaction.includes("你不是替何青山讨回公道。") && evidenceReaction.includes("你是在替青瓷庄完成最后一次毁证。") && evidenceReaction.includes("没有火，他们不会听。") && evidenceReaction.includes("二十年前，他们也是这么想的。")),
+        makeCheck(6, "完整母亲钥匙对白可见", corpus.includes("沈月娥：“孩子以后要做水里的鱼，顺风顺水。”")),
+        makeCheck(7, "结局 C/D/E 都有新的情绪落点", corpus.includes("那至少这次，答案会疼") && corpus.includes("我没有把任何人带出来") && corpus.includes("我们没有让孩子再进窑"))
+      ];
+      return { title: "叙事文本自检", checks };
+    }
+
+    function runSpoilerTimingSelfCheck() {
+      const early = chapterCorpus(1);
+      const beforeReveal = chapterCorpus(4);
+      const visible = visibleCorpus();
+      const oldFishCommaText = "孩子以后要做水里的鱼" + "," + "顺风顺水";
+      const forbiddenEarlyPairs = [
+        ["陆景川", "何青山之子"],
+        ["陆景川", "沈月娥之子"],
+        ["沈月娥", "母亲"],
+        ["陆怀民", "杀周启明"],
+        ["陆怀民", "抱走孩子"],
+        ["陈伯远", "假报告"],
+        ["周启明", "勒索老陆"]
+      ];
+      const checks = [
+        makeCheck(1, "第一章人物介绍只出现年龄、职业、项目关系", !forbiddenEarlyPairs.some(pair => containsAll(early, pair))),
+        makeCheck(2, "第四章前不直接公布陆景川真实身份", !containsAll(beforeReveal, ["陆景川", "何青山之子"]) && !containsAll(beforeReveal, ["陆景川", "沈月娥之子"])),
+        makeCheck(3, "第四章前不把沈月娥直接写成母亲", !containsAll(beforeReveal, ["沈月娥", "母亲"])),
+        makeCheck(4, "早期不直接写陈伯远删改报告", !containsAll(chapterCorpus(2), ["陈伯远", "删改报告"]) && !containsAll(chapterCorpus(2), ["陈伯远", "假报告"])),
+        makeCheck(5, "当前正式文本没有旧逗号版本的水鱼句", !visible.includes(oldFishCommaText)),
+        makeCheck(6, "素材占位不会出现在玩家页面", renderAssetBlock({ title: "【未来画面位】" }) === "" && renderAssetCue({ expectedFiles: [{ fileName: "test.mp4" }] }) === "")
+      ];
+      return { title: "剧透节奏自检", checks };
+    }
+
+    function runInteractionFlowSelfCheck() {
+      const checks = [
+        makeCheck(1, "第四章夜审四个选择都有变量和场景内反应", (sceneById.CH4_NIGHT_TRIAL?.choices || []).length >= 4 && (sceneById.CH4_NIGHT_TRIAL?.choices || []).every(choice => choice.effects && choice.inlineReaction)),
+        makeCheck(2, "第六章五个最终选择都有 finalAction", (sceneById.CH6_FINAL_CHOICE?.choices || []).length >= 5 && (sceneById.CH6_FINAL_CHOICE?.choices || []).every(choice => Boolean(choice.finalAction))),
+        makeCheck(3, "第六章最终选择后仍进入结局门统一判定", finalChoiceReactionsLeadToEndingGate() && typeof buildFinalChoiceInlineReaction === "function" && typeof continueAfterInlineReaction === "function" && typeof resolveEndingAtFinalGate === "function" && endingGateGuardWorks()),
+        makeCheck(4, "推理台组合结果会写入 state.deduction.combinationResults", typeof applyDeductionCombination === "function" && Boolean(initialDeductionState().combinationResults)),
+        makeCheck(5, "MotherKey 组合会影响沈月娥终局介入", deductionCombinations.some(combo => combo.id === "combo_ch6_mother_key" && combo.hiddenEffects?.ShenWillIntervene === true)),
+        makeCheck(6, "手动存档和读档函数仍存在", typeof openSaveModal === "function" && typeof saveToSlot === "function" && typeof loadFromSlot === "function"),
+        makeCheck(7, "首页、全屏、清空自动存档通道仍存在", typeof goHomeScreen === "function" && typeof requestGameFullscreen === "function" && typeof clearSave === "function"),
+        makeCheck(8, "开发者模式通行证仍使用当前口令", DEV_PASS === "wuyao-v04-7742")
+      ];
+      return { title: "交互流程自检", checks };
     }
 
     function refreshDevModal() {
@@ -5634,6 +6451,7 @@
       restored.clicked = restored.clicked || {};
       restored.selectedByScene = restored.selectedByScene || {};
       restored.flags = restored.flags || {};
+      restored.inlineReactions = restored.inlineReactions || {};
       restored.evidence = Array.isArray(restored.evidence) ? restored.evidence : [];
       restored.logs = Array.isArray(restored.logs) ? restored.logs : [];
       restored.reachedSceneIds = Array.isArray(restored.reachedSceneIds) ? restored.reachedSceneIds : inferReachedScenes(restored);
